@@ -1,0 +1,5 @@
+/* Estilos específicos almacen-detail */
+.page { max-width: 1200px; }
+h1 { color: var(--color-primary); }
+.back { color: var(--color-primary); }
+.table-filter input { max-width: 400px; }

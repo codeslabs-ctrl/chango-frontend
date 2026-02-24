@@ -1,0 +1,38 @@
+<div class="layout">
+  <header class="top-nav">
+    <nav class="nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="brand">Chango</a>
+      <div class="menu-wrapper" #menuWrapper>
+        @if (auth.username(); as username) {
+          <span class="user-name">{{ username }}</span>
+        }
+        <button class="gear-btn" (click)="toggleMenu()" title="Opciones" [class.open]="menuOpen()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        @if (menuOpen()) {
+          <div class="dropdown" (click)="$event.stopPropagation()">
+            <div class="dropdown-section">Usuario</div>
+            <a routerLink="/cuenta" routerLinkActive="active" (click)="closeMenu()">Administrar cuenta</a>
+            <button type="button" class="dropdown-btn" (click)="auth.logout(); closeMenu()">Cerrar sesión</button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Gestión</div>
+            @if (auth.isAdmin()) {
+              <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMenu()">Administrar usuarios</a>
+            }
+            <a routerLink="/ventas" routerLinkActive="active" (click)="closeMenu()">Gestionar Ventas</a>
+            <a routerLink="/clientes" routerLinkActive="active" (click)="closeMenu()">Gestionar Clientes</a>
+            <a routerLink="/productos" routerLinkActive="active" (click)="closeMenu()">Gestionar Productos</a>
+            <a routerLink="/almacenes" routerLinkActive="active" (click)="closeMenu()">Gestionar Almacenes</a>
+            <a routerLink="/categorias" routerLinkActive="active" (click)="closeMenu()">Gestionar Categorías</a>
+          </div>
+        }
+      </div>
+    </nav>
+  </header>
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

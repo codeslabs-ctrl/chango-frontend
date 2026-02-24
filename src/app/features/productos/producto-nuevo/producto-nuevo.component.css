@@ -1,0 +1,5 @@
+/* Estilos específicos producto-nuevo */
+.page { max-width: 600px; }
+h1 { color: var(--color-primary); }
+.back { color: var(--color-primary); }
+.btn-primary { background: var(--color-primary); color: white; }

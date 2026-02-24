@@ -1,0 +1,86 @@
+<div class="page">
+  <h1>Gestionar Almacenes</h1>
+  <div class="actions">
+    <button class="btn-primary" (click)="openAddForm()">Añadir almacén</button>
+  </div>
+
+  @if (showForm) {
+    <div class="form-card">
+      <h3>{{ editingAlmacen ? 'Editar' : 'Nuevo' }} almacén</h3>
+      <form (ngSubmit)="saveAlmacen()">
+        <div class="form-row">
+          <label>Nombre *</label>
+          <input [(ngModel)]="form.nombre" name="nombre" required />
+        </div>
+        <div class="form-row">
+          <label>Ubicación</label>
+          <input [(ngModel)]="form.ubicacion" name="ubicacion" />
+        </div>
+        <div class="form-row">
+          <label>Estatus</label>
+          <select [(ngModel)]="form.estatus" name="estatus">
+            <option value="A">Activo</option>
+            <option value="C">Inactivo</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelForm()">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <div class="table-filter">
+    <input type="text" [(ngModel)]="filterAlmacenes" (input)="currentPage = 1" placeholder="Buscar por nombre, ubicación..." />
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Ubicación</th>
+          <th>Estatus</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (almacenesFiltrados.length === 0 && !loading) {
+          <tr><td colspan="5" class="empty">No hay almacenes</td></tr>
+        }
+        @for (a of almacenesPaginados; track a.almacen_id) {
+          <tr>
+            <td>{{ a.almacen_id }}</td>
+            <td>{{ a.nombre }}</td>
+            <td>{{ a.ubicacion || '-' }}</td>
+            <td><span class="badge" [class.activo]="(a.estatus || 'A') === 'A'" [class.inactivo]="(a.estatus || 'A') === 'C'">{{ (a.estatus || 'A') === 'A' ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="actions-cell">
+              <button class="btn-icon" (click)="edit(a)" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </button>
+              <a [routerLink]="['/almacenes', a.almacen_id]" class="btn-small">Productos</a>
+              <button class="btn-toggle" (click)="toggleEstatus(a)" [title]="(a.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar'">
+                {{ (a.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar' }}
+              </button>
+              @if (!a.tiene_productos) {
+                <button class="btn-small btn-danger" (click)="eliminar(a)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (almacenesFiltrados.length > pageSize) {
+      <div class="pagination-wrapper">
+        <div class="pagination">
+        <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>
+        <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">‹</button>
+        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+        <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">›</button>
+        <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

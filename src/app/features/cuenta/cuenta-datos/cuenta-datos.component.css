@@ -1,0 +1,4 @@
+/* Estilos específicos cuenta-datos */
+.page { max-width: 600px; }
+.form-row .value { margin: 0; }
+.form-row input { max-width: 400px; }

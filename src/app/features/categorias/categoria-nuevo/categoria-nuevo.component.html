@@ -1,0 +1,28 @@
+<div class="page">
+  <a routerLink="/categorias" class="back">← Volver a categorías</a>
+  <h1>Nueva categoría</h1>
+  <div class="form-card">
+    <form (ngSubmit)="guardar()">
+      <div class="form-row">
+        <label>Nombre de categoría *</label>
+        <input [(ngModel)]="categoriaNombre" name="categoria" required placeholder="Ej: Electrónicos" />
+      </div>
+      <div class="form-row">
+        <label>Subcategorías</label>
+        <div class="subcategorias-list">
+          @for (sub of subcategorias; track $index) {
+            <div class="subcategoria-row">
+              <input [(ngModel)]="subcategorias[$index]" name="sub_{{ $index }}" placeholder="Nombre de subcategoría" />
+              <button type="button" class="btn-small btn-danger" (click)="removeSubcategoria($index)" [disabled]="subcategorias.length === 1">−</button>
+            </div>
+          }
+          <button type="button" class="btn-add" (click)="addSubcategoria()">+ Añadir subcategoría</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

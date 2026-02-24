@@ -1,0 +1,5 @@
+/* Estilos específicos dashboard */
+.dashboard { max-width: 1200px; }
+.table-section { margin-bottom: 2rem; }
+.table-filter input { max-width: 400px; }
+tr:hover td { background: #eee; }

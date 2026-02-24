@@ -1,0 +1,6 @@
+/* Estilos específicos productos */
+.page { max-width: 1200px; }
+h1 { color: var(--color-primary); }
+.btn-primary, a.btn-primary { background: var(--color-primary); color: white; }
+.btn-icon { color: var(--color-primary); }
+.table-filter input { max-width: 400px; }

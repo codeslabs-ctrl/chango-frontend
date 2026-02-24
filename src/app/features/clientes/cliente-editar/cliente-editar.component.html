@@ -1,0 +1,36 @@
+<div class="page">
+  <a routerLink="/clientes" class="back">← Volver a clientes</a>
+  <h1>Editar cliente</h1>
+  @if (loading) {
+    <p>Cargando...</p>
+  } @else {
+    <div class="form-card">
+      <form (ngSubmit)="guardar()">
+        <div class="form-row">
+          <label>Nombre *</label>
+          <input [(ngModel)]="nombre" name="nombre" required />
+        </div>
+        <div class="form-row">
+          <label>Cédula/RIF</label>
+          <input [(ngModel)]="cedulaRif" name="cedulaRif" placeholder="Cédula o RIF" />
+        </div>
+        <div class="form-row">
+          <label>Teléfono</label>
+          <input [(ngModel)]="telefono" name="telefono" type="tel" placeholder="Teléfono" />
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input [(ngModel)]="email" name="email" type="email" placeholder="Correo electrónico" />
+        </div>
+        <div class="form-row">
+          <label>Dirección</label>
+          <input [(ngModel)]="direccion" name="direccion" placeholder="Dirección" />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

@@ -1,0 +1,76 @@
+<div class="page">
+  <a routerLink="/productos" class="back">← Volver a productos</a>
+  <h1>Nuevo producto</h1>
+  <div class="form-card">
+    <form (ngSubmit)="guardar()">
+      <div class="form-row">
+        <label>Código interno *</label>
+        <input [(ngModel)]="form.codigo_interno" name="codigo_interno" required />
+      </div>
+      <div class="form-row">
+        <label>Descripción *</label>
+        <input [(ngModel)]="form.descripcion" name="descripcion" required />
+      </div>
+      <div class="form-row">
+        <label>Nombre</label>
+        <input [(ngModel)]="form.nombre" name="nombre" />
+      </div>
+      <div class="form-row">
+        <label>Categoría</label>
+        <select [(ngModel)]="form.categoria_id" name="categoria_id" (ngModelChange)="onCategoriaChange()">
+          <option [ngValue]="null">-- Seleccionar --</option>
+          @for (c of categorias; track c.categoria_id) {
+            <option [ngValue]="c.categoria_id">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Subcategoría</label>
+        <select [(ngModel)]="form.subcategoria_id" name="subcategoria_id">
+          <option [ngValue]="null">-- Seleccionar --</option>
+          @for (s of subcategorias; track s.subcategoria_id) {
+            <option [ngValue]="s.subcategoria_id">{{ s.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Existencia por almacén</label>
+        <div class="almacenes-list">
+          <div class="almacenes-select-row">
+            <select [(ngModel)]="almacenSeleccionado" name="almacen_select">
+              <option [ngValue]="null">-- Seleccionar almacén --</option>
+              @for (a of almacenesDisponibles; track a.almacen_id) {
+                <option [ngValue]="a.almacen_id">{{ a.nombre }}</option>
+              }
+            </select>
+            <button type="button" class="btn-add-item" (click)="addAlmacen()">+ Añadir</button>
+          </div>
+          @for (item of form.almacenes; track item.almacen_id) {
+            @let a = getAlmacenById(item.almacen_id);
+            <div class="almacen-row">
+              <span class="almacen-name">{{ a?.nombre || '-' }}</span>
+              <input type="number" [(ngModel)]="item.stock_actual" [name]="'stock_' + item.almacen_id" min="0" placeholder="Cantidad" class="stock-input" />
+              <button type="button" class="btn-small btn-danger" (click)="removeAlmacen(item.almacen_id)">−</button>
+            </div>
+          }
+          <p class="hint">La existencia total se calcula automáticamente como la suma del stock en cada almacén. Solo se muestran almacenes activos.</p>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Precio venta sugerido</label>
+        <input type="number" [(ngModel)]="form.precio_venta_sugerido" name="precio_venta_sugerido" min="0" step="0.01" />
+      </div>
+      <div class="form-row">
+        <label>Estatus</label>
+        <select [(ngModel)]="form.estatus" name="estatus">
+          <option value="A">Activo</option>
+          <option value="C">Cancelado</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

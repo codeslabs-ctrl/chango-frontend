@@ -1,0 +1,55 @@
+<div class="page">
+  <a routerLink="/almacenes" class="back">← Volver a almacenes</a>
+  <h1>Productos en almacén</h1>
+  <div class="table-filter">
+    <input type="text" [(ngModel)]="filterProductos" (input)="currentPage = 1" placeholder="Buscar por producto..." />
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Stock actual</th>
+          <th>Stock mínimo</th>
+          <th>Punto reorden</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (productosFiltrados.length === 0 && !loading) {
+          <tr><td colspan="5" class="empty">No hay productos en este almacén</td></tr>
+        }
+        @for (p of productosPaginados; track p.producto_almacen_id) {
+          <tr>
+            <td>{{ p.descripcion || p.producto_nombre || p.producto_id }}</td>
+            <td>{{ p.stock_actual }}</td>
+            <td>{{ p.stock_minimo }}</td>
+            <td>{{ p.punto_reorden }}</td>
+            <td>
+              @if (editingId === p.producto_almacen_id) {
+                <div class="inline-form">
+                  <input type="number" [(ngModel)]="editStock" min="0" placeholder="Stock" />
+                  <button class="btn-small" (click)="saveStock(p)">Guardar</button>
+                  <button class="btn-small btn-muted" (click)="editingId = null">Cancelar</button>
+                </div>
+              } @else {
+                <button class="btn-small" (click)="startEdit(p)">Actualizar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (productosFiltrados.length > pageSize) {
+      <div class="pagination-wrapper">
+        <div class="pagination">
+          <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>
+          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">‹</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

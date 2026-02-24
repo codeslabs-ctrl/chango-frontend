@@ -1,0 +1,76 @@
+<div class="page">
+  <h1>Gestionar Productos</h1>
+  <div class="actions">
+    <a routerLink="/productos/nuevo" class="btn-primary">Añadir producto</a>
+  </div>
+
+  <div class="table-filter">
+    <input type="text" [(ngModel)]="filterText" (input)="onFilterTextChange()" placeholder="Buscar por código, descripción, subcategoría..." />
+    <select [(ngModel)]="filterSubcategoriaId" (ngModelChange)="onFilterChange($event, undefined)">
+      <option value="">Todas las subcategorías</option>
+      @for (s of subcategorias; track s.subcategoria_id) {
+        <option [value]="s.subcategoria_id">{{ s.nombre }}</option>
+      }
+    </select>
+    <select [(ngModel)]="filterAlmacenId" (ngModelChange)="onFilterChange(undefined, $event)">
+      <option value="">Todos los almacenes</option>
+      @for (a of almacenes; track a.almacen_id) {
+        <option [value]="a.almacen_id">{{ a.nombre }}</option>
+      }
+    </select>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Subcategoría</th>
+          <th>Precio</th>
+          <th>{{ existenciaColumnLabel }}</th>
+          <th>Estatus</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (productosFiltrados.length === 0 && !loading) {
+          <tr><td colspan="9" class="empty">No hay productos</td></tr>
+        }
+        @for (p of productosPaginados; track p.producto_id) {
+          <tr>
+            <td>{{ p.producto_id }}</td>
+            <td>{{ p.codigo_interno }}</td>
+            <td>{{ p.descripcion || p.nombre }}</td>
+            <td>{{ p.subcategoria_nombre || '-' }}</td>
+            <td>{{ p.precio_venta_sugerido }}</td>
+            <td>{{ p.existencia_actual }}</td>
+            <td><span class="badge" [class.activo]="(p.estatus || 'A') === 'A'" [class.cancelado]="(p.estatus || 'A') === 'C'">{{ (p.estatus || 'A') === 'A' ? 'Activo' : 'Cancelado' }}</span></td>
+            <td class="actions-cell">
+              <a [routerLink]="['/productos', p.producto_id, 'editar']" class="btn-icon" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </a>
+              <button class="btn-toggle" (click)="toggleEstatus(p)" [title]="(p.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar'">
+                {{ (p.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar' }}
+              </button>
+              @if (!p.tiene_ventas) {
+                <button class="btn-danger" (click)="eliminar(p)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (productosFiltrados.length > pageSize) {
+      <div class="pagination-wrapper">
+        <div class="pagination">
+          <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>
+          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">‹</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="page">
+  <a routerLink="/cuenta" class="back">← Volver a mi cuenta</a>
+  <h1>Cambiar datos</h1>
+  <div class="form-card">
+    <form (ngSubmit)="guardar()">
+      <div class="form-row">
+        <label>Nombre de usuario *</label>
+        <input [(ngModel)]="form.username" name="username" required />
+      </div>
+      <div class="form-row">
+        <label>Email *</label>
+        <input [(ngModel)]="form.email" name="email" type="email" required />
+      </div>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

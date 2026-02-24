@@ -1,0 +1,142 @@
+<div class="page">
+  <a routerLink="/ventas" class="back">← Volver a ventas</a>
+  <h1>Nueva venta</h1>
+  @if (loading) {
+    <p class="loading-msg">Cargando...</p>
+  } @else {
+    <form (ngSubmit)="guardar()" class="cart-form">
+    <div class="cart-layout">
+      <div class="cart-main">
+        <div class="cart-section cliente-section">
+          <h2>Cliente</h2>
+          @if (clienteSeleccionado) {
+            <div class="cliente-badge">
+              <span class="cliente-info">{{ clienteSeleccionado.nombre }} <small>({{ clienteSeleccionado.cedula_rif || '-' }})</small></span>
+              <button type="button" class="btn-remove-small" (click)="quitarCliente()" title="Quitar cliente">×</button>
+            </div>
+          } @else {
+            <div class="cliente-search">
+              <input
+                type="text"
+                [(ngModel)]="cedulaBusqueda"
+                name="cedulaBusqueda"
+                placeholder="Buscar por cédula o RIF..."
+                (focus)="mostrarSugerenciasCliente = true"
+                (blur)="onClienteInputBlur()"
+              />
+              @if (mostrarSugerenciasCliente && cedulaBusqueda.trim()) {
+                <ul class="sugerencias-dropdown">
+                  @for (c of clientesFiltradosPorCedula; track c.cliente_id) {
+                    <li>
+                      <button type="button" (mousedown)="seleccionarCliente(c)">
+                        {{ c.cedula_rif || '-' }} — {{ c.nombre }}
+                      </button>
+                    </li>
+                  }
+                  @if (clientesFiltradosPorCedula.length === 0) {
+                    <li class="empty">Sin coincidencias</li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="cart-section productos-section">
+          <h2>Añadir productos</h2>
+          <div class="productos-add">
+            <select [(ngModel)]="productoSeleccionado" name="producto_select">
+              <option [ngValue]="null">-- Seleccionar producto --</option>
+              @for (p of productos; track p.producto_id) {
+                @if (!productoYaAgregado(p.producto_id)) {
+                  <option [ngValue]="p.producto_id">{{ p.descripcion }} · Stock: {{ p.existencia_actual }} · {{ p.precio_venta_sugerido | number:'1.2-2' }}</option>
+                }
+              }
+            </select>
+            <button type="button" class="btn-add-cart" (click)="agregarProducto()">+ Añadir al carrito</button>
+          </div>
+        </div>
+
+        <div class="cart-section carrito-section">
+          <h2>Carrito <span class="badge-count">{{ lineas.length }}</span></h2>
+          @if (lineas.length === 0) {
+            <div class="cart-empty">
+              <span class="cart-icon">🛒</span>
+              <p>El carrito está vacío</p>
+              <p class="hint">Añade productos para comenzar la venta</p>
+            </div>
+          } @else {
+            <ul class="cart-items">
+              @for (linea of lineas; track linea.producto_id) {
+                <li class="cart-item">
+                  <div class="item-main" (click)="toggleDespacho(linea.producto_id)">
+                    <div class="item-info">
+                      <span class="item-name">{{ linea.descripcion }}</span>
+                      <span class="item-meta">Precio unit: {{ linea.precio_unitario | number:'1.2-2' }} · Stock: {{ linea.existencia_actual }}</span>
+                    </div>
+                    <div class="item-qty">
+                      <label>Cant:</label>
+                      <input type="number" [(ngModel)]="linea.cantidad" [name]="'cant_' + linea.producto_id" min="1" [max]="linea.existencia_actual" (blur)="onCantidadChange(linea)" (ngModelChange)="onCantidadChange(linea)" (click)="$event.stopPropagation()" />
+                    </div>
+                    <div class="item-subtotal">{{ getSubtotal(linea) | number:'1.2-2' }}</div>
+                    <button type="button" class="btn-remove-item" (click)="quitarLinea(linea.producto_id); $event.stopPropagation()" title="Quitar">🗑</button>
+                    <span class="expand-icon">{{ lineaExpandida === linea.producto_id ? '▼' : '▶' }}</span>
+                  </div>
+                  @if (lineaExpandida === linea.producto_id) {
+                    <div class="item-despachos">
+                      <p class="despacho-title">Despacho por almacén (suma = {{ linea.cantidad }})</p>
+                      <div class="despachos-grid">
+                        @for (a of linea.almacenes; track a.almacen_id) {
+                          <div class="despacho-cell">
+                            <span>{{ a.almacen_nombre }}</span>
+                            <span class="stock">Stock: {{ a.stock_actual }}</span>
+                            <input type="number" [(ngModel)]="a.cantidad_despachar" [name]="'desp_' + linea.producto_id + '_' + a.almacen_id" min="0" [max]="a.stock_actual" placeholder="0" (ngModelChange)="onDespachoChange(linea, a)" />
+                          </div>
+                        }
+                      </div>
+                      @if (getSumaDespachos(linea) !== linea.cantidad) {
+                        <p class="validation-err">La suma ({{ getSumaDespachos(linea) }}) debe ser {{ linea.cantidad }}</p>
+                      }
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+
+      <aside class="cart-summary">
+        <div class="summary-card">
+          <h3>Resumen</h3>
+          <div class="summary-row">
+            <span>Productos</span>
+            <span>{{ lineas.length }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ totalVenta | number:'1.2-2' }}</span>
+          </div>
+          <div class="form-row">
+            <label>Método de pago</label>
+            <input [(ngModel)]="metodoPago" name="metodoPago" placeholder="Efectivo, transferencia..." />
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="confirmarVenta" name="confirmar" />
+            Confirmar venta (descontar stock)
+          </label>
+          @if (errorMsg) {
+            <p class="error-msg">{{ errorMsg }}</p>
+          }
+          <div class="summary-actions">
+            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+            <button type="submit" class="btn-checkout" [disabled]="saving || lineas.length === 0">
+              {{ saving ? 'Procesando...' : 'Procesar venta' }}
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    </form>
+  }
+</div>

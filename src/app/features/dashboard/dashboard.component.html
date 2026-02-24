@@ -1,0 +1,107 @@
+<div class="dashboard">
+  <section class="table-section">
+    <h2>Ventas por confirmar</h2>
+    <div class="table-filter">
+      <input type="text" [(ngModel)]="filterVentas" (input)="ventasCurrentPage = 1" placeholder="Buscar por cliente, teléfono, productos..." />
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Productos</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (ventasFiltradas.length === 0 && !loadingVentas) {
+            <tr><td colspan="6" class="empty">No hay ventas pendientes</td></tr>
+          }
+          @for (v of ventasPaginadas; track v.venta_id) {
+            <tr>
+              <td>{{ v.cliente_nombre || '-' }}</td>
+              <td>{{ v.cliente_telefono || '-' }}</td>
+              <td>{{ v.productos_nombres || '-' }}</td>
+              <td>{{ v.total_venta | number:'1.2-2' }}</td>
+              <td>{{ v.fecha_venta | date:'short' }}</td>
+              <td class="actions-cell">
+                <button class="btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">
+                  Confirmar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (ventasFiltradas.length > ventasPageSize) {
+        <div class="pagination-wrapper">
+          <div class="pagination">
+          <button (click)="ventasCurrentPage = 1" [disabled]="ventasCurrentPage === 1">«</button>
+          <button (click)="ventasCurrentPage = ventasCurrentPage - 1" [disabled]="ventasCurrentPage === 1">‹</button>
+          <span>Página {{ ventasCurrentPage }} de {{ ventasTotalPages }}</span>
+          <button (click)="ventasCurrentPage = ventasCurrentPage + 1" [disabled]="ventasCurrentPage === ventasTotalPages">›</button>
+          <button (click)="ventasCurrentPage = ventasTotalPages" [disabled]="ventasCurrentPage === ventasTotalPages">»</button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="table-section">
+    <h2>Inventario de productos</h2>
+    <div class="table-filter">
+      <input type="text" [(ngModel)]="filterProductos" (input)="productosCurrentPage = 1" placeholder="Buscar por producto, categoría..." />
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Inventario actual</th>
+            <th>Estatus</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (productosFiltrados.length === 0 && !loadingProductos) {
+            <tr><td colspan="6" class="empty">No hay productos</td></tr>
+          }
+          @for (p of productosPaginados; track p.producto_id) {
+            <tr>
+              <td>{{ p.descripcion || p.nombre || p.codigo_interno }}</td>
+              <td>{{ p.subcategoria_nombre || '-' }}</td>
+              <td>{{ p.existencia_actual }}</td>
+              <td><span class="badge" [class.activo]="(p.estatus || 'A') === 'A'" [class.cancelado]="(p.estatus || 'A') === 'C'">{{ (p.estatus || 'A') === 'A' ? 'Activo' : 'Cancelado' }}</span></td>
+              <td class="actions-cell">
+                <a [routerLink]="['/productos', p.producto_id, 'editar']" class="btn-icon" title="Editar producto">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                </a>
+                <button class="btn-toggle" (click)="toggleEstatusProducto(p)" [title]="(p.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar'">
+                  {{ (p.estatus || 'A') === 'A' ? 'Deshabilitar' : 'Habilitar' }}
+                </button>
+                @if (!p.tiene_ventas) {
+                  <button class="btn-danger" (click)="eliminarProducto(p)">Eliminar</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (productosFiltrados.length > productosPageSize) {
+        <div class="pagination-wrapper">
+          <div class="pagination">
+          <button (click)="productosCurrentPage = 1" [disabled]="productosCurrentPage === 1">«</button>
+          <button (click)="productosCurrentPage = productosCurrentPage - 1" [disabled]="productosCurrentPage === 1">‹</button>
+          <span>Página {{ productosCurrentPage }} de {{ productosTotalPages }}</span>
+          <button (click)="productosCurrentPage = productosCurrentPage + 1" [disabled]="productosCurrentPage === productosTotalPages">›</button>
+          <button (click)="productosCurrentPage = productosTotalPages" [disabled]="productosCurrentPage === productosTotalPages">»</button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

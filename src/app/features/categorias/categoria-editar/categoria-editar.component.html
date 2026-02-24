@@ -1,0 +1,34 @@
+<div class="page">
+  <a routerLink="/categorias" class="back">← Volver a categorías</a>
+  <h1>Editar categoría</h1>
+  @if (loading) {
+    <p>Cargando...</p>
+  } @else {
+    <div class="form-card">
+      <form (ngSubmit)="guardar()">
+        <div class="form-row">
+          <label>Nombre de categoría *</label>
+          <input [(ngModel)]="categoriaNombre" name="categoria" required />
+        </div>
+        <div class="form-row">
+          <label>Subcategorías</label>
+          <div class="subcategorias-list">
+            @for (sub of subcategorias; track $index) {
+              <div class="subcategoria-row">
+                <input [(ngModel)]="subcategorias[$index].nombre" name="sub_{{ $index }}" placeholder="Nombre de subcategoría" />
+                <button type="button" class="btn-small btn-danger" (click)="removeSubcategoria($index)" [disabled]="subcategorias.length === 1">−</button>
+              </div>
+            }
+            <button type="button" class="btn-add" (click)="addSubcategoria()">+ Añadir subcategoría</button>
+          </div>
+          <p class="hint">Deja el nombre vacío para eliminar una subcategoría al guardar.</p>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+          <button type="button" class="btn-danger" (click)="eliminarCategoria()" [disabled]="saving">Eliminar categoría</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

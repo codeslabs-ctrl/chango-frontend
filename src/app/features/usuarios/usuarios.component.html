@@ -1,0 +1,59 @@
+<div class="page">
+  <h1>Administrar usuarios</h1>
+  <div class="actions">
+    <a routerLink="/usuarios/nuevo" class="btn-primary">Añadir usuario</a>
+  </div>
+
+  <div class="table-filter">
+    <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por usuario o email..." />
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estatus</th>
+          <th>Último login</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (usuariosFiltrados.length === 0 && !loading) {
+          <tr><td colspan="7" class="empty">No hay usuarios</td></tr>
+        }
+        @for (u of usuariosPaginados; track u.id) {
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Administrador' : 'Usuario' }}</span></td>
+            <td><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</td>
+            <td class="actions-cell">
+              <a [routerLink]="['/usuarios', u.id, 'editar']" class="btn-icon" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </a>
+              @if (u.rol !== 'administrador') {
+                <button class="btn-small btn-danger" (click)="eliminar(u)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (usuariosFiltrados.length > pageSize) {
+      <div class="pagination-wrapper">
+        <div class="pagination">
+          <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>
+          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">‹</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

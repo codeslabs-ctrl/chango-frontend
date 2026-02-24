@@ -1,0 +1,20 @@
+<div class="page">
+  <h1>Mi cuenta</h1>
+  @if (auth.user(); as user) {
+    <div class="form-card">
+      <div class="form-row">
+        <label>Nombre de usuario</label>
+        <p class="value">{{ user.username }}</p>
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <p class="value">{{ user.email }}</p>
+      </div>
+      <div class="form-actions">
+        <a routerLink="/cuenta/datos" class="btn-primary">Cambiar datos</a>
+        <a routerLink="/cuenta/password" class="btn-muted">Cambiar contraseña</a>
+        <button type="button" class="btn-danger" (click)="auth.logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  }
+</div>

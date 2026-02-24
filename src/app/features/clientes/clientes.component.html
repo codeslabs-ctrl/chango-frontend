@@ -1,0 +1,55 @@
+<div class="page">
+  <h1>Gestionar Clientes</h1>
+
+  <div class="table-filter">
+    <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por nombre, cédula, teléfono, email, dirección..." />
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Cédula/RIF</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Dirección</th>
+          <th>Fecha registro</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (clientesFiltrados.length === 0 && !loading) {
+          <tr><td colspan="8" class="empty">No hay clientes</td></tr>
+        }
+        @for (c of clientesPaginados; track c.cliente_id) {
+          <tr>
+            <td>{{ c.cliente_id }}</td>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.cedula_rif || '-' }}</td>
+            <td>{{ c.telefono || '-' }}</td>
+            <td>{{ c.email || '-' }}</td>
+            <td>{{ c.direccion || '-' }}</td>
+            <td>{{ c.fecha_registro | date:'short' }}</td>
+            <td class="actions-cell">
+              <a [routerLink]="['/clientes', c.cliente_id, 'editar']" class="btn-icon" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (clientesFiltrados.length > pageSize) {
+      <div class="pagination-wrapper">
+        <div class="pagination">
+          <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>
+          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">‹</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,6 @@
+/* Estilos específicos almacenes */
+.page { max-width: 1200px; }
+h1 { color: var(--color-primary); }
+.table-filter input { max-width: 400px; }
+/* Gap en botones de tabla - actions-cell ya en HTML */
+.actions-cell { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }

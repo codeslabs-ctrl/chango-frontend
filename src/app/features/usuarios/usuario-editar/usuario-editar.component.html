@@ -1,0 +1,42 @@
+<div class="page">
+  <a routerLink="/usuarios" class="back">← Volver a administrar usuarios</a>
+  <h1>Editar usuario</h1>
+  @if (loading) {
+    <p>Cargando...</p>
+  } @else {
+    <div class="form-card">
+      <form (ngSubmit)="guardar()">
+        <div class="form-row">
+          <label>Nombre de usuario *</label>
+          <input [(ngModel)]="form.username" name="username" required />
+        </div>
+        <div class="form-row">
+          <label>Email *</label>
+          <input [(ngModel)]="form.email" name="email" type="email" required />
+        </div>
+        <div class="form-row">
+          <label>Contraseña (dejar vacío para no cambiar)</label>
+          <input [(ngModel)]="form.password" name="password" type="password" />
+        </div>
+        <div class="form-row">
+          <label>Rol</label>
+          <select [(ngModel)]="form.rol" name="rol">
+            <option value="usuario">Usuario</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </div>
+        <div class="form-row checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="form.activo" name="activo" class="checkbox-input" />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">Activo</span>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

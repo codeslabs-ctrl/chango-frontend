@@ -1,0 +1,21 @@
+<div class="page">
+  <a routerLink="/productos" class="back">← Volver a productos</a>
+  @if (producto) {
+    <h1>{{ producto.descripcion || producto.nombre || producto.codigo_interno }}</h1>
+    <div class="form-card">
+      <form (ngSubmit)="save()">
+        <div class="form-row">
+          <label>Existencia actual</label>
+          <input type="number" [(ngModel)]="form.existencia_actual" name="existencia_actual" min="0" />
+        </div>
+        <div class="form-row">
+          <label>Precio venta sugerido</label>
+          <input type="number" [(ngModel)]="form.precio_venta_sugerido" name="precio_venta_sugerido" min="0" step="0.01" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
