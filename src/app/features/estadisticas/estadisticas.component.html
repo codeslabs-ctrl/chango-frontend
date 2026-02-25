@@ -1,0 +1,159 @@
+<div class="page estadisticas-page">
+  <h1>Estadísticas</h1>
+
+  <div class="stats-cards">
+    <!-- Ventas pendientes -->
+    <div class="stat-card stat-card-pending">
+      <div class="stat-card-header">
+        <span class="stat-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <h2>Cola de aprobación</h2>
+      </div>
+      <div class="stat-card-body">
+        @if (loading.ventas) {
+          <p class="stat-loading">Cargando...</p>
+        } @else if (ventasPendientes.length === 0) {
+          <div class="stat-empty-state">
+            <span class="stat-empty-icon">✓</span>
+            <p>No hay ventas pendientes</p>
+          </div>
+        } @else {
+          <div class="stat-hero">
+            <span class="stat-hero-number">{{ ventasPendientes.length }}</span>
+            <span class="stat-hero-label">ventas</span>
+          </div>
+          <ul class="stat-list">
+            @for (v of ventasPendientes.slice(0, 5); track v.venta_id) {
+              <li>
+                <span class="stat-item-label">{{ v.cliente ?? '-' }}</span>
+                <span class="stat-item-value">{{ v.total_venta | number:'1.2-2' }}</span>
+              </li>
+            }
+          </ul>
+          @if (ventasPendientes.length > 5) {
+            <p class="stat-more">+{{ ventasPendientes.length - 5 }} más</p>
+          }
+        }
+      </div>
+      <a routerLink="/ventas" class="stat-card-link">Ver ventas</a>
+    </div>
+
+    <!-- Comparativa mensual -->
+    <div class="stat-card stat-card-comparative">
+      <div class="stat-card-header">
+        <span class="stat-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        <h2>Comparativa mensual</h2>
+      </div>
+      <div class="stat-card-body">
+        @if (loading.comparativa) {
+          <p class="stat-loading">Cargando...</p>
+        } @else if (comparativaMensual.length === 0) {
+          <div class="stat-empty-state">
+            <span class="stat-empty-icon">📊</span>
+            <p>Sin datos</p>
+          </div>
+        } @else {
+          @if (comparativaMensual[0]; as row) {
+            <div class="comparativa-grid">
+              <div class="comparativa-row">
+                <span>Mes actual</span>
+                <span class="stat-value stat-num">{{ row.monto_actual | number:'1.2-2' }}</span>
+              </div>
+              <div class="comparativa-row">
+                <span>Mes anterior</span>
+                <span class="stat-value stat-num">{{ row.monto_anterior | number:'1.2-2' }}</span>
+              </div>
+              @if ((row.monto_actual ?? 0) + (row.monto_anterior ?? 0) > 0) {
+                <div class="comparativa-bars">
+                  <div class="bar-row">
+                    <span class="bar-label">Actual</span>
+                    <div class="bar-track"><div class="bar-fill bar-actual" [style.width.%]="getBarWidth(row.monto_actual, row.monto_anterior)"></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-label">Anterior</span>
+                    <div class="bar-track"><div class="bar-fill bar-anterior" [style.width.%]="getBarWidth(row.monto_anterior, row.monto_actual)"></div></div>
+                  </div>
+                </div>
+              }
+              <div class="comparativa-row comparativa-variacion" [class.positiva]="(row.variacion_porcentaje ?? 0) >= 0" [class.negativa]="(row.variacion_porcentaje ?? 0) < 0">
+                <span>Variación</span>
+                <span class="stat-value stat-num">{{ row.variacion_porcentaje | number:'1.1-1' }}%</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Top productos -->
+    <div class="stat-card stat-card-top">
+      <div class="stat-card-header">
+        <span class="stat-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </span>
+        <h2>Top 10 productos</h2>
+      </div>
+      <div class="stat-card-body">
+        @if (loading.top) {
+          <p class="stat-loading">Cargando...</p>
+        } @else if (topProductos.length === 0) {
+          <div class="stat-empty-state">
+            <span class="stat-empty-icon">📦</span>
+            <p>Sin datos</p>
+          </div>
+        } @else {
+          <ol class="stat-list stat-list-numbered">
+            @for (p of topProductos; track p.producto_id) {
+              <li>
+                <span class="stat-rank" [class.rank-gold]="$index === 0" [class.rank-silver]="$index === 1" [class.rank-bronze]="$index === 2">{{ $index + 1 }}º</span>
+                <span class="stat-item-label">{{ p.nombre ?? p.codigo_interno ?? '-' }}</span>
+                <span class="stat-item-value">{{ p.total_vendido }} und · {{ p.ingresos_totales | number:'1.2-2' }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </div>
+
+    <!-- Stock crítico -->
+    <div class="stat-card stat-card-stock" [class.stat-card-alert]="getStockCriticoAlerta()">
+      <div class="stat-card-header">
+        <span class="stat-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </span>
+        <h2>Stock crítico</h2>
+        @if (getStockCriticoAlerta()) {
+          <span class="stat-badge stat-badge-danger">Alerta</span>
+        }
+      </div>
+      <div class="stat-card-body">
+        @if (loading.stock) {
+          <p class="stat-loading">Cargando...</p>
+        } @else if (stockCritico.length === 0) {
+          <div class="stat-empty-state stat-empty-ok">
+            <span class="stat-empty-icon">✓</span>
+            <p>No hay productos con stock crítico</p>
+          </div>
+        } @else {
+          <div class="stat-hero stat-hero-alert">
+            <span class="stat-hero-number">{{ stockCritico.length }}</span>
+            <span class="stat-hero-label">productos bajo umbral</span>
+          </div>
+          <div class="stock-summary">
+            @for (row of stockCritico; track row.producto_id) {
+              <div class="stock-row">
+                <a [routerLink]="['/productos', row.producto_id, 'editar']" class="stock-product-link">{{ row.nombre ?? row.codigo_interno ?? '-' }}</a>
+                <span class="stat-value stat-num low">{{ row.stock_total }} {{ row.unidad_medida ?? '' }}</span>
+              </div>
+            }
+          </div>
+          <p class="stat-alert-msg">Productos con stock por debajo del umbral de 5 unidades.</p>
+        }
+      </div>
+      <a routerLink="/productos" class="stat-card-link">Ver productos</a>
+    </div>
+  </div>
+</div>

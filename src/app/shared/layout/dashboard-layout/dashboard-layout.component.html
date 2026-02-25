@@ -1,7 +1,7 @@
 <div class="layout">
   <header class="top-nav">
     <nav class="nav">
-      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="brand">Chango</a>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="brand">Santa Barbara de Chango</a>
       <div class="menu-wrapper" #menuWrapper>
         @if (auth.username(); as username) {
           <span class="user-name">{{ username }}</span>
@@ -14,19 +14,20 @@
         </button>
         @if (menuOpen()) {
           <div class="dropdown" (click)="$event.stopPropagation()">
-            <div class="dropdown-section">Usuario</div>
-            <a routerLink="/cuenta" routerLinkActive="active" (click)="closeMenu()">Administrar cuenta</a>
-            <button type="button" class="dropdown-btn" (click)="auth.logout(); closeMenu()">Cerrar sesión</button>
-            <div class="dropdown-divider"></div>
             <div class="dropdown-section">Gestión</div>
+            <a routerLink="/ventas" routerLinkActive="active" (click)="closeMenu()">Gestionar Ventas</a>
+            <a routerLink="/productos" routerLinkActive="active" (click)="closeMenu()">Gestionar Productos</a>
+            <a routerLink="/categorias" routerLinkActive="active" (click)="closeMenu()">Gestionar Categorías</a>
+            <a routerLink="/clientes" routerLinkActive="active" (click)="closeMenu()">Gestionar Clientes</a>
+            <a routerLink="/almacenes" routerLinkActive="active" (click)="closeMenu()">Gestionar Almacenes</a>
             @if (auth.isAdmin()) {
               <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMenu()">Administrar usuarios</a>
             }
-            <a routerLink="/ventas" routerLinkActive="active" (click)="closeMenu()">Gestionar Ventas</a>
-            <a routerLink="/clientes" routerLinkActive="active" (click)="closeMenu()">Gestionar Clientes</a>
-            <a routerLink="/productos" routerLinkActive="active" (click)="closeMenu()">Gestionar Productos</a>
-            <a routerLink="/almacenes" routerLinkActive="active" (click)="closeMenu()">Gestionar Almacenes</a>
-            <a routerLink="/categorias" routerLinkActive="active" (click)="closeMenu()">Gestionar Categorías</a>
+            <a routerLink="/estadisticas" routerLinkActive="active" (click)="closeMenu()">Estadísticas</a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Usuario</div>
+            <a routerLink="/cuenta" routerLinkActive="active" (click)="closeMenu()">Administrar cuenta</a>
+            <button type="button" class="dropdown-btn" (click)="auth.logout(); closeMenu()">Cerrar sesión</button>
           </div>
         }
       </div>

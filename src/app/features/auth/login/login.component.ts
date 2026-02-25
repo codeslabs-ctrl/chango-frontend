@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'chango-login',
@@ -19,7 +20,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -46,9 +48,10 @@ export class LoginComponent implements OnInit {
           this.loading = false;
         }
       },
-      error: (err) => {
-        this.error = err?.error?.message ?? 'Credenciales inválidas';
+      error: (err: HttpErrorResponse) => {
         this.loading = false;
+        this.error = (err?.error as { message?: string })?.message ?? 'Usuario o contraseña inválidos';
+        this.cdr.detectChanges();
       }
     });
   }

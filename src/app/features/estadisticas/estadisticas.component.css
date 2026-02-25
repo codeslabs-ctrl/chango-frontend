@@ -1,0 +1,304 @@
+/* Estadísticas - cards mejoradas */
+.estadisticas-page { max-width: 1200px; }
+.estadisticas-page h1 { color: var(--color-primary); }
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Colores por tipo */
+.stat-card-pending .stat-card-header { background: var(--color-primary); }
+.stat-card-comparative .stat-card-header { background: #5a7a9a; }
+.stat-card-top .stat-card-header { background: #7a6b5a; }
+.stat-card-stock .stat-card-header { background: var(--color-success); }
+.stat-card-stock.stat-card-alert {
+  border-color: var(--color-danger);
+  background: rgba(139, 0, 0, 0.02);
+}
+.stat-card-stock.stat-card-alert .stat-card-header { background: var(--color-danger); }
+
+.stat-card-header {
+  padding: 1.25rem 1.5rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.stat-card-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  flex: 1;
+}
+
+.stat-badge {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.stat-badge-danger {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-danger);
+}
+
+.stat-card-body {
+  padding: 1.25rem 1.5rem;
+  flex: 1;
+}
+
+/* Hero number - métrica principal */
+.stat-hero {
+  text-align: center;
+  padding: 1rem 0 1.25rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
+}
+
+.stat-hero-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.stat-hero-alert .stat-hero-number { color: var(--color-danger); }
+
+.stat-hero-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Estado vacío */
+.stat-loading {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: var(--font-size);
+}
+
+.stat-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.stat-empty-icon {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.stat-empty-state p {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: var(--font-size);
+}
+
+.stat-empty-ok .stat-empty-icon { color: var(--color-success); }
+
+/* Listas */
+.stat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stat-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: var(--font-size);
+  gap: 0.5rem;
+}
+
+.stat-list li:last-child { border-bottom: none; }
+
+.stat-list-numbered {
+  list-style: none;
+  padding-left: 0;
+}
+
+.stat-list-numbered li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-rank {
+  flex-shrink: 0;
+  width: 2rem;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.rank-gold { color: #c9a227; }
+.rank-silver { color: #8a8a8a; }
+.rank-bronze { color: #b87333; }
+
+.stat-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.stat-item-value {
+  font-weight: 600;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-value { font-weight: 600; }
+.stat-num { font-variant-numeric: tabular-nums; }
+.stat-value.low { color: var(--color-danger); }
+
+.comparativa-variacion.positiva .stat-value { color: var(--color-success); }
+.comparativa-variacion.negativa .stat-value { color: var(--color-danger); }
+
+.stat-more {
+  margin: 0.75rem 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Comparativa - barras */
+.comparativa-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comparativa-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size);
+}
+
+.comparativa-bars {
+  padding: 0.75rem 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0.25rem 0;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.bar-row:last-child { margin-bottom: 0; }
+
+.bar-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  min-width: 4rem;
+}
+
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.bar-actual { background: var(--color-primary); }
+.bar-anterior { background: var(--color-muted); }
+
+/* Stock */
+.stock-product-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.5rem;
+}
+
+.stock-product-link:hover { text-decoration: underline; }
+
+.stock-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size);
+}
+
+.stat-alert-msg {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem;
+  background: rgba(139, 0, 0, 0.08);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+/* Link */
+.stat-card-link {
+  display: block;
+  padding: 0.85rem 1.25rem;
+  background: var(--color-bg);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: var(--font-size);
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.stat-card-link:hover {
+  background: var(--color-primary-light);
+}
