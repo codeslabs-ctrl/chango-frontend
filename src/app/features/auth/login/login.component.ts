@@ -15,6 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class LoginComponent implements OnInit {
   username = '';
   password = '';
+  showPassword = false;
   loading = false;
   error = '';
 
