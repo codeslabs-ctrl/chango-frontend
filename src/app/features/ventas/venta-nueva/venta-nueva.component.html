@@ -1,6 +1,6 @@
 <div class="page">
   <a routerLink="/ventas" class="back">← Volver a ventas</a>
-  <h1>Nueva venta</h1>
+  <h1><span class="page-icon">🛒</span> Nueva venta</h1>
   @if (loading) {
     <p class="loading-msg">Cargando...</p>
   } @else {
@@ -8,7 +8,7 @@
     <div class="cart-layout">
       <div class="cart-main">
         <div class="cart-section cliente-section">
-          <h2>Cliente</h2>
+          <h2><span class="page-icon">👤</span> Cliente</h2>
           @if (clienteSeleccionado) {
             <div class="cliente-badge">
               <span class="cliente-info">{{ clienteSeleccionado.nombre }} <small>({{ clienteSeleccionado.cedula_rif || '-' }})</small></span>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="cart-section productos-section">
-          <h2>Añadir productos</h2>
+          <h2><span class="page-icon">➕</span> Añadir productos</h2>
           <div class="productos-add">
             <select [(ngModel)]="productoSeleccionado" name="producto_select">
               <option [ngValue]="null">-- Seleccionar producto --</option>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="cart-section carrito-section">
-          <h2>Carrito <span class="badge-count">{{ lineas.length }}</span></h2>
+          <h2><span class="page-icon">🛒</span> Carrito <span class="badge-count">{{ lineas.length }}</span></h2>
           @if (lineas.length === 0) {
             <div class="cart-empty">
               <span class="cart-icon">🛒</span>

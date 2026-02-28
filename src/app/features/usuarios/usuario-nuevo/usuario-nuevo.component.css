@@ -1,5 +1,5 @@
 /* Estilos específicos usuario-nuevo */
 .page { max-width: 600px; }
-h1 { color: var(--color-primary); }
+h1 { color: #000; }
 .back { color: var(--color-primary); }
 .form-row input, .form-row select { max-width: 400px; }

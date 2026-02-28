@@ -100,7 +100,11 @@ export class ProductosComponent implements OnInit {
   toggleEstatus(p: Producto) {
     const nuevo = (p.estatus || 'A') === 'A' ? 'C' : 'A';
     this.productosService.updateEstatus(p.producto_id, nuevo).subscribe({
-      next: () => this.load(),
+      next: () => {
+        p.estatus = nuevo;
+        this.cdr.detectChanges();
+        this.load();
+      },
       error: () => this.cdr.detectChanges()
     });
   }
@@ -108,7 +112,10 @@ export class ProductosComponent implements OnInit {
   eliminar(p: Producto) {
     if (!confirm('¿Eliminar el producto "' + (p.descripcion || p.nombre || p.codigo_interno) + '"?')) return;
     this.productosService.delete(p.producto_id).subscribe({
-      next: () => this.load(),
+      next: () => {
+        this.load();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
       error: (err) => {
         alert(err.error?.message || 'Error al eliminar');
         this.cdr.detectChanges();

@@ -1,7 +1,7 @@
 <div class="login-page">
   <div class="login-card">
-    <img src="logo-login.png" alt="Santa Barbara de Chango" class="login-logo" />
-    <h1>Santa Barbara de Chango</h1>
+    <img src="codes-labs-logo.png" alt="Santa Barbara de Chango" class="login-logo" />
+    <h1><span class="page-icon">🔐</span> DemoStock</h1>
     <p class="subtitle">Iniciar sesión</p>
     <form (ngSubmit)="onSubmit()">
       <div class="form-row">
@@ -34,6 +34,10 @@
       <button type="submit" class="btn-primary" [disabled]="loading">
         {{ loading ? 'Entrando...' : 'Entrar' }}
       </button>
+      <a routerLink="/recuperar-contraseña" class="login-forgot">¿Olvidaste tu contraseña?</a>
     </form>
+    <p class="login-copyright">
+      © <a href="https://codes-labs.com" target="_blank" rel="noopener noreferrer">Codes-Labs</a>
+    </p>
   </div>
 </div>

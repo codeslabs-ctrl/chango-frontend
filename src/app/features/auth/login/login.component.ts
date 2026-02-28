@@ -1,14 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'chango-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -38,10 +38,14 @@ export class LoginComponent implements OnInit {
     }
     this.loading = true;
     this.auth.login(this.username.trim(), this.password).subscribe({
-      next: (res: { success?: boolean; token?: string; user?: { id: number; username: string; email: string } }) => {
+      next: (res: { success?: boolean; token?: string; user?: { id: number; username: string; email: string }; requiresPasswordChange?: boolean }) => {
         if (res?.success && res.token && res.user) {
           this.auth.setSession(res.token, res.user);
-          this.router.navigate(['/dashboard']);
+          if (res.requiresPasswordChange) {
+            this.router.navigate(['/cuenta/password']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         } else {
           const msg = res && typeof res === 'object' && 'message' in res ? (res as { message?: string }).message : undefined;
           this.error = msg ?? 'Error al iniciar sesión';

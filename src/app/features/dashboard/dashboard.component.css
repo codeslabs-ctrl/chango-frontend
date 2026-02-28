@@ -1,5 +1,12 @@
 /* Estilos específicos dashboard */
-.dashboard { max-width: 1200px; }
+.dashboard { max-width: 1200px; margin: 0 auto; }
 .table-section { margin-bottom: 2rem; }
 .table-filter input { max-width: 400px; }
 tr:hover td { background: #eee; }
+
+/* Botones en una línea - inventario productos */
+.dashboard .actions-cell-inner {
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  min-width: 320px;
+}

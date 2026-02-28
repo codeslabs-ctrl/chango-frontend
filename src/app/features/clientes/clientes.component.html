@@ -1,5 +1,5 @@
 <div class="page">
-  <h1>Gestionar Clientes</h1>
+  <h1><span class="page-icon">👥</span> Gestionar Clientes</h1>
 
   <div class="table-filter">
     <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por nombre, cédula, teléfono, email, dirección..." />
@@ -32,9 +32,12 @@
             <td>{{ c.direccion || '-' }}</td>
             <td>{{ c.fecha_registro | date:'short' }}</td>
             <td class="actions-cell">
+              <div class="actions-cell-inner">
               <a [routerLink]="['/clientes', c.cliente_id, 'editar']" class="btn-icon" title="Editar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                <span>Editar</span>
               </a>
+              </div>
             </td>
           </tr>
         }

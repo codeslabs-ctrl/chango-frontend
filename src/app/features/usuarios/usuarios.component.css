@@ -1,4 +1,4 @@
 /* Estilos específicos usuarios */
 .page { max-width: 1200px; }
-h1 { color: var(--color-primary); }
+h1 { color: #000; }
 .table-filter input { max-width: 400px; }

@@ -6,26 +6,42 @@
   left: 0;
   right: 0;
   height: 56px;
-  background: var(--color-primary);
+  background: #fff;
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .nav { display: flex; align-items: center; gap: 1.5rem; width: 100%; }
 .nav a.brand {
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-sm);
   transition: background 0.2s;
-  font-size: 1.35rem;
-  font-weight: 700;
   margin-right: 1rem;
 }
-.nav a.brand:hover { background: rgba(255,255,255,0.2); }
-.nav a.brand.active { background: rgba(255,255,255,0.25); }
+.nav a.brand:hover { background: var(--color-primary-light); }
+.nav a.brand.active { background: transparent; }
+.brand-logo {
+  height: 62px;
+  width: auto;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+.brand-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+.brand-demo {
+  color: var(--color-text);
+}
+.brand-stock {
+  color: #0d9488;
+}
 .menu-wrapper {
   position: relative;
   margin-left: auto;
@@ -33,11 +49,11 @@
   align-items: center;
   gap: 0.75rem;
 }
-.user-name { color: white; font-size: var(--font-size); font-weight: 500; }
+.user-name { color: var(--color-text); font-size: var(--font-size); font-weight: 500; }
 .gear-btn {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--color-text);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--radius);
@@ -46,7 +62,7 @@
   justify-content: center;
   transition: background 0.2s;
 }
-.gear-btn:hover, .gear-btn.open { background: rgba(255,255,255,0.2); }
+.gear-btn:hover, .gear-btn.open { background: var(--color-bg); }
 .dropdown {
   position: absolute;
   top: 100%;
@@ -59,13 +75,22 @@
   padding: 0.5rem 0;
   z-index: 101;
 }
-.dropdown a {
-  display: block;
+.dropdown a,
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   color: var(--color-text);
   text-decoration: none;
   padding: 0.6rem 1rem;
   font-size: var(--font-size);
   transition: background 0.15s;
+}
+.dropdown a svg,
+.dropdown-item svg,
+.dropdown-btn svg {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 .dropdown a:hover { background: var(--color-bg); }
 .dropdown a.active { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
@@ -79,7 +104,9 @@
 }
 .dropdown-divider { height: 1px; background: #eee; margin: 0.25rem 0; }
 .dropdown-btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   width: 100%;
   padding: 0.6rem 1rem;
   border: none;

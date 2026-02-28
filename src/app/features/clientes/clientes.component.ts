@@ -50,6 +50,7 @@ export class ClientesComponent implements OnInit {
 
   load() {
     this.loading = true;
+    this.cdr.detectChanges();
     this.clientesService.getAll().subscribe({
       next: (res) => {
         this.clientes = res.data || [];

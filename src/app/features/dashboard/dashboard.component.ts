@@ -89,6 +89,7 @@ export class DashboardComponent implements OnInit {
 
   loadProductos() {
     this.loadingProductos = true;
+    this.cdr.detectChanges();
     this.productosService.getAll().subscribe({
       next: (res) => {
         this.productos = res.data || [];
@@ -102,7 +103,10 @@ export class DashboardComponent implements OnInit {
   toggleEstatusProducto(p: Producto) {
     const nuevo = (p.estatus || 'A') === 'A' ? 'C' : 'A';
     this.productosService.updateEstatus(p.producto_id, nuevo).subscribe({
-      next: () => this.loadProductos(),
+      next: () => {
+        this.loadProductos();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
       error: () => this.cdr.detectChanges()
     });
   }
@@ -110,7 +114,10 @@ export class DashboardComponent implements OnInit {
   eliminarProducto(p: Producto) {
     if (!confirm('¿Eliminar el producto "' + (p.descripcion || p.nombre || p.codigo_interno) + '"?')) return;
     this.productosService.delete(p.producto_id).subscribe({
-      next: () => this.loadProductos(),
+      next: () => {
+        this.loadProductos();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
       error: (err) => {
         alert(err.error?.message || 'Error al eliminar');
         this.cdr.detectChanges();
@@ -120,12 +127,17 @@ export class DashboardComponent implements OnInit {
 
   confirmar(ventaId: number) {
     this.confirmando = ventaId;
+    this.cdr.detectChanges();
     this.ventasService.confirmar(ventaId).subscribe({
       next: () => {
         this.ventasPendientes = this.ventasPendientes.filter(v => v.venta_id !== ventaId);
         this.confirmando = null;
+        setTimeout(() => this.cdr.detectChanges(), 0);
       },
-      error: () => { this.confirmando = null; }
+      error: () => {
+        this.confirmando = null;
+        this.cdr.detectChanges();
+      }
     });
   }
 }

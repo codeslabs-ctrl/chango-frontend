@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,7 +18,8 @@ export class CuentaPasswordComponent {
 
   constructor(
     private usuariosService: UsuariosService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   cancelar() {
@@ -46,8 +47,9 @@ export class CuentaPasswordComponent {
     ).subscribe({
       next: () => this.router.navigate(['/cuenta']),
       error: (err) => {
-        this.error = err?.error?.message ?? 'Error al cambiar contraseña';
+        this.error = err?.error?.message ?? 'Contraseña actual incorrecta';
         this.saving = false;
+        this.cdr.detectChanges();
       }
     });
   }

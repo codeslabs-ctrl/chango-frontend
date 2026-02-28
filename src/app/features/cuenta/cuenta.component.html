@@ -1,5 +1,5 @@
 <div class="page">
-  <h1>Mi cuenta</h1>
+  <h1><span class="page-icon">⚙️</span> Mi cuenta</h1>
   @if (auth.user(); as user) {
     <div class="form-card">
       <div class="form-row">
@@ -13,7 +13,10 @@
       <div class="form-actions">
         <a routerLink="/cuenta/datos" class="btn-primary">Cambiar datos</a>
         <a routerLink="/cuenta/password" class="btn-muted">Cambiar contraseña</a>
-        <button type="button" class="btn-danger" (click)="auth.logout()">Cerrar sesión</button>
+        <button type="button" class="btn-danger" (click)="auth.logout()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </button>
       </div>
     </div>
   }

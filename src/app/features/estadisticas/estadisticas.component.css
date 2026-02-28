@@ -1,6 +1,6 @@
 /* Estadísticas - cards mejoradas */
 .estadisticas-page { max-width: 1200px; }
-.estadisticas-page h1 { color: var(--color-primary); }
+.estadisticas-page h1 { color: #000; }
 
 .stats-cards {
   display: grid;

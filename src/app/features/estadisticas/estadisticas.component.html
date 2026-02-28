@@ -1,5 +1,5 @@
 <div class="page estadisticas-page">
-  <h1>Estadísticas</h1>
+  <h1><span class="page-icon">📊</span> Estadísticas</h1>
 
   <div class="stats-cards">
     <!-- Ventas pendientes -->
@@ -8,7 +8,7 @@
         <span class="stat-icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </span>
-        <h2>Cola de aprobación</h2>
+        <h2><span class="page-icon">📋</span> Cola de aprobación</h2>
       </div>
       <div class="stat-card-body">
         @if (loading.ventas) {
@@ -45,7 +45,7 @@
         <span class="stat-icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </span>
-        <h2>Comparativa mensual</h2>
+        <h2><span class="page-icon">📈</span> Comparativa mensual</h2>
       </div>
       <div class="stat-card-body">
         @if (loading.comparativa) {
@@ -94,7 +94,7 @@
         <span class="stat-icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </span>
-        <h2>Top 10 productos</h2>
+        <h2><span class="page-icon">🏆</span> Top 10 productos</h2>
       </div>
       <div class="stat-card-body">
         @if (loading.top) {
@@ -124,7 +124,7 @@
         <span class="stat-icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </span>
-        <h2>Stock crítico</h2>
+        <h2><span class="page-icon">⚠️</span> Stock crítico</h2>
         @if (getStockCriticoAlerta()) {
           <span class="stat-badge stat-badge-danger">Alerta</span>
         }

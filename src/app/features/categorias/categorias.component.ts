@@ -80,6 +80,7 @@ export class CategoriasComponent implements OnInit {
 
   load() {
     this.loading = true;
+    this.cdr.detectChanges();
     this.categoriasService.getAll().subscribe({
       next: (res) => {
         this.categorias = res.data || [];
@@ -99,7 +100,7 @@ export class CategoriasComponent implements OnInit {
   deleteCategoria(categoriaId: number, nombre: string) {
     if (confirm('¿Eliminar categoría "' + nombre + '" y todas sus subcategorías?')) {
       this.categoriasService.delete(categoriaId).subscribe({
-        next: () => { this.load(); }
+        next: () => { this.load(); setTimeout(() => this.cdr.detectChanges(), 0); }
       });
     }
   }
