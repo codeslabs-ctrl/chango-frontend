@@ -15,9 +15,6 @@ export class AlmacenDetailComponent implements OnInit {
   almacenId = 0;
   productos: ProductoAlmacen[] = [];
   loading = false;
-  editingId: number | null = null;
-  editStock = 0;
-  editingProductoId = 0;
   filterProductos = '';
   pageSize = 10;
   currentPage = 1;
@@ -57,21 +54,6 @@ export class AlmacenDetailComponent implements OnInit {
     this.almacenesService.getProductos(this.almacenId).subscribe({
       next: (res) => { this.productos = res.data || []; this.loading = false; setTimeout(() => this.cdr.detectChanges(), 0); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
-    });
-  }
-
-  startEdit(p: ProductoAlmacen) {
-    this.editingId = p.producto_almacen_id;
-    this.editStock = p.stock_actual;
-    this.editingProductoId = p.producto_id;
-  }
-
-  saveStock(p: ProductoAlmacen) {
-    this.almacenesService.upsertStock(this.almacenId, p.producto_id, { stock_actual: this.editStock }).subscribe({
-      next: () => {
-        this.editingId = null;
-        this.load();
-      }
     });
   }
 }

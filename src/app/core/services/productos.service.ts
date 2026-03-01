@@ -51,11 +51,12 @@ export class ProductosService {
     return { headers: this.auth.getAuthHeaders() };
   }
 
-  getAll(filters?: { subcategoriaId?: number; proveedorId?: number; almacenId?: number }): Observable<{ success: boolean; data: Producto[] }> {
+  getAll(filters?: { subcategoriaId?: number; proveedorId?: number; almacenId?: number; _refresh?: number }): Observable<{ success: boolean; data: Producto[] }> {
     let params = new HttpParams();
     if (filters?.subcategoriaId) params = params.set('subcategoriaId', filters.subcategoriaId);
     if (filters?.proveedorId) params = params.set('proveedorId', filters.proveedorId);
     if (filters?.almacenId) params = params.set('almacenId', filters.almacenId);
+    if (filters?._refresh != null) params = params.set('_', String(filters._refresh));
     return this.http.get<{ success: boolean; data: Producto[] }>(this.baseUrl, {
       ...this.getOptions(),
       params
@@ -87,5 +88,16 @@ export class ProductosService {
 
   delete(id: number): Observable<{ success: boolean }> {
     return this.http.delete<{ success: boolean }>(`${this.baseUrl}/${id}`, this.getOptions());
+  }
+
+  addStock(
+    id: number,
+    dto: { almacenes: { almacen_id: number; cantidad_a_sumar: number }[]; precio_venta_sugerido?: number }
+  ): Observable<{ success: boolean; data: Producto }> {
+    return this.http.post<{ success: boolean; data: Producto }>(
+      `${this.baseUrl}/${id}/stock`,
+      dto,
+      this.getOptions()
+    );
   }
 }

@@ -53,6 +53,21 @@ export class ProductoNuevoComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  onlyNumbers(event: KeyboardEvent) {
+    const key = event.key;
+    if (key === '+' || key === '-' || key === 'e' || key === 'E' || key === '.') {
+      event.preventDefault();
+    }
+  }
+
+  onStockPaste(event: ClipboardEvent, item: { almacen_id: number; stock_actual: number }) {
+    event.preventDefault();
+    const pasted = (event.clipboardData?.getData('text') || '').replace(/[^0-9]/g, '');
+    const num = Math.max(0, parseInt(pasted, 10) || 0);
+    item.stock_actual = num;
+    this.cdr.detectChanges();
+  }
+
   constructor(
     private productosService: ProductosService,
     private categoriasService: CategoriasService,

@@ -1,5 +1,10 @@
 /* Estilos específicos productos */
-.page { max-width: 1200px; }
+.page { max-width: 1400px; }
+.stock-modal-almacenes { display: flex; flex-direction: column; gap: 0.75rem; }
+.stock-modal-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.stock-modal-almacen { min-width: 120px; font-weight: 500; }
+.stock-modal-actual { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.stock-modal-input { width: 120px; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); }
 h1 { color: #000; }
 .btn-primary, a.btn-primary { background: var(--color-primary); color: white; }
 .btn-icon { color: var(--color-primary); }
@@ -8,5 +13,6 @@ h1 { color: #000; }
 .productos-page .actions-cell-inner {
   white-space: nowrap;
   flex-wrap: nowrap;
-  min-width: 320px;
+  gap: 0.5rem;
+  min-width: 280px;
 }

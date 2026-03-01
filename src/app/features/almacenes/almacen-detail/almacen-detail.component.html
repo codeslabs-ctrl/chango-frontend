@@ -26,15 +26,7 @@
             <td>{{ p.stock_minimo }}</td>
             <td>{{ p.punto_reorden }}</td>
             <td>
-              @if (editingId === p.producto_almacen_id) {
-                <div class="inline-form">
-                  <input type="number" [(ngModel)]="editStock" min="0" placeholder="Stock" />
-                  <button class="btn-small" (click)="saveStock(p)">Guardar</button>
-                  <button class="btn-small btn-muted" (click)="editingId = null">Cancelar</button>
-                </div>
-              } @else {
-                <button class="btn-small" (click)="startEdit(p)">Actualizar</button>
-              }
+              <a [routerLink]="['/productos']" [queryParams]="{ stock: p.producto_id }" class="btn-small" title="Ir a actualizar stock">Ver</a>
             </td>
           </tr>
         }

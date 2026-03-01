@@ -49,7 +49,7 @@
             @let a = getAlmacenById(item.almacen_id);
             <div class="almacen-row">
               <span class="almacen-name">{{ a?.nombre || '-' }}</span>
-              <input type="number" [(ngModel)]="item.stock_actual" [name]="'stock_' + item.almacen_id" min="0" placeholder="Cantidad" class="stock-input" />
+              <input type="number" [(ngModel)]="item.stock_actual" [name]="'stock_' + item.almacen_id" min="0" step="1" inputmode="numeric" placeholder="Cantidad" class="stock-input" (keypress)="onlyNumbers($event)" (paste)="onStockPaste($event, item)" />
               <button type="button" class="btn-small btn-danger" (click)="removeAlmacen(item.almacen_id)">−</button>
             </div>
           }
