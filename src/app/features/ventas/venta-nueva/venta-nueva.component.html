@@ -21,14 +21,16 @@
                 [(ngModel)]="cedulaBusqueda"
                 name="cedulaBusqueda"
                 placeholder="Buscar por cédula o RIF..."
-                (focus)="mostrarSugerenciasCliente = true"
+                (focus)="onClienteInputFocus()"
                 (blur)="onClienteInputBlur()"
+                (keydown)="onClienteInputKeydown($event)"
+                (ngModelChange)="onClienteSearchInput()"
               />
               @if (mostrarSugerenciasCliente && cedulaBusqueda.trim()) {
                 <ul class="sugerencias-dropdown">
-                  @for (c of clientesFiltradosPorCedula; track c.cliente_id) {
-                    <li>
-                      <button type="button" (mousedown)="seleccionarCliente(c)">
+                  @for (c of clientesFiltradosPorCedula; track c.cliente_id; let i = $index) {
+                    <li #sugerenciaItem [class.highlighted]="i === clienteHighlightIndex">
+                      <button type="button" (mousedown)="seleccionarCliente(c)" [class.highlighted]="i === clienteHighlightIndex">
                         {{ c.cedula_rif || '-' }} — {{ c.nombre }}
                       </button>
                     </li>
@@ -76,7 +78,7 @@
                     </div>
                     <div class="item-qty">
                       <label>Cant:</label>
-                      <input type="number" [(ngModel)]="linea.cantidad" [name]="'cant_' + linea.producto_id" min="1" [max]="linea.existencia_actual" (blur)="onCantidadChange(linea)" (ngModelChange)="onCantidadChange(linea)" (click)="$event.stopPropagation()" />
+                      <input type="number" [(ngModel)]="linea.cantidad" [name]="'cant_' + linea.producto_id" min="0" [max]="linea.existencia_actual" (blur)="onCantidadChange(linea)" (ngModelChange)="onCantidadChange(linea)" (click)="$event.stopPropagation()" />
                     </div>
                     <div class="item-subtotal">{{ getSubtotal(linea) | number:'1.2-2' }}</div>
                     <button type="button" class="btn-remove-item" (click)="quitarLinea(linea.producto_id); $event.stopPropagation()" title="Quitar">🗑</button>

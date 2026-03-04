@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -43,6 +43,8 @@ export class VentaNuevaComponent implements OnInit {
   clienteSeleccionado: { nombre: string; cedula_rif: string | null } | null = null;
   cedulaBusqueda = '';
   mostrarSugerenciasCliente = false;
+  clienteHighlightIndex = 0;
+  @ViewChildren('sugerenciaItem') sugerenciaItems!: QueryList<ElementRef>;
   metodoPago = '';
   lineas: LineaVenta[] = [];
   lineaExpandida: number | null = null;
@@ -141,6 +143,7 @@ export class VentaNuevaComponent implements OnInit {
     this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif };
     this.cedulaBusqueda = c.cedula_rif || '';
     this.mostrarSugerenciasCliente = false;
+    this.clienteHighlightIndex = 0;
   }
 
   quitarCliente() {
@@ -149,8 +152,48 @@ export class VentaNuevaComponent implements OnInit {
     this.cedulaBusqueda = '';
   }
 
+  onClienteInputFocus() {
+    this.mostrarSugerenciasCliente = true;
+    this.clienteHighlightIndex = 0;
+  }
+
   onClienteInputBlur() {
     setTimeout(() => (this.mostrarSugerenciasCliente = false), 150);
+  }
+
+  onClienteInputKeydown(event: KeyboardEvent) {
+    if (!this.mostrarSugerenciasCliente || this.clientesFiltradosPorCedula.length === 0) return;
+    const list = this.clientesFiltradosPorCedula;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.clienteHighlightIndex = Math.min(this.clienteHighlightIndex + 1, list.length - 1);
+      this.cdr.detectChanges();
+      this.scrollClienteHighlightIntoView();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.clienteHighlightIndex = Math.max(this.clienteHighlightIndex - 1, 0);
+      this.cdr.detectChanges();
+      this.scrollClienteHighlightIntoView();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      const c = list[this.clienteHighlightIndex];
+      if (c) this.seleccionarCliente(c);
+    } else if (event.key === 'Escape') {
+      this.mostrarSugerenciasCliente = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onClienteSearchInput() {
+    this.clienteHighlightIndex = 0;
+  }
+
+  private scrollClienteHighlightIntoView() {
+    setTimeout(() => {
+      const items = this.sugerenciaItems?.toArray();
+      const el = items?.[this.clienteHighlightIndex]?.nativeElement;
+      if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }, 0);
   }
 
   toggleDespacho(productoId: number) {
@@ -164,7 +207,7 @@ export class VentaNuevaComponent implements OnInit {
   onCantidadChange(linea: LineaVenta) {
     setTimeout(() => {
       const n = Math.floor(Number(linea.cantidad) || 0);
-      const clamped = Math.max(1, Math.min(n, linea.existencia_actual));
+      const clamped = Math.max(0, Math.min(n, linea.existencia_actual));
       linea.cantidad = clamped;
       this.cdr.detectChanges();
     }, 0);
@@ -193,7 +236,7 @@ export class VentaNuevaComponent implements OnInit {
   guardar() {
     this.errorMsg = '';
     for (const l of this.lineas) {
-      if (!this.getDespachosValidos(l)) {
+      if (l.cantidad > 0 && !this.getDespachosValidos(l)) {
         this.errorMsg = `Despachos inválidos para "${l.descripcion}": la suma debe ser ${l.cantidad} y no puede superar el stock por almacén.`;
         this.cdr.detectChanges();
         return;
@@ -210,7 +253,13 @@ export class VentaNuevaComponent implements OnInit {
       return;
     }
 
-    const detalles: CreateVentaDetalleDto[] = this.lineas.map(l => ({
+    const lineasConCantidad = this.lineas.filter(l => l.cantidad > 0);
+    if (lineasConCantidad.length === 0) {
+      this.errorMsg = 'Agrega al menos un producto con cantidad mayor a 0.';
+      this.cdr.detectChanges();
+      return;
+    }
+    const detalles: CreateVentaDetalleDto[] = lineasConCantidad.map(l => ({
       producto_id: l.producto_id,
       cantidad: l.cantidad,
       precio_unitario: l.precio_unitario,
