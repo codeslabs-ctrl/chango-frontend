@@ -64,7 +64,7 @@ export class VentasComponent implements OnInit {
         this.ventas = res.data || [];
         this.currentPage = 1;
         this.loading = false;
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;

@@ -91,13 +91,13 @@ export class ProductosComponent implements OnInit {
 
   loadSubcategorias() {
     this.subcategoriasService.getAll().subscribe({
-      next: (res) => { this.subcategorias = res.data || []; setTimeout(() => this.cdr.detectChanges(), 0); }
+      next: (res) => { this.subcategorias = res.data || []; this.cdr.detectChanges(); }
     });
   }
 
   loadAlmacenes() {
     this.almacenesService.getAll().subscribe({
-      next: (res) => { this.almacenes = res.data || []; setTimeout(() => this.cdr.detectChanges(), 0); }
+      next: (res) => { this.almacenes = res.data || []; this.cdr.detectChanges(); }
     });
   }
 
@@ -109,7 +109,7 @@ export class ProductosComponent implements OnInit {
       ...(forceRefresh && { _refresh: Date.now() })
     };
     this.productosService.getAll(filters).subscribe({
-      next: (res) => { this.productos = res.data || []; this.currentPage = 1; this.loading = false; setTimeout(() => this.cdr.detectChanges(), 0); },
+      next: (res) => { this.productos = res.data || []; this.currentPage = 1; this.loading = false; this.cdr.detectChanges(); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
@@ -227,7 +227,7 @@ export class ProductosComponent implements OnInit {
     this.productosService.delete(p.producto_id).subscribe({
       next: () => {
         this.load();
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         alert(err.error?.message || 'Error al eliminar');

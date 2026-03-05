@@ -1,55 +1,84 @@
-<div class="page">
-  <h1><span class="page-icon">👤</span> Administrar usuarios</h1>
-  <div class="actions">
-    <a routerLink="/usuarios/nuevo" class="btn-primary">+ Añadir usuario</a>
+<div class="page internal-page">
+  <div class="page-header">
+    <h1><span class="page-icon">👤</span> Administrar usuarios</h1>
+    <div class="actions">
+      <a routerLink="/usuarios/nuevo" class="btn-primary">+ Añadir usuario</a>
+    </div>
   </div>
-
   <div class="table-filter">
     <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por usuario o email..." />
   </div>
   <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Usuario</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Estatus</th>
-          <th>Último login</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (usuariosFiltrados.length === 0 && !loading) {
-          <tr><td colspan="7" class="empty">No hay usuarios</td></tr>
-        }
-        @for (u of usuariosPaginados; track u.id) {
+    <div class="table-view">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>{{ u.id }}</td>
-            <td>{{ u.username }}</td>
-            <td>{{ u.email }}</td>
-            <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Administrador' : 'Usuario' }}</span></td>
-            <td><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
-            <td>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</td>
-            <td class="actions-cell">
-              <div class="actions-cell-inner">
-              <a [routerLink]="['/usuarios', u.id, 'editar']" class="btn-icon" title="Editar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                <span>Editar</span>
-              </a>
-              @if (u.rol !== 'administrador') {
-                <button class="btn-small btn-danger" (click)="eliminar(u)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                  Eliminar
-                </button>
-              }
-              </div>
-            </td>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estatus</th>
+            <th>Último login</th>
+            <th></th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @if (usuariosFiltrados.length === 0 && !loading) {
+            <tr><td colspan="7" class="empty">No hay usuarios</td></tr>
+          }
+          @for (u of usuariosPaginados; track u.id) {
+            <tr>
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Administrador' : 'Usuario' }}</span></td>
+              <td><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
+              <td>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</td>
+              <td class="actions-cell">
+                <div class="actions-cell-inner">
+                  <a [routerLink]="['/usuarios', u.id, 'editar']" class="btn-icon" title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    <span>Editar</span>
+                  </a>
+                  @if (u.rol !== 'administrador') {
+                    <button class="btn-small btn-danger" (click)="eliminar(u)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      Eliminar
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="card-view">
+      @if (usuariosFiltrados.length === 0 && !loading) {
+        <p class="card-empty">No hay usuarios</p>
+      }
+      @for (u of usuariosPaginados; track u.id) {
+        <article class="data-card">
+          <div class="card-main">
+            <div class="card-header">
+              <span class="card-title">{{ u.username }}</span>
+              <span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Admin' : 'Usuario' }}</span>
+            </div>
+            <dl class="card-details">
+              <div class="card-row"><dt>Email</dt><dd>{{ u.email }}</dd></div>
+              <div class="card-row"><dt>Estatus</dt><dd><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></dd></div>
+              <div class="card-row"><dt>Último login</dt><dd>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</dd></div>
+            </dl>
+          </div>
+          <div class="card-actions">
+            <a [routerLink]="['/usuarios', u.id, 'editar']" class="btn-icon">Editar</a>
+            @if (u.rol !== 'administrador') {
+              <button class="btn-small btn-danger" (click)="eliminar(u)">Eliminar</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
     @if (usuariosFiltrados.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">

@@ -1,7 +1,9 @@
-<div class="page">
-  <h1><span class="page-icon">📋</span> Gestionar Ventas</h1>
-  <div class="header-actions">
-    <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
+<div class="page internal-page">
+  <div class="page-header">
+    <h1><span class="page-icon">📋</span> Gestionar Ventas</h1>
+    <div class="header-actions">
+      <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
+    </div>
   </div>
   <div class="filters">
     <select [(ngModel)]="estatusFilter" (ngModelChange)="onEstatusChange($event)">
@@ -15,54 +17,87 @@
     </div>
   </div>
   <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Teléfono</th>
-          <th>Productos</th>
-          <th>Total</th>
-          <th>Fecha</th>
-          <th>Estatus</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (ventasFiltradas.length === 0 && !loading) {
-          <tr><td colspan="8" class="empty">No hay ventas</td></tr>
-        }
-        @for (v of ventasPaginadas; track v.venta_id) {
+    <div class="table-view">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>{{ v.venta_id }}</td>
-            <td>{{ v.cliente_nombre || '-' }}</td>
-            <td>{{ v.cliente_telefono || '-' }}</td>
-            <td>{{ v.productos_nombres || '-' }}</td>
-            <td>{{ v.total_venta | number:'1.2-2' }}</td>
-            <td>{{ v.fecha_venta | date:'short' }}</td>
-            <td><span class="badge" [class.confirmada]="v.estatus === 'CONFIRMADA'" [class.eliminada]="v.estatus === 'ELIMINADA'" [class.por-confirmar]="v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE'">{{ v.estatus }}</span></td>
-            <td class="ventas-actions-cell">
-              <div class="btn-actions">
-                <button class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <span>Ver</span>
-                </button>
-                @if (v.estatus === 'POR CONFIRMAR') {
-                  <button class="btn-small btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    Confirmar
-                  </button>
-                  <button class="btn-small btn-danger" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                    Eliminar
-                  </button>
-                }
-              </div>
-            </td>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+            <th></th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @if (ventasFiltradas.length === 0 && !loading) {
+            <tr><td colspan="8" class="empty">No hay ventas</td></tr>
+          }
+          @for (v of ventasPaginadas; track v.venta_id) {
+            <tr>
+              <td>{{ v.venta_id }}</td>
+              <td>{{ v.cliente_nombre || '-' }}</td>
+              <td>{{ v.cliente_telefono || '-' }}</td>
+              <td>{{ v.productos_nombres || '-' }}</td>
+              <td>{{ v.total_venta | number:'1.2-2' }}</td>
+              <td>{{ v.fecha_venta | date:'short' }}</td>
+              <td><span class="badge" [class.confirmada]="v.estatus === 'CONFIRMADA'" [class.eliminada]="v.estatus === 'ELIMINADA'" [class.por-confirmar]="v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE'">{{ v.estatus }}</span></td>
+              <td class="ventas-actions-cell">
+                <div class="btn-actions">
+                  <button class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Ver</span>
+                  </button>
+                  @if (v.estatus === 'POR CONFIRMAR') {
+                    <button class="btn-small btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Confirmar
+                    </button>
+                    <button class="btn-small btn-danger" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      Eliminar
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="card-view">
+      @if (ventasFiltradas.length === 0 && !loading) {
+        <p class="card-empty">No hay ventas</p>
+      }
+      @for (v of ventasPaginadas; track v.venta_id) {
+        <article class="data-card">
+          <div class="card-main">
+            <div class="card-header">
+              <span class="card-title">#{{ v.venta_id }} · {{ v.cliente_nombre || 'Sin cliente' }}</span>
+              <span class="card-badge card-badge-amount">{{ v.total_venta | number:'1.2-2' }}</span>
+            </div>
+            <dl class="card-details">
+              <div class="card-row"><dt>Teléfono</dt><dd>{{ v.cliente_telefono || '-' }}</dd></div>
+              <div class="card-row"><dt>Productos</dt><dd>{{ v.productos_nombres || '-' }}</dd></div>
+              <div class="card-row"><dt>Fecha</dt><dd>{{ v.fecha_venta | date:'short' }}</dd></div>
+              <div class="card-row"><dt>Estatus</dt><dd><span class="badge" [class.confirmada]="v.estatus === 'CONFIRMADA'" [class.eliminada]="v.estatus === 'ELIMINADA'" [class.por-confirmar]="v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE'">{{ v.estatus }}</span></dd></div>
+            </dl>
+          </div>
+          <div class="card-actions">
+            <button class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Ver
+            </button>
+            @if (v.estatus === 'POR CONFIRMAR') {
+              <button class="btn-small btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">Confirmar</button>
+              <button class="btn-small btn-danger" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Eliminar</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
     @if (ventasFiltradas.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">
@@ -114,10 +149,10 @@
               <tbody>
                 @for (d of modalVenta.detalles; track d.detalle_id) {
                   <tr>
-                    <td>{{ d.producto_descripcion || d.producto_id }}</td>
-                    <td>{{ d.cantidad }}</td>
-                    <td>{{ d.precio_unitario | number:'1.2-2' }}</td>
-                    <td>{{ d.cantidad * d.precio_unitario | number:'1.2-2' }}</td>
+                    <td data-label="Producto">{{ d.producto_descripcion || d.producto_id }}</td>
+                    <td data-label="Cantidad">{{ d.cantidad }}</td>
+                    <td data-label="Precio unit.">{{ d.precio_unitario | number:'1.2-2' }}</td>
+                    <td data-label="Subtotal">{{ d.cantidad * d.precio_unitario | number:'1.2-2' }}</td>
                   </tr>
                 }
               </tbody>

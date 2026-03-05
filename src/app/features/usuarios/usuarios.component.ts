@@ -51,7 +51,7 @@ export class UsuariosComponent implements OnInit {
       next: (res) => {
         this.usuarios = res.data || [];
         this.loading = false;
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;

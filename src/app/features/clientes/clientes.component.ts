@@ -55,7 +55,7 @@ export class ClientesComponent implements OnInit {
       next: (res) => {
         this.clientes = res.data || [];
         this.loading = false;
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;

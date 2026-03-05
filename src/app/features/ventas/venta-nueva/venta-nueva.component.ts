@@ -39,6 +39,9 @@ export class VentaNuevaComponent implements OnInit {
   clientes: { cliente_id: number; nombre: string; cedula_rif: string | null }[] = [];
   productos: Producto[] = [];
   productoSeleccionado: number | null = null;
+  productoBusqueda = '';
+  mostrarProductosDropdown = false;
+  productoHighlightIndex = 0;
   clienteId: number | null = null;
   clienteSeleccionado: { nombre: string; cedula_rif: string | null } | null = null;
   cedulaBusqueda = '';
@@ -63,7 +66,7 @@ export class VentaNuevaComponent implements OnInit {
       next: (res) => {
         const data = (res.data || []) as Cliente[];
         this.clientes = data.map(c => ({ cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif }));
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       }
     });
     this.productosService.getAll().subscribe({
@@ -72,7 +75,7 @@ export class VentaNuevaComponent implements OnInit {
           p => (p.estatus || 'A') === 'A' && (p.existencia_actual ?? 0) > 0 && (p.precio_venta_sugerido ?? 0) > 0
         );
         this.loading = false;
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
@@ -115,6 +118,7 @@ export class VentaNuevaComponent implements OnInit {
         ];
         this.lineaExpandida = p.producto_id;
         this.productoSeleccionado = null;
+        this.productoBusqueda = '';
         this.cdr.detectChanges();
       }
     });
@@ -127,6 +131,68 @@ export class VentaNuevaComponent implements OnInit {
 
   productoYaAgregado(productoId: number): boolean {
     return this.lineas.some(l => l.producto_id === productoId);
+  }
+
+  get productosDisponibles(): Producto[] {
+    const q = (this.productoBusqueda || '').trim().toLowerCase();
+    return this.productos.filter(p => {
+      if (this.productoYaAgregado(p.producto_id)) return false;
+      if (!q) return true;
+      const desc = ((p.descripcion || '') + ' ' + (p.nombre || '') + ' ' + (p.codigo_interno || '')).toLowerCase();
+      return desc.includes(q);
+    });
+  }
+
+  seleccionarProducto(p: Producto) {
+    this.productoSeleccionado = p.producto_id;
+    this.productoBusqueda = p.descripcion || p.nombre || p.codigo_interno || '';
+    this.mostrarProductosDropdown = false;
+    this.productoHighlightIndex = 0;
+  }
+
+  onProductoInputFocus() {
+    this.mostrarProductosDropdown = true;
+    this.productoHighlightIndex = 0;
+  }
+
+  onProductoInputBlur() {
+    setTimeout(() => (this.mostrarProductosDropdown = false), 150);
+  }
+
+  onProductoInputKeydown(event: KeyboardEvent) {
+    const list = this.productosDisponibles;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.productoHighlightIndex = Math.min(this.productoHighlightIndex + 1, list.length - 1);
+      this.cdr.detectChanges();
+      this.scrollProductoHighlightIntoView();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.productoHighlightIndex = Math.max(this.productoHighlightIndex - 1, 0);
+      this.cdr.detectChanges();
+      this.scrollProductoHighlightIntoView();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      const p = list[this.productoHighlightIndex];
+      if (p) this.seleccionarProducto(p);
+    } else if (event.key === 'Escape') {
+      this.mostrarProductosDropdown = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onProductoSearchInput() {
+    this.productoHighlightIndex = 0;
+    if (!this.productoBusqueda.trim()) {
+      this.productoSeleccionado = null;
+    }
+  }
+
+  private scrollProductoHighlightIntoView() {
+    setTimeout(() => {
+      const el = document.querySelector('.productos-dropdown li.highlighted');
+      if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }, 0);
   }
 
   get clientesFiltradosPorCedula(): { cliente_id: number; nombre: string; cedula_rif: string | null }[] {

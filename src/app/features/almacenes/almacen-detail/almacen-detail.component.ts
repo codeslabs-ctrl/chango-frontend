@@ -52,7 +52,7 @@ export class AlmacenDetailComponent implements OnInit {
   load() {
     this.loading = true;
     this.almacenesService.getProductos(this.almacenId).subscribe({
-      next: (res) => { this.productos = res.data || []; this.loading = false; setTimeout(() => this.cdr.detectChanges(), 0); },
+      next: (res) => { this.productos = res.data || []; this.loading = false; this.cdr.detectChanges(); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }

@@ -1,37 +1,61 @@
-<div class="page almacen-detail">
+<div class="page internal-page almacen-detail">
   <a routerLink="/almacenes" class="back">← Volver a almacenes</a>
   <h1><span class="page-icon">📦</span> Productos en almacén</h1>
   <div class="table-filter">
     <input type="text" [(ngModel)]="filterProductos" (input)="currentPage = 1" placeholder="Buscar por producto..." />
   </div>
   <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Stock actual</th>
-          <th>Stock mínimo</th>
-          <th>Punto reorden</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (productosFiltrados.length === 0 && !loading) {
-          <tr><td colspan="5" class="empty">No hay productos en este almacén</td></tr>
-        }
-        @for (p of productosPaginados; track p.producto_almacen_id) {
+    <div class="table-view">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>{{ p.descripcion || p.producto_nombre || p.producto_id }}</td>
-            <td>{{ p.stock_actual }}</td>
-            <td>{{ p.stock_minimo }}</td>
-            <td>{{ p.punto_reorden }}</td>
-            <td>
-              <a [routerLink]="['/productos']" [queryParams]="{ stock: p.producto_id }" class="btn-small" title="Ir a actualizar stock">Ver</a>
-            </td>
+            <th>Producto</th>
+            <th>Stock actual</th>
+            <th>Stock mínimo</th>
+            <th>Punto reorden</th>
+            <th></th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @if (productosFiltrados.length === 0 && !loading) {
+            <tr><td colspan="5" class="empty">No hay productos en este almacén</td></tr>
+          }
+          @for (p of productosPaginados; track p.producto_almacen_id) {
+            <tr>
+              <td>{{ p.descripcion || p.producto_nombre || p.producto_id }}</td>
+              <td>{{ p.stock_actual }}</td>
+              <td>{{ p.stock_minimo }}</td>
+              <td>{{ p.punto_reorden }}</td>
+              <td>
+                <a [routerLink]="['/productos']" [queryParams]="{ stock: p.producto_id }" class="btn-small" title="Ir a actualizar stock">Ver</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="card-view">
+      @if (productosFiltrados.length === 0 && !loading) {
+        <p class="card-empty">No hay productos en este almacén</p>
+      }
+      @for (p of productosPaginados; track p.producto_almacen_id) {
+        <article class="data-card">
+          <div class="card-main">
+            <div class="card-header">
+              <span class="card-title">{{ p.descripcion || p.producto_nombre || p.producto_id }}</span>
+              <span class="card-badge card-badge-amount">{{ p.stock_actual }}</span>
+            </div>
+            <dl class="card-details">
+              <div class="card-row"><dt>Stock mín.</dt><dd>{{ p.stock_minimo }}</dd></div>
+              <div class="card-row"><dt>Punto reorden</dt><dd>{{ p.punto_reorden }}</dd></div>
+            </dl>
+          </div>
+          <div class="card-actions">
+            <a [routerLink]="['/productos']" [queryParams]="{ stock: p.producto_id }" class="btn-small">Ver / Stock</a>
+          </div>
+        </article>
+      }
+    </div>
     @if (productosFiltrados.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">

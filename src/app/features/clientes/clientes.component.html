@@ -1,48 +1,78 @@
-<div class="page">
-  <h1><span class="page-icon">👥</span> Gestionar Clientes</h1>
-
+<div class="page internal-page">
+  <div class="page-header">
+    <h1><span class="page-icon">👥</span> Gestionar Clientes</h1>
+  </div>
   <div class="table-filter">
     <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por nombre, cédula, teléfono, email, dirección..." />
   </div>
   <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Cédula/RIF</th>
-          <th>Teléfono</th>
-          <th>Email</th>
-          <th>Dirección</th>
-          <th>Fecha registro</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (clientesFiltrados.length === 0 && !loading) {
-          <tr><td colspan="8" class="empty">No hay clientes</td></tr>
-        }
-        @for (c of clientesPaginados; track c.cliente_id) {
+    <div class="table-view">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>{{ c.cliente_id }}</td>
-            <td>{{ c.nombre }}</td>
-            <td>{{ c.cedula_rif || '-' }}</td>
-            <td>{{ c.telefono || '-' }}</td>
-            <td>{{ c.email || '-' }}</td>
-            <td>{{ c.direccion || '-' }}</td>
-            <td>{{ c.fecha_registro | date:'short' }}</td>
-            <td class="actions-cell">
-              <div class="actions-cell-inner">
-              <a [routerLink]="['/clientes', c.cliente_id, 'editar']" class="btn-icon" title="Editar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                <span>Editar</span>
-              </a>
-              </div>
-            </td>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Cédula/RIF</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Dirección</th>
+            <th>Fecha registro</th>
+            <th></th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @if (clientesFiltrados.length === 0 && !loading) {
+            <tr><td colspan="8" class="empty">No hay clientes</td></tr>
+          }
+          @for (c of clientesPaginados; track c.cliente_id) {
+            <tr>
+              <td>{{ c.cliente_id }}</td>
+              <td>{{ c.nombre }}</td>
+              <td>{{ c.cedula_rif || '-' }}</td>
+              <td>{{ c.telefono || '-' }}</td>
+              <td>{{ c.email || '-' }}</td>
+              <td>{{ c.direccion || '-' }}</td>
+              <td>{{ c.fecha_registro | date:'short' }}</td>
+              <td class="actions-cell">
+                <div class="actions-cell-inner">
+                  <a [routerLink]="['/clientes', c.cliente_id, 'editar']" class="btn-icon" title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    <span>Editar</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="card-view">
+      @if (clientesFiltrados.length === 0 && !loading) {
+        <p class="card-empty">No hay clientes</p>
+      }
+      @for (c of clientesPaginados; track c.cliente_id) {
+        <article class="data-card">
+          <div class="card-main">
+            <div class="card-header">
+              <span class="card-title">{{ c.nombre }}</span>
+            </div>
+            <dl class="card-details">
+              <div class="card-row"><dt>Cédula/RIF</dt><dd>{{ c.cedula_rif || '-' }}</dd></div>
+              <div class="card-row"><dt>Teléfono</dt><dd>{{ c.telefono || '-' }}</dd></div>
+              <div class="card-row"><dt>Email</dt><dd>{{ c.email || '-' }}</dd></div>
+              <div class="card-row"><dt>Dirección</dt><dd>{{ c.direccion || '-' }}</dd></div>
+              <div class="card-row"><dt>Registro</dt><dd>{{ c.fecha_registro | date:'short' }}</dd></div>
+            </dl>
+          </div>
+          <div class="card-actions">
+            <a [routerLink]="['/clientes', c.cliente_id, 'editar']" class="btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              Editar
+            </a>
+          </div>
+        </article>
+      }
+    </div>
     @if (clientesFiltrados.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">

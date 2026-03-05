@@ -51,7 +51,7 @@ export class AlmacenesComponent implements OnInit {
   load() {
     this.loading = true;
     this.almacenesService.getAll().subscribe({
-      next: (res) => { this.almacenes = res.data || []; this.loading = false; setTimeout(() => this.cdr.detectChanges(), 0); },
+      next: (res) => { this.almacenes = res.data || []; this.loading = false; this.cdr.detectChanges(); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }

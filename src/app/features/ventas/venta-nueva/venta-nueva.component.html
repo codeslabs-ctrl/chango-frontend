@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page internal-page">
   <a routerLink="/ventas" class="back">← Volver a ventas</a>
   <h1><span class="page-icon">🛒</span> Nueva venta</h1>
   @if (loading) {
@@ -47,15 +47,36 @@
         <div class="cart-section productos-section">
           <h2><span class="page-icon">➕</span> Añadir productos</h2>
           <div class="productos-add">
-            <select [(ngModel)]="productoSeleccionado" name="producto_select">
-              <option [ngValue]="null">-- Seleccionar producto --</option>
-              @for (p of productos; track p.producto_id) {
-                @if (!productoYaAgregado(p.producto_id)) {
-                  <option [ngValue]="p.producto_id">{{ p.descripcion }} · Stock: {{ p.existencia_actual }} · {{ p.precio_venta_sugerido | number:'1.2-2' }}</option>
-                }
+            <div class="producto-select-wrapper">
+              <input
+                type="text"
+                [(ngModel)]="productoBusqueda"
+                name="productoBusqueda"
+                placeholder="Buscar producto por nombre, código..."
+                (focus)="onProductoInputFocus()"
+                (blur)="onProductoInputBlur()"
+                (keydown)="onProductoInputKeydown($event)"
+                (ngModelChange)="onProductoSearchInput()"
+                class="producto-select-input"
+              />
+              @if (mostrarProductosDropdown) {
+                <ul class="productos-dropdown">
+                  @if (productosDisponibles.length === 0) {
+                    <li class="productos-dropdown-empty">Sin productos disponibles</li>
+                  } @else {
+                    @for (p of productosDisponibles; track p.producto_id; let i = $index) {
+                      <li [class.highlighted]="i === productoHighlightIndex">
+                        <button type="button" (mousedown)="seleccionarProducto(p)" [class.highlighted]="i === productoHighlightIndex">
+                          <span class="producto-dropdown-name">{{ p.descripcion || p.nombre || p.codigo_interno }}</span>
+                          <span class="producto-dropdown-meta">Stock: {{ p.existencia_actual }} · {{ p.precio_venta_sugerido | number:'1.2-2' }}</span>
+                        </button>
+                      </li>
+                    }
+                  }
+                </ul>
               }
-            </select>
-            <button type="button" class="btn-add-cart" (click)="agregarProducto()">+ Añadir al carrito</button>
+            </div>
+            <button type="button" class="btn-add-cart" (click)="agregarProducto()" [disabled]="!productoSeleccionado">+ Añadir al carrito</button>
           </div>
         </div>
 
