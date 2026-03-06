@@ -287,6 +287,9 @@
 }
 
 .card-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
   padding: 1rem 1.5rem;
   background: #f8fafc;
   border-top: 1px solid #e8ecf0;
@@ -307,8 +310,9 @@
 /* Actions */
 .dashboard-container .actions-cell-inner {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
+  align-items: center;
   white-space: nowrap;
   min-width: 0;
 }

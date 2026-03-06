@@ -36,10 +36,42 @@
                     </li>
                   }
                   @if (clientesFiltradosPorCedula.length === 0) {
-                    <li class="empty">Sin coincidencias</li>
+                    <li #sugerenciaItem [class.highlighted]="clienteHighlightIndex === 0">
+                      <button type="button" class="btn-nuevo-cliente" (mousedown)="abrirFormNuevoCliente()" [class.highlighted]="clienteHighlightIndex === 0">
+                        + Registrar nuevo cliente ({{ cedulaBusqueda.trim() }})
+                      </button>
+                    </li>
                   }
                 </ul>
               }
+            </div>
+          }
+          @if (mostrarFormNuevoCliente) {
+            <div class="nuevo-cliente-form">
+              <h3>Datos del nuevo cliente</h3>
+              <p class="nuevo-cliente-cedula">Cédula/RIF: {{ cedulaBusqueda.trim() }}</p>
+              <div class="form-row">
+                <label>Nombre *</label>
+                <input [(ngModel)]="nuevoClienteNombre" name="nuevoClienteNombre" placeholder="Nombre completo" required />
+              </div>
+              <div class="form-row">
+                <label>Teléfono</label>
+                <input [(ngModel)]="nuevoClienteTelefono" name="nuevoClienteTelefono" type="tel" placeholder="Teléfono" />
+              </div>
+              <div class="form-row">
+                <label>Dirección</label>
+                <input [(ngModel)]="nuevoClienteDireccion" name="nuevoClienteDireccion" placeholder="Dirección" />
+              </div>
+              <div class="form-row">
+                <label>Correo</label>
+                <input [(ngModel)]="nuevoClienteCorreo" name="nuevoClienteCorreo" type="email" placeholder="Correo electrónico" />
+              </div>
+              <div class="nuevo-cliente-actions">
+                <button type="button" class="btn-secondary" (click)="cancelarFormNuevoCliente()">Cancelar</button>
+                <button type="button" class="btn-primary" (click)="guardarNuevoCliente()" [disabled]="!nuevoClienteNombre.trim() || guardandoCliente">
+                  {{ guardandoCliente ? 'Guardando...' : 'Registrar y usar' }}
+                </button>
+              </div>
             </div>
           }
         </div>

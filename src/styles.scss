@@ -579,21 +579,23 @@ a.btn-icon { text-decoration: none; }
   color: var(--color-success);
 }
 
-/* Modal responsive - detalle de venta */
-@media (max-width: 600px) {
+/* Modal responsive - detalle de venta (full height en móvil/tablet) */
+@media (max-width: 768px) {
   .modal-overlay {
     padding: 0;
-    align-items: flex-start;
-    overflow-x: hidden;
+    align-items: stretch;
+    overflow: hidden;
   }
 
   .modal-content {
-    max-width: 100%;
     width: 100%;
     min-width: 0;
-    max-height: 95vh;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
     margin: 0;
     border-radius: 0;
+    overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
   }

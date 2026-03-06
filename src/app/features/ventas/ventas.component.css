@@ -37,3 +37,18 @@ h1 { color: #000; }
   flex-wrap: nowrap;
   white-space: nowrap;
 }
+
+/* Responsive - gap en botones de tablas y cards */
+@media (max-width: 900px) {
+  .ventas-actions-cell .btn-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+  }
+}

@@ -8,6 +8,37 @@ h1 { color: #000; }
 .loading-msg { color: var(--color-text-muted); }
 .cliente-search { position: relative; }
 
+/* Nuevo cliente */
+.btn-nuevo-cliente {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border: none;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: var(--font-size);
+  font-weight: 500;
+}
+.btn-nuevo-cliente:hover { background: rgba(13, 148, 136, 0.2); }
+
+.nuevo-cliente-form {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.nuevo-cliente-form h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.nuevo-cliente-cedula { margin: 0 0 1rem; font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.nuevo-cliente-form .form-row { margin-bottom: 1rem; }
+.nuevo-cliente-form .form-row:last-of-type { margin-bottom: 1rem; }
+.nuevo-cliente-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 /* Responsive - Nueva venta */
 @media (max-width: 768px) {
   .page {

@@ -18,6 +18,9 @@
   padding: 20px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .stats-kpi-card.stats-kpi-alert {
@@ -56,10 +59,12 @@
 
 .stats-kpi-link {
   display: block;
-  margin-top: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
   font-size: var(--font-size-sm);
   color: var(--color-primary);
   text-decoration: none;
+  border-top: 1px solid transparent;
 }
 
 .stats-kpi-link:hover { text-decoration: underline; }
@@ -80,6 +85,7 @@
   border: 1px solid var(--color-border);
   overflow: hidden;
   max-width: 100%;
+  min-width: 0;
 }
 
 .chart-title {
@@ -94,6 +100,7 @@
   height: 260px;
   width: 100%;
   min-width: 0;
+  max-width: 100%;
 }
 
 .chart-loading,
@@ -158,6 +165,21 @@
   margin-left: 0.5rem;
 }
 
+.stock-critico-ver-link {
+  display: block;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(220, 38, 38, 0.2);
+  text-align: center;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.stock-critico-ver-link:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .stats-kpi-row {
@@ -174,7 +196,9 @@
   }
 
   .stats-kpi-link {
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top-color: rgba(0, 0, 0, 0.06);
   }
 
   .stats-charts-row {
@@ -185,11 +209,14 @@
   .chart-container {
     padding: 16px 18px;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .chart-wrapper {
     height: 240px;
     min-height: 200px;
+    width: 100%;
   }
 
   .chart-title {
@@ -211,7 +238,9 @@
   }
 
   .stats-kpi-link {
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top-color: rgba(0, 0, 0, 0.06);
   }
 
   .estadisticas-page {
@@ -220,11 +249,13 @@
 
   .chart-container {
     padding: 14px 16px;
+    width: 100%;
   }
 
   .chart-wrapper {
     height: 220px;
     min-height: 180px;
+    width: 100%;
   }
 
   .chart-title {

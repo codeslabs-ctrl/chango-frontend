@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { VentasService, Venta } from '../../core/services/ventas.service';
+import { VentasService, Venta, VentaConDetalles } from '../../core/services/ventas.service';
 import { ProductosService, Producto } from '../../core/services/productos.service';
 import { EstadisticasService } from '../../core/services/estadisticas.service';
 
@@ -24,6 +24,8 @@ export class DashboardComponent implements OnInit {
   loadingProductos = false;
   loadingStats = { comparativa: true, stock: true };
   confirmando: number | null = null;
+  modalVenta: VentaConDetalles | null = null;
+  modalLoading = false;
 
   filterVentas = '';
   filterProductos = '';
@@ -267,6 +269,7 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.ventasPendientes = this.ventasPendientes.filter(v => v.venta_id !== ventaId);
         this.confirmando = null;
+        this.modalVenta = null;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -274,5 +277,27 @@ export class DashboardComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  verDetalle(ventaId: number) {
+    this.modalVenta = null;
+    this.modalLoading = true;
+    this.cdr.detectChanges();
+    this.ventasService.getById(ventaId).subscribe({
+      next: (res) => {
+        this.modalVenta = res.data || null;
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarModal() {
+    this.modalVenta = null;
+    this.cdr.detectChanges();
   }
 }

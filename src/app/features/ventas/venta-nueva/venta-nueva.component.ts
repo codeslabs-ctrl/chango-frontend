@@ -47,6 +47,12 @@ export class VentaNuevaComponent implements OnInit {
   cedulaBusqueda = '';
   mostrarSugerenciasCliente = false;
   clienteHighlightIndex = 0;
+  mostrarFormNuevoCliente = false;
+  nuevoClienteNombre = '';
+  nuevoClienteTelefono = '';
+  nuevoClienteDireccion = '';
+  nuevoClienteCorreo = '';
+  guardandoCliente = false;
   @ViewChildren('sugerenciaItem') sugerenciaItems!: QueryList<ElementRef>;
   metodoPago = '';
   lineas: LineaVenta[] = [];
@@ -228,11 +234,13 @@ export class VentaNuevaComponent implements OnInit {
   }
 
   onClienteInputKeydown(event: KeyboardEvent) {
-    if (!this.mostrarSugerenciasCliente || this.clientesFiltradosPorCedula.length === 0) return;
+    if (!this.mostrarSugerenciasCliente || !this.cedulaBusqueda.trim()) return;
     const list = this.clientesFiltradosPorCedula;
+    const tieneOpcionNuevoCliente = list.length === 0;
+    const totalOpciones = tieneOpcionNuevoCliente ? 1 : list.length;
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.clienteHighlightIndex = Math.min(this.clienteHighlightIndex + 1, list.length - 1);
+      this.clienteHighlightIndex = Math.min(this.clienteHighlightIndex + 1, totalOpciones - 1);
       this.cdr.detectChanges();
       this.scrollClienteHighlightIntoView();
     } else if (event.key === 'ArrowUp') {
@@ -242,8 +250,12 @@ export class VentaNuevaComponent implements OnInit {
       this.scrollClienteHighlightIntoView();
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      const c = list[this.clienteHighlightIndex];
-      if (c) this.seleccionarCliente(c);
+      if (tieneOpcionNuevoCliente) {
+        this.abrirFormNuevoCliente();
+      } else {
+        const c = list[this.clienteHighlightIndex];
+        if (c) this.seleccionarCliente(c);
+      }
     } else if (event.key === 'Escape') {
       this.mostrarSugerenciasCliente = false;
       this.cdr.detectChanges();
@@ -252,6 +264,57 @@ export class VentaNuevaComponent implements OnInit {
 
   onClienteSearchInput() {
     this.clienteHighlightIndex = 0;
+    if (!this.cedulaBusqueda.trim()) this.mostrarFormNuevoCliente = false;
+  }
+
+  abrirFormNuevoCliente() {
+    this.mostrarFormNuevoCliente = true;
+    this.mostrarSugerenciasCliente = false;
+    this.nuevoClienteNombre = '';
+    this.nuevoClienteTelefono = '';
+    this.nuevoClienteDireccion = '';
+    this.nuevoClienteCorreo = '';
+  }
+
+  cancelarFormNuevoCliente() {
+    this.mostrarFormNuevoCliente = false;
+  }
+
+  guardarNuevoCliente() {
+    const nombre = (this.nuevoClienteNombre || '').trim();
+    if (!nombre) return;
+    this.guardandoCliente = true;
+    this.errorMsg = '';
+    this.cdr.detectChanges();
+    this.clientesService.create({
+      nombre,
+      cedula_rif: this.cedulaBusqueda.trim() || undefined,
+      telefono: this.nuevoClienteTelefono.trim() || undefined,
+      direccion: this.nuevoClienteDireccion.trim() || undefined,
+      email: this.nuevoClienteCorreo.trim() || undefined
+    }).subscribe({
+      next: (res) => {
+        const c = res.data;
+        this.clientes = [...this.clientes, { cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif }];
+        this.clienteId = c.cliente_id;
+        this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif };
+        this.cedulaBusqueda = c.cedula_rif || '';
+        this.mostrarFormNuevoCliente = false;
+        this.mostrarSugerenciasCliente = false;
+        this.nuevoClienteNombre = '';
+        this.nuevoClienteTelefono = '';
+        this.nuevoClienteDireccion = '';
+        this.nuevoClienteCorreo = '';
+        this.guardandoCliente = false;
+        this.cdr.detectChanges();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      error: (err) => {
+        this.guardandoCliente = false;
+        this.errorMsg = err?.error?.message || err?.message || 'Error al registrar el cliente';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   private scrollClienteHighlightIntoView() {

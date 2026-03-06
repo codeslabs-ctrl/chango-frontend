@@ -31,6 +31,10 @@ export class ClientesService {
     return this.http.get<{ success: boolean; data: Cliente[] }>(this.baseUrl, this.getOptions());
   }
 
+  create(dto: { nombre: string; cedula_rif?: string; telefono?: string; email?: string; direccion?: string }): Observable<{ success: boolean; data: Cliente }> {
+    return this.http.post<{ success: boolean; data: Cliente }>(this.baseUrl, dto, this.getOptions());
+  }
+
   getById(id: number): Observable<{ success: boolean; data: Cliente }> {
     return this.http.get<{ success: boolean; data: Cliente }>(
       `${this.baseUrl}/${id}`,
