@@ -371,6 +371,11 @@ export class VentaNuevaComponent implements OnInit {
         return;
       }
     }
+    if (!this.clienteId) {
+      this.errorMsg = 'El cliente es obligatorio.';
+      this.cdr.detectChanges();
+      return;
+    }
     if (this.lineas.length === 0) {
       this.errorMsg = 'Agrega al menos un producto.';
       this.cdr.detectChanges();
