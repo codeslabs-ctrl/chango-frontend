@@ -11,7 +11,7 @@
           <h2><span class="page-icon">👤</span> Cliente</h2>
           @if (clienteSeleccionado) {
             <div class="cliente-badge">
-              <span class="cliente-info">{{ clienteSeleccionado.nombre }} <small>({{ clienteSeleccionado.cedula_rif || '-' }})</small></span>
+              <span class="cliente-info">{{ clienteSeleccionado.nombre }} <small>({{ clienteSeleccionado.cedula_rif || clienteSeleccionado.telefono || '-' }})</small></span>
               <button type="button" class="btn-remove-small" (click)="quitarCliente()" title="Quitar cliente">×</button>
             </div>
           } @else {
@@ -20,7 +20,7 @@
                 type="text"
                 [(ngModel)]="cedulaBusqueda"
                 name="cedulaBusqueda"
-                placeholder="Buscar por cédula o RIF..."
+                placeholder="Buscar por cédula, RIF o teléfono..."
                 (focus)="onClienteInputFocus()"
                 (blur)="onClienteInputBlur()"
                 (keydown)="onClienteInputKeydown($event)"
@@ -28,14 +28,14 @@
               />
               @if (mostrarSugerenciasCliente && cedulaBusqueda.trim()) {
                 <ul class="sugerencias-dropdown">
-                  @for (c of clientesFiltradosPorCedula; track c.cliente_id; let i = $index) {
+                  @for (c of clientesFiltrados; track c.cliente_id; let i = $index) {
                     <li #sugerenciaItem [class.highlighted]="i === clienteHighlightIndex">
                       <button type="button" (mousedown)="seleccionarCliente(c)" [class.highlighted]="i === clienteHighlightIndex">
-                        {{ c.cedula_rif || '-' }} — {{ c.nombre }}
+                        {{ (c.cedula_rif || c.telefono || '-') }} — {{ c.nombre }}
                       </button>
                     </li>
                   }
-                  @if (clientesFiltradosPorCedula.length === 0) {
+                  @if (clientesFiltrados.length === 0) {
                     <li #sugerenciaItem [class.highlighted]="clienteHighlightIndex === 0">
                       <button type="button" class="btn-nuevo-cliente" (mousedown)="abrirFormNuevoCliente()" [class.highlighted]="clienteHighlightIndex === 0">
                         + Registrar nuevo cliente ({{ cedulaBusqueda.trim() }})
@@ -49,10 +49,13 @@
           @if (mostrarFormNuevoCliente) {
             <div class="nuevo-cliente-form">
               <h3>Datos del nuevo cliente</h3>
-              <p class="nuevo-cliente-cedula">Cédula/RIF: {{ cedulaBusqueda.trim() }}</p>
               <div class="form-row">
                 <label>Nombre *</label>
                 <input [(ngModel)]="nuevoClienteNombre" name="nuevoClienteNombre" placeholder="Nombre completo" required />
+              </div>
+              <div class="form-row">
+                <label>Cédula/RIF</label>
+                <input [(ngModel)]="nuevoClienteCedula" name="nuevoClienteCedula" placeholder="Cédula o RIF" />
               </div>
               <div class="form-row">
                 <label>Teléfono</label>

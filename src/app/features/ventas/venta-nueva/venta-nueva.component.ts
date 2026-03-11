@@ -36,19 +36,20 @@ export class VentaNuevaComponent implements OnInit {
   loading = true;
   saving = false;
   errorMsg = '';
-  clientes: { cliente_id: number; nombre: string; cedula_rif: string | null }[] = [];
+  clientes: { cliente_id: number; nombre: string; cedula_rif: string | null; telefono: string | null }[] = [];
   productos: Producto[] = [];
   productoSeleccionado: number | null = null;
   productoBusqueda = '';
   mostrarProductosDropdown = false;
   productoHighlightIndex = 0;
   clienteId: number | null = null;
-  clienteSeleccionado: { nombre: string; cedula_rif: string | null } | null = null;
+  clienteSeleccionado: { nombre: string; cedula_rif: string | null; telefono: string | null } | null = null;
   cedulaBusqueda = '';
   mostrarSugerenciasCliente = false;
   clienteHighlightIndex = 0;
   mostrarFormNuevoCliente = false;
   nuevoClienteNombre = '';
+  nuevoClienteCedula = '';
   nuevoClienteTelefono = '';
   nuevoClienteDireccion = '';
   nuevoClienteCorreo = '';
@@ -71,7 +72,7 @@ export class VentaNuevaComponent implements OnInit {
     this.clientesService.getAll().subscribe({
       next: (res) => {
         const data = (res.data || []) as Cliente[];
-        this.clientes = data.map(c => ({ cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif }));
+        this.clientes = data.map(c => ({ cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif, telefono: c.telefono }));
         this.cdr.detectChanges();
       }
     });
@@ -201,19 +202,21 @@ export class VentaNuevaComponent implements OnInit {
     }, 0);
   }
 
-  get clientesFiltradosPorCedula(): { cliente_id: number; nombre: string; cedula_rif: string | null }[] {
+  get clientesFiltrados(): { cliente_id: number; nombre: string; cedula_rif: string | null; telefono: string | null }[] {
     const q = (this.cedulaBusqueda || '').trim().toLowerCase();
     if (!q) return this.clientes;
     return this.clientes.filter(c => {
       const cedula = (c.cedula_rif || '').toLowerCase();
-      return cedula.includes(q);
+      const telefono = (c.telefono || '').replace(/\D/g, '');
+      const qDigits = q.replace(/\D/g, '');
+      return cedula.includes(q) || (qDigits.length >= 4 && telefono.includes(qDigits));
     });
   }
 
-  seleccionarCliente(c: { cliente_id: number; nombre: string; cedula_rif: string | null }) {
+  seleccionarCliente(c: { cliente_id: number; nombre: string; cedula_rif: string | null; telefono: string | null }) {
     this.clienteId = c.cliente_id;
-    this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif };
-    this.cedulaBusqueda = c.cedula_rif || '';
+    this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif, telefono: c.telefono };
+    this.cedulaBusqueda = c.cedula_rif || c.telefono || '';
     this.mostrarSugerenciasCliente = false;
     this.clienteHighlightIndex = 0;
   }
@@ -235,7 +238,7 @@ export class VentaNuevaComponent implements OnInit {
 
   onClienteInputKeydown(event: KeyboardEvent) {
     if (!this.mostrarSugerenciasCliente || !this.cedulaBusqueda.trim()) return;
-    const list = this.clientesFiltradosPorCedula;
+    const list = this.clientesFiltrados;
     const tieneOpcionNuevoCliente = list.length === 0;
     const totalOpciones = tieneOpcionNuevoCliente ? 1 : list.length;
     if (event.key === 'ArrowDown') {
@@ -271,6 +274,7 @@ export class VentaNuevaComponent implements OnInit {
     this.mostrarFormNuevoCliente = true;
     this.mostrarSugerenciasCliente = false;
     this.nuevoClienteNombre = '';
+    this.nuevoClienteCedula = '';
     this.nuevoClienteTelefono = '';
     this.nuevoClienteDireccion = '';
     this.nuevoClienteCorreo = '';
@@ -283,25 +287,28 @@ export class VentaNuevaComponent implements OnInit {
   guardarNuevoCliente() {
     const nombre = (this.nuevoClienteNombre || '').trim();
     if (!nombre) return;
+    const cedula = (this.nuevoClienteCedula || '').trim();
+    const telefono = (this.nuevoClienteTelefono || '').trim();
     this.guardandoCliente = true;
     this.errorMsg = '';
     this.cdr.detectChanges();
     this.clientesService.create({
       nombre,
-      cedula_rif: this.cedulaBusqueda.trim() || undefined,
-      telefono: this.nuevoClienteTelefono.trim() || undefined,
+      cedula_rif: cedula || undefined,
+      telefono: telefono || undefined,
       direccion: this.nuevoClienteDireccion.trim() || undefined,
       email: this.nuevoClienteCorreo.trim() || undefined
     }).subscribe({
       next: (res) => {
         const c = res.data;
-        this.clientes = [...this.clientes, { cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif }];
+        this.clientes = [...this.clientes, { cliente_id: c.cliente_id, nombre: c.nombre, cedula_rif: c.cedula_rif, telefono: c.telefono }];
         this.clienteId = c.cliente_id;
-        this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif };
-        this.cedulaBusqueda = c.cedula_rif || '';
+        this.clienteSeleccionado = { nombre: c.nombre, cedula_rif: c.cedula_rif, telefono: c.telefono };
+        this.cedulaBusqueda = c.cedula_rif || c.telefono || '';
         this.mostrarFormNuevoCliente = false;
         this.mostrarSugerenciasCliente = false;
         this.nuevoClienteNombre = '';
+        this.nuevoClienteCedula = '';
         this.nuevoClienteTelefono = '';
         this.nuevoClienteDireccion = '';
         this.nuevoClienteCorreo = '';
