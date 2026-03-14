@@ -28,9 +28,9 @@
 .nav a.brand.active { background: transparent; }
 .brand-logo {
   height: 40px;
-  width: auto;
-  object-fit: contain;
-  padding: 0;
+  width: 40px;
+  flex-shrink: 0;
+  color: var(--color-primary);
 }
 .brand-text {
   font-size: 1.35rem;
@@ -138,6 +138,7 @@
 
   .brand-logo {
     height: 36px;
+    width: 36px;
   }
 
   .brand-text {
