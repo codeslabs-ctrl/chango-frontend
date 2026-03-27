@@ -29,6 +29,7 @@ export const routes: Routes = [
       { path: 'productos/:id/editar', loadComponent: () => import('./features/productos/producto-editar/producto-editar.component').then(m => m.ProductoEditarComponent), canActivate: [denyVendedorGuard] },
       { path: 'almacenes', loadComponent: () => import('./features/almacenes/almacenes.component').then(m => m.AlmacenesComponent), canActivate: [denyVendedorGuard] },
       { path: 'almacenes/:id', loadComponent: () => import('./features/almacenes/almacen-detail/almacen-detail.component').then(m => m.AlmacenDetailComponent), canActivate: [denyVendedorGuard] },
+      { path: 'clientes/nuevo', loadComponent: () => import('./features/clientes/cliente-nuevo/cliente-nuevo.component').then(m => m.ClienteNuevoComponent) },
       { path: 'clientes', loadComponent: () => import('./features/clientes/clientes.component').then(m => m.ClientesComponent) },
       { path: 'clientes/:id/editar', loadComponent: () => import('./features/clientes/cliente-editar/cliente-editar.component').then(m => m.ClienteEditarComponent) },
       { path: 'categorias', loadComponent: () => import('./features/categorias/categorias.component').then(m => m.CategoriasComponent), canActivate: [denyVendedorGuard] },
