@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -43,5 +43,35 @@ export class EstadisticasService {
       `${this.baseUrl}/stock-critico`,
       this.getOptions()
     );
+  }
+
+  getVendedorResumen(fechaDesde?: string, fechaHasta?: string): Observable<{ success: boolean; data: any }> {
+    let params = new HttpParams();
+    if (fechaDesde) params = params.set('fechaDesde', fechaDesde);
+    if (fechaHasta) params = params.set('fechaHasta', fechaHasta);
+    return this.http.get<{ success: boolean; data: any }>(`${this.baseUrl}/vendedor/resumen`, {
+      ...this.getOptions(),
+      params
+    });
+  }
+
+  getVendedorTopProductos(fechaDesde?: string, fechaHasta?: string): Observable<{ success: boolean; data: any[] }> {
+    let params = new HttpParams();
+    if (fechaDesde) params = params.set('fechaDesde', fechaDesde);
+    if (fechaHasta) params = params.set('fechaHasta', fechaHasta);
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.baseUrl}/vendedor/top-productos`, {
+      ...this.getOptions(),
+      params
+    });
+  }
+
+  getVendedorTopClientes(fechaDesde?: string, fechaHasta?: string): Observable<{ success: boolean; data: any[] }> {
+    let params = new HttpParams();
+    if (fechaDesde) params = params.set('fechaDesde', fechaDesde);
+    if (fechaHasta) params = params.set('fechaHasta', fechaHasta);
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.baseUrl}/vendedor/top-clientes`, {
+      ...this.getOptions(),
+      params
+    });
   }
 }

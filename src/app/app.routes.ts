@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { denyVendedorGuard } from './core/guards/deny-vendedor.guard';
+import { vendedorGuard } from './core/guards/vendedor.guard';
 import { RecuperarPasswordComponent } from './features/auth/recuperar-password/recuperar-password.component';
 
 export const routes: Routes = [
@@ -17,6 +18,12 @@ export const routes: Routes = [
       { path: 'estadisticas', loadComponent: () => import('./features/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent), canActivate: [denyVendedorGuard] },
       { path: 'ventas', loadComponent: () => import('./features/ventas/ventas.component').then(m => m.VentasComponent) },
       { path: 'ventas/nuevo', loadComponent: () => import('./features/ventas/venta-nueva/venta-nueva.component').then(m => m.VentaNuevaComponent) },
+      {
+        path: 'estadisticas-vendedor',
+        loadComponent: () =>
+          import('./features/estadisticas-vendedor/estadisticas-vendedor.component').then(m => m.EstadisticasVendedorComponent),
+        canActivate: [vendedorGuard]
+      },
       { path: 'productos', loadComponent: () => import('./features/productos/productos.component').then(m => m.ProductosComponent), canActivate: [denyVendedorGuard] },
       { path: 'productos/nuevo', loadComponent: () => import('./features/productos/producto-nuevo/producto-nuevo.component').then(m => m.ProductoNuevoComponent), canActivate: [denyVendedorGuard] },
       { path: 'productos/:id/editar', loadComponent: () => import('./features/productos/producto-editar/producto-editar.component').then(m => m.ProductoEditarComponent), canActivate: [denyVendedorGuard] },

@@ -1,0 +1,103 @@
+<div class="page internal-page estadisticas-vendedor-page">
+  <h1 class="page-title">Mis estadísticas</h1>
+  <p class="page-lead">Ventas registradas a tu nombre en el período elegido.</p>
+
+  <div class="stats-filter-bar">
+    <label class="stats-filter-field">
+      <span>Desde</span>
+      <input type="date" [(ngModel)]="fechaDesde" name="fechaDesde" />
+    </label>
+    <label class="stats-filter-field">
+      <span>Hasta</span>
+      <input type="date" [(ngModel)]="fechaHasta" name="fechaHasta" />
+    </label>
+    <button type="button" class="btn btn-primary stats-filter-btn" (click)="cargar()" [disabled]="loading">
+      Actualizar
+    </button>
+  </div>
+
+  @if (error) {
+    <p class="stats-error" role="alert">{{ error }}</p>
+  }
+
+  <div class="stats-kpi-row">
+    <div class="stats-kpi-card">
+      <div class="stats-kpi-label">Total vendido</div>
+      @if (loading) {
+        <div class="stats-kpi-value stats-kpi-loading">...</div>
+      } @else {
+        <div class="stats-kpi-value">{{ num(resumen?.monto_total) | number:'1.2-2' }}</div>
+      }
+    </div>
+    <div class="stats-kpi-card">
+      <div class="stats-kpi-label">Cantidad de ventas</div>
+      @if (loading) {
+        <div class="stats-kpi-value stats-kpi-loading">...</div>
+      } @else {
+        <div class="stats-kpi-value">{{ num(resumen?.cantidad_ventas) | number:'1.0-0' }}</div>
+      }
+    </div>
+  </div>
+
+  <div class="stats-tables-row">
+    <section class="stats-table-section">
+      <h2 class="stats-table-title">Top 5 productos</h2>
+      @if (loading) {
+        <p class="stats-muted">Cargando...</p>
+      } @else if (topProductos.length === 0) {
+        <p class="stats-muted">Sin ventas en este período.</p>
+      } @else {
+        <div class="stats-table-wrap">
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th class="stats-table-cell-text">Producto</th>
+                <th class="num">Ingresos</th>
+                <th class="num">Unidades</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of topProductos; track p.producto_id) {
+                <tr>
+                  <td class="stats-table-cell-text">{{ p.nombre ?? '—' }}</td>
+                  <td class="num">{{ num(p.ingresos_totales) | number:'1.2-2' }}</td>
+                  <td class="num">{{ num(p.unidades) | number:'1.0-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="stats-table-section">
+      <h2 class="stats-table-title">Top 5 clientes</h2>
+      @if (loading) {
+        <p class="stats-muted">Cargando...</p>
+      } @else if (topClientes.length === 0) {
+        <p class="stats-muted">Sin ventas con cliente en este período.</p>
+      } @else {
+        <div class="stats-table-wrap">
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th class="stats-table-cell-text">Cliente</th>
+                <th class="num">Total</th>
+                <th class="num">Ventas</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of topClientes; track c.cliente_id) {
+                <tr>
+                  <td class="stats-table-cell-text">{{ c.nombre ?? '—' }}</td>
+                  <td class="num">{{ num(c.total) | number:'1.2-2' }}</td>
+                  <td class="num">{{ num(c.cantidad_ventas) | number:'1.0-0' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</div>

@@ -11,6 +11,8 @@ export interface Venta {
   cliente_cedula_rif?: string | null;
   cliente_telefono?: string | null;
   productos_nombres?: string | null;
+  usuario_id?: number | null;
+  usuario_nombre?: string | null;
   fecha_venta: string;
   total_venta: number;
   metodo_pago: string | null;
