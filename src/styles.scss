@@ -709,11 +709,13 @@ a.btn-icon { text-decoration: none; }
 /* ----- Login (unified two-column card) ----- */
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background: var(--color-bg);
-  padding: 2rem;
+  padding: 0;
+  margin: 0;
 }
 .login-container {
   width: 100%;
@@ -801,14 +803,15 @@ a.btn-icon { text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem;
+  padding: 0;
   background: #fff;
 }
 .login-card {
   width: 100%;
   max-width: 360px;
   background: transparent;
-  padding: 0;
+  padding: 1.5rem 1.25rem 2rem;
+  box-sizing: border-box;
 }
 .login-card-header {
   display: flex;
@@ -983,7 +986,10 @@ a.btn-icon { text-decoration: none; }
   .login-hero { min-height: 220px; }
   .login-hero-overlay { padding: 1.5rem 1.25rem; }
   .login-hero-welcome { font-size: 1.15rem; }
-  .login-form-panel { padding: 2rem 1.5rem; }
+  .login-form-panel { padding: 0; }
+  .login-card {
+    padding: 1.25rem 1rem 1.75rem;
+  }
 }
 
 /* ----- Venta nueva (carrito) ----- */
