@@ -6,7 +6,7 @@
     </div>
   </div>
   <div class="table-filter">
-    <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por usuario o email..." />
+    <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por nombre, usuario o email..." />
   </div>
   <div class="table-wrapper">
     <div class="table-view">
@@ -14,6 +14,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Nombre</th>
             <th>Usuario</th>
             <th>Email</th>
             <th>Rol</th>
@@ -24,11 +25,12 @@
         </thead>
         <tbody>
           @if (usuariosFiltrados.length === 0 && !loading) {
-            <tr><td colspan="7" class="empty">No hay usuarios</td></tr>
+            <tr><td colspan="8" class="empty">No hay usuarios</td></tr>
           }
           @for (u of usuariosPaginados; track u.id) {
             <tr>
               <td>{{ u.id }}</td>
+              <td>{{ u.nombre_usuario?.trim() || '—' }}</td>
               <td>{{ u.username }}</td>
               <td>{{ u.email }}</td>
               <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.vendedor]="u.rol === 'vendedor'" [class.usuario]="u.rol === 'usuario'">{{ u.rol === 'administrador' ? 'Administrador' : u.rol === 'vendedor' ? 'Vendedor' : 'Usuario' }}</span></td>
@@ -61,10 +63,13 @@
         <article class="data-card">
           <div class="card-main">
             <div class="card-header">
-              <span class="card-title">{{ u.username }}</span>
+              <span class="card-title">{{ u.nombre_usuario?.trim() || u.username }}</span>
               <span class="badge" [class.administrador]="u.rol === 'administrador'" [class.vendedor]="u.rol === 'vendedor'" [class.usuario]="u.rol === 'usuario'">{{ u.rol === 'administrador' ? 'Admin' : u.rol === 'vendedor' ? 'Vendedor' : 'Usuario' }}</span>
             </div>
             <dl class="card-details">
+              @if (u.nombre_usuario?.trim()) {
+                <div class="card-row"><dt>Usuario</dt><dd>{{ u.username }}</dd></div>
+              }
               <div class="card-row"><dt>Email</dt><dd>{{ u.email }}</dd></div>
               <div class="card-row"><dt>Estatus</dt><dd><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></dd></div>
               <div class="card-row"><dt>Último login</dt><dd>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</dd></div>

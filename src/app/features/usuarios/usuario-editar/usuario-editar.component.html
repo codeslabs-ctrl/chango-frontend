@@ -10,6 +10,11 @@
       }
       <form (ngSubmit)="guardar()">
         <div class="form-row">
+          <label>Nombre para mostrar</label>
+          <input [(ngModel)]="form.nombre_usuario" name="nombre_usuario" placeholder="Ej. María González" />
+          <p class="field-hint">Opcional. Vacío = solo se muestra el nombre de usuario en la app.</p>
+        </div>
+        <div class="form-row">
           <label>Nombre de usuario *</label>
           <input [(ngModel)]="form.username" name="username" required />
         </div>

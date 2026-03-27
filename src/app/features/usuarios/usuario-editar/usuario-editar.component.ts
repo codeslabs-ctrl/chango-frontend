@@ -15,7 +15,14 @@ import { UsuariosService } from '../../../core/services/usuarios.service';
 })
 export class UsuarioEditarComponent implements OnInit {
   usuarioId = 0;
-  form = { username: '', email: '', password: '', rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor', activo: true };
+  form = {
+    nombre_usuario: '',
+    username: '',
+    email: '',
+    password: '',
+    rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor',
+    activo: true
+  };
   loading = true;
   saving = false;
   errorMsg = '';
@@ -42,6 +49,7 @@ export class UsuarioEditarComponent implements OnInit {
           return;
         }
         this.form = {
+          nombre_usuario: u.nombre_usuario ?? '',
           username: u.username,
           email: u.email,
           password: '',
@@ -67,9 +75,17 @@ export class UsuarioEditarComponent implements OnInit {
 
     this.errorMsg = '';
     this.saving = true;
-    const dto: { username: string; email: string; password?: string; rol: 'administrador' | 'usuario' | 'vendedor'; activo: boolean } = {
+    const dto: {
+      username: string;
+      email: string;
+      nombre_usuario: string | null;
+      password?: string;
+      rol: 'administrador' | 'usuario' | 'vendedor';
+      activo: boolean;
+    } = {
       username: this.form.username.trim(),
       email: this.form.email.trim(),
+      nombre_usuario: this.form.nombre_usuario.trim() || null,
       rol: this.form.rol,
       activo: this.form.activo
     };

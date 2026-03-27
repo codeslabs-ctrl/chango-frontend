@@ -14,7 +14,13 @@ import { UsuariosService } from '../../../core/services/usuarios.service';
   styleUrl: './usuario-nuevo.component.css'
 })
 export class UsuarioNuevoComponent {
-  form = { username: '', email: '', password: '', rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor' };
+  form = {
+    nombre_usuario: '',
+    username: '',
+    email: '',
+    password: '',
+    rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor'
+  };
   saving = false;
   errorMsg = '';
 
@@ -33,12 +39,14 @@ export class UsuarioNuevoComponent {
 
     this.errorMsg = '';
     this.saving = true;
+    const nombre = this.form.nombre_usuario.trim();
     this.usuariosService
       .create({
         username: this.form.username.trim(),
         email: this.form.email.trim(),
         password: this.form.password,
-        rol: this.form.rol
+        rol: this.form.rol,
+        ...(nombre ? { nombre_usuario: nombre } : {})
       })
       .pipe(
         finalize(() => {

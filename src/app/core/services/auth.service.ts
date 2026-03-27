@@ -8,6 +8,7 @@ export interface AuthUser {
   id: number;
   username: string;
   email: string;
+  nombre_usuario?: string | null;
   rol?: RolUsuario;
 }
 
@@ -25,6 +26,13 @@ export class AuthService {
   user = signal<AuthUser | null>(this.getStoredUser());
   isAuthenticated = computed(() => !!this.token());
   username = computed(() => this.user()?.username ?? null);
+  /** Nombre completo para mostrar (navbar): `nombre_usuario` o, si no hay, `username` */
+  nombreCompleto = computed(() => {
+    const u = this.user();
+    if (!u) return null;
+    const n = u.nombre_usuario?.trim();
+    return n || u.username;
+  });
   isAdmin = computed(() => this.user()?.rol === 'administrador');
   isVendedor = computed(() => this.user()?.rol === 'vendedor');
 

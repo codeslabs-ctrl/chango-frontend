@@ -10,6 +10,7 @@ export interface Usuario {
   id: number;
   username: string;
   email: string;
+  nombre_usuario?: string | null;
   rol: RolUsuario;
   activo: boolean;
   ultimo_login?: string | null;
@@ -38,11 +39,32 @@ export class UsuariosService {
     return this.http.get<{ success: boolean; data: Usuario }>(`${this.baseUrl}/${id}`, this.getOptions());
   }
 
-  create(dto: { username: string; email: string; password: string; rol?: RolUsuario }): Observable<{ success: boolean; data: Usuario }> {
+  /** Perfil del usuario autenticado (incluye nombre_usuario) */
+  getMe(): Observable<{ success: boolean; data: Usuario }> {
+    return this.http.get<{ success: boolean; data: Usuario }>(`${this.baseUrl}/me`, this.getOptions());
+  }
+
+  create(dto: {
+    username: string;
+    email: string;
+    password: string;
+    rol?: RolUsuario;
+    nombre_usuario?: string | null;
+  }): Observable<{ success: boolean; data: Usuario }> {
     return this.http.post<{ success: boolean; data: Usuario }>(this.baseUrl, dto, this.getOptions());
   }
 
-  update(id: number, dto: { username?: string; email?: string; password?: string; rol?: RolUsuario; activo?: boolean }): Observable<{ success: boolean; data: Usuario }> {
+  update(
+    id: number,
+    dto: {
+      username?: string;
+      email?: string;
+      nombre_usuario?: string | null;
+      password?: string;
+      rol?: RolUsuario;
+      activo?: boolean;
+    }
+  ): Observable<{ success: boolean; data: Usuario }> {
     return this.http.put<{ success: boolean; data: Usuario }>(`${this.baseUrl}/${id}`, dto, this.getOptions());
   }
 

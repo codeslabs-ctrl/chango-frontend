@@ -1,7 +1,8 @@
-import { Component, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { UsuariosService } from '../../../core/services/usuarios.service';
 
 @Component({
   selector: 'chango-dashboard-layout',
@@ -10,8 +11,27 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './dashboard-layout.component.html',
   styleUrl: './dashboard-layout.component.css'
 })
-export class DashboardLayoutComponent {
-  constructor(protected auth: AuthService) {}
+export class DashboardLayoutComponent implements OnInit {
+  constructor(
+    protected auth: AuthService,
+    private usuariosService: UsuariosService
+  ) {}
+
+  ngOnInit() {
+    if (!this.auth.token()) return;
+    this.usuariosService.getMe().subscribe({
+      next: (res) => {
+        const d = res.data;
+        if (!d) return;
+        this.auth.updateUser({
+          username: d.username,
+          email: d.email,
+          nombre_usuario: d.nombre_usuario ?? null
+        });
+      },
+      error: () => {}
+    });
+  }
   @ViewChild('menuWrapper') menuWrapper?: ElementRef<HTMLElement>;
   menuOpen = signal(false);
 

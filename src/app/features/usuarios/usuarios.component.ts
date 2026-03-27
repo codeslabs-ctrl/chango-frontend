@@ -23,7 +23,8 @@ export class UsuariosComponent implements OnInit {
     if (!q) return this.usuarios;
     return this.usuarios.filter(u =>
       (u.username || '').toLowerCase().includes(q) ||
-      (u.email || '').toLowerCase().includes(q)
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.nombre_usuario || '').toLowerCase().includes(q)
     );
   }
 

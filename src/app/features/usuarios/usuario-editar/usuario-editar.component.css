@@ -3,3 +3,9 @@
 h1 { color: #000; }
 .back { color: var(--color-primary); }
 .form-row input, .form-row select { max-width: 400px; }
+.field-hint {
+  margin: 0.25rem 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
