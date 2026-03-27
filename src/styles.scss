@@ -757,11 +757,13 @@ a.btn-icon { text-decoration: none; }
   width: 100%;
   height: 100%;
   z-index: 0;
+  overflow: hidden;
 }
 .login-hero-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 18%;
   display: block;
 }
 .login-hero-overlay {
@@ -781,10 +783,10 @@ a.btn-icon { text-decoration: none; }
   font-size: 1.35rem;
   color: #fff;
 }
-.login-hero-welcome .login-brand-demo {
+.login-hero-welcome .login-brand-santa {
   color: #fff;
 }
-.login-hero-welcome .login-brand-stock {
+.login-hero-welcome .login-brand-chango {
   color: var(--color-primary);
 }
 .login-hero-tagline {
