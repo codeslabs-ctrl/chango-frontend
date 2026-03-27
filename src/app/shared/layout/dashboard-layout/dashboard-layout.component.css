@@ -68,9 +68,10 @@
 }
 .nav-tab {
   flex-shrink: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 0.45rem;
   padding: 0.4rem 0.95rem;
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -82,6 +83,13 @@
   transition: color 0.15s, background 0.15s, box-shadow 0.15s;
   white-space: nowrap;
   line-height: 1.25;
+}
+.nav-tab-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.nav-tab-label-short {
+  display: none;
 }
 .nav-tab:hover:not(.active) {
   color: var(--color-text);
@@ -303,6 +311,19 @@
     padding: 0.32rem 0.55rem;
     font-size: 0.75rem;
     border-radius: 6px;
+    gap: 0.35rem;
+  }
+
+  .nav-tab-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .nav-tab-label-full {
+    display: none;
+  }
+  .nav-tab-label-short {
+    display: inline;
   }
 
   .brand-logo {
