@@ -6,6 +6,20 @@ h1 { color: #000; }
 .btn-checkout:hover:not(:disabled) { background: var(--color-primary-hover); }
 .cart-form { display: block; }
 .loading-msg { color: var(--color-text-muted); }
+.almacen-hint {
+  margin: 0 0 0.75rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.almacen-select-row select {
+  max-width: 100%;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: var(--font-size);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
 .cliente-search { position: relative; }
 
 /* Nuevo cliente */
@@ -20,7 +34,7 @@ h1 { color: #000; }
   font-size: var(--font-size);
   font-weight: 500;
 }
-.btn-nuevo-cliente:hover { background: rgba(13, 148, 136, 0.2); }
+.btn-nuevo-cliente:hover { background: rgba(210, 32, 39, 0.2); }
 
 .nuevo-cliente-form {
   margin-top: 1rem;

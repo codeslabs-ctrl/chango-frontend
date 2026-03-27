@@ -13,7 +13,7 @@
   margin-bottom: 1.25rem;
   padding: 1rem 1.25rem;
   padding-left: 1rem;
-  background: linear-gradient(90deg, rgba(13, 148, 136, 0.12) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(210, 32, 39, 0.12) 0%, transparent 100%);
   border-left: 4px solid var(--color-primary);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }

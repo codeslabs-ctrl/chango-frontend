@@ -29,15 +29,15 @@ export class CuentaPasswordComponent {
   guardar() {
     this.error = '';
     if (!this.form.currentPassword || !this.form.newPassword) {
-      this.error = 'Contraseña actual y nueva son requeridas';
+      this.error = 'Indicá la contraseña actual y la nueva.';
       return;
     }
     if (this.form.newPassword.length < 6) {
-      this.error = 'La nueva contraseña debe tener al menos 6 caracteres';
+      this.error = 'La nueva contraseña debe tener al menos 6 caracteres.';
       return;
     }
     if (this.form.newPassword !== this.form.confirmPassword) {
-      this.error = 'Las contraseñas nuevas no coinciden';
+      this.error = 'Las contraseñas nuevas no coinciden.';
       return;
     }
     this.saving = true;
@@ -47,7 +47,8 @@ export class CuentaPasswordComponent {
     ).subscribe({
       next: () => this.router.navigate(['/cuenta']),
       error: (err) => {
-        this.error = err?.error?.message ?? 'Contraseña actual incorrecta';
+        this.error =
+          err?.error?.message ?? 'La contraseña actual no es correcta. Revisá e intentá de nuevo.';
         this.saving = false;
         this.cdr.detectChanges();
       }

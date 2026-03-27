@@ -65,7 +65,7 @@ export class UsuariosComponent implements OnInit {
     this.usuariosService.delete(u.id).subscribe({
       next: () => this.load(),
       error: (err) => {
-        alert(err?.error?.message || 'Error al eliminar');
+        alert(err?.error?.message || 'No pudimos eliminar el usuario. Intentá de nuevo.');
         this.cdr.detectChanges();
       }
     });

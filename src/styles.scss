@@ -1,13 +1,13 @@
 /* ============================================
-   DemoStock - Frontend Design System
+   Santa Bárbara Chango — Frontend Design System
    Refined industrial / editorial aesthetic
    ============================================ */
 
 :root {
-  --color-primary: #F06524;
-  --color-primary-hover: #d95418;
-  --color-primary-light: rgba(240, 101, 36, 0.12);
-  --color-primary-dark: #c94a14;
+  --color-primary: #D22027;
+  --color-primary-hover: #b01b22;
+  --color-primary-light: rgba(210, 32, 39, 0.12);
+  --color-primary-dark: #9f1d20;
   --color-success: #059669;
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
@@ -331,7 +331,7 @@ a.btn-primary:hover,
 a.btn-small[class*="primary"]:hover {
   background: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 4px 12px rgba(210, 32, 39, 0.35);
 }
 .btn-primary:disabled, .btn-confirm:disabled, .btn-checkout:disabled {
   opacity: 0.6;
@@ -473,6 +473,7 @@ a.btn-icon { text-decoration: none; }
 .badge.inactivo, .badge.eliminada, .badge.cancelado { background: var(--color-danger); color: #fff; }
 .badge.pendiente, .badge.por-confirmar { background: var(--color-primary); color: #fff; }
 .badge.administrador { background: var(--color-primary); color: #fff; }
+.badge.vendedor { background: #7c3aed; color: #fff; }
 .badge.usuario { background: var(--color-muted); color: #fff; }
 
 /* ----- Paginación ----- */
@@ -733,7 +734,7 @@ a.btn-icon { text-decoration: none; }
   min-width: 0;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(145deg, #F06524 0%, #d95418 50%, #c94a14 100%);
+  background: linear-gradient(145deg, #d22027 0%, #b01b22 50%, #9f1d20 100%);
 }
 .login-hero::before {
   content: '';
@@ -753,7 +754,13 @@ a.btn-icon { text-decoration: none; }
   gap: 0.75rem;
   padding: 0.25rem 0;
 }
-.login-hero-logo { color: var(--color-primary); display: flex; align-items: center; }
+.login-hero-logo-img {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
 .login-hero-title {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -791,6 +798,12 @@ a.btn-icon { text-decoration: none; }
   font-size: 1.35rem;
   color: #fff;
 }
+.login-hero-welcome .login-brand-demo {
+  color: #fff;
+}
+.login-hero-welcome .login-brand-stock {
+  color: var(--color-primary);
+}
 .login-hero-tagline {
   margin: 0;
   font-size: var(--font-size-sm);
@@ -815,15 +828,15 @@ a.btn-icon { text-decoration: none; }
 .login-card-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   margin-bottom: 1.5rem;
 }
-.login-card-icon { color: var(--color-text-muted); display: flex; }
-.login-card-title {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 1.35rem;
-  color: var(--color-text);
+.login-card-logo {
+  display: block;
+  height: 56px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
 }
 .login-heading {
   margin: 0 0 0.35rem;

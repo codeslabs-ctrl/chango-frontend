@@ -155,7 +155,8 @@ export class ProductoEditarComponent implements OnInit {
       next: () => this.router.navigate(['/productos']),
       error: (err) => {
         this.saving = false;
-        this.errorMsg = err?.error?.message || err?.message || 'Error al guardar';
+        this.errorMsg =
+          err?.error?.message || err?.message || 'No pudimos guardar el producto. Intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });

@@ -2,6 +2,9 @@
   <a routerLink="/usuarios" class="back">← Volver a administrar usuarios</a>
   <h1>Nuevo usuario</h1>
   <div class="form-card">
+    @if (errorMsg) {
+      <p class="error-msg" role="alert">{{ errorMsg }}</p>
+    }
     <form (ngSubmit)="guardar()">
       <div class="form-row">
         <label>Nombre de usuario *</label>
@@ -19,6 +22,7 @@
         <label>Rol</label>
         <select [(ngModel)]="form.rol" name="rol">
           <option value="usuario">Usuario</option>
+          <option value="vendedor">Vendedor</option>
           <option value="administrador">Administrador</option>
         </select>
       </div>

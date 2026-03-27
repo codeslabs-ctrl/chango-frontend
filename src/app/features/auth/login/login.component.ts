@@ -27,14 +27,14 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     if (this.auth.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate([this.auth.isVendedor() ? '/ventas' : '/dashboard']);
     }
   }
 
   onSubmit() {
     this.error = '';
     if (!this.username.trim() || !this.password) {
-      this.error = 'Ingresa el nombre de usuario y la contraseña';
+      this.error = 'Ingresá el usuario o el correo y la contraseña.';
       return;
     }
     this.loading = true;
@@ -45,17 +45,19 @@ export class LoginComponent implements OnInit {
           if (res.requiresPasswordChange) {
             this.router.navigate(['/cuenta/password']);
           } else {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate([this.auth.isVendedor() ? '/ventas' : '/dashboard']);
           }
         } else {
           const msg = res && typeof res === 'object' && 'message' in res ? (res as { message?: string }).message : undefined;
-          this.error = msg ?? 'Error al iniciar sesión';
+          this.error = msg ?? 'No pudimos iniciar sesión. Intentá de nuevo.';
           this.loading = false;
         }
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.error = (err?.error as { message?: string })?.message ?? 'Usuario o contraseña inválidos';
+        this.error =
+          (err?.error as { message?: string })?.message ??
+          'Usuario o contraseña incorrectos. Revisá los datos e intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });

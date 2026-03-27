@@ -62,10 +62,19 @@ export class VentasService {
     return { headers: this.auth.getAuthHeaders() };
   }
 
-  getAll(filters?: { clienteId?: number; estatus?: string }): Observable<{ success: boolean; data: Venta[] }> {
+  getAll(filters?: {
+    clienteId?: number;
+    estatus?: string;
+    fechaDesde?: string;
+    fechaHasta?: string;
+    busqueda?: string;
+  }): Observable<{ success: boolean; data: Venta[] }> {
     let params = new HttpParams();
-    if (filters?.clienteId) params = params.set('clienteId', filters.clienteId);
+    if (filters?.clienteId) params = params.set('clienteId', String(filters.clienteId));
     if (filters?.estatus) params = params.set('estatus', filters.estatus);
+    if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
+    if (filters?.busqueda) params = params.set('busqueda', filters.busqueda);
     return this.http.get<{ success: boolean; data: Venta[] }>(this.baseUrl, {
       ...this.getOptions(),
       params

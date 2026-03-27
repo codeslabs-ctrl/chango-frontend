@@ -50,7 +50,7 @@ export class CuentaDatosComponent {
         this.router.navigate(['/cuenta']);
       },
       error: (err) => {
-        this.error = err?.error?.message ?? 'Error al actualizar';
+        this.error = err?.error?.message ?? 'No pudimos guardar los datos. Intentá de nuevo.';
         this.saving = false;
       }
     });

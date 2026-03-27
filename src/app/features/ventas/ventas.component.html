@@ -5,17 +5,66 @@
       <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
     </div>
   </div>
-  <div class="filters">
-    <select [(ngModel)]="estatusFilter" (ngModelChange)="onEstatusChange($event)">
-      <option value="">Todas</option>
-      <option value="POR CONFIRMAR">Pendientes</option>
-      <option value="CONFIRMADA">Confirmadas</option>
-      <option value="ELIMINADA">Eliminadas</option>
-    </select>
-    <div class="table-filter">
-      <input type="text" [(ngModel)]="filterText" (input)="currentPage = 1" placeholder="Buscar por cliente, teléfono, productos..." />
+  <section class="ventas-filters-panel" aria-label="Filtros de ventas">
+    <div class="ventas-filters-grid">
+      <label class="vfg-field vfg-grid-cell">
+        <span class="vfg-field-label">Desde</span>
+        <input
+          type="date"
+          [(ngModel)]="fechaDesde"
+          name="fechaDesde"
+          (change)="onFechasChange()"
+        />
+      </label>
+      <div class="vfg-grid-cell vfg-cell-hasta-hoy">
+        <label class="vfg-field vfg-field-block">
+          <span class="vfg-field-label">Hasta</span>
+          <input
+            type="date"
+            [(ngModel)]="fechaHasta"
+            name="fechaHasta"
+            (change)="onFechasChange()"
+          />
+        </label>
+        <button type="button" class="btn-hoy btn-hoy-compact" (click)="setRangoHoy()" title="Dejar solo el día de hoy">
+          Hoy
+        </button>
+      </div>
+      <div class="vfg vfg-grid-cell">
+        <label class="vfg-title" for="estatusFilter">Estado de la venta</label>
+        <select
+          id="estatusFilter"
+          [(ngModel)]="estatusFilter"
+          (ngModelChange)="onEstatusChange($event)"
+          name="estatusFilter"
+        >
+          <option value="">Todas</option>
+          <option value="POR CONFIRMAR">Pendientes</option>
+          <option value="CONFIRMADA">Confirmadas</option>
+          <option value="ELIMINADA">Eliminadas</option>
+        </select>
+      </div>
+      <div class="vfg vfg-grid-cell">
+        <label class="vfg-title" for="filterText">Buscar</label>
+        <input
+          id="filterText"
+          type="search"
+          class="vfg-buscar-input"
+          [(ngModel)]="filterText"
+          name="filterText"
+          (keydown.enter)="load()"
+          placeholder="Cliente, teléfono, cédula, productos, pago, nº venta…"
+          autocomplete="off"
+        />
+      </div>
+      <div class="ventas-filters-submit-row">
+        <button type="button" class="btn-buscar" (click)="load()">Buscar</button>
+      </div>
     </div>
-  </div>
+    <p class="ventas-filters-hint">
+      Si vaciás las fechas y tocás Buscar, se listan todas las fechas (puede ser lento).
+    </p>
+  </section>
   <div class="table-wrapper">
     <div class="table-view">
       <table class="data-table">
@@ -32,7 +81,7 @@
           </tr>
         </thead>
         <tbody>
-          @if (ventasFiltradas.length === 0 && !loading) {
+          @if (ventas.length === 0 && !loading) {
             <tr><td colspan="8" class="empty">No hay ventas</td></tr>
           }
           @for (v of ventasPaginadas; track v.venta_id) {
@@ -68,7 +117,7 @@
       </table>
     </div>
     <div class="card-view">
-      @if (ventasFiltradas.length === 0 && !loading) {
+      @if (ventas.length === 0 && !loading) {
         <p class="card-empty">No hay ventas</p>
       }
       @for (v of ventasPaginadas; track v.venta_id) {
@@ -98,7 +147,7 @@
         </article>
       }
     </div>
-    @if (ventasFiltradas.length > pageSize) {
+    @if (ventas.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">
           <button (click)="currentPage = 1" [disabled]="currentPage === 1">«</button>

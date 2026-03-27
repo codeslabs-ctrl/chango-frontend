@@ -103,7 +103,7 @@ export class AlmacenesComponent implements OnInit {
     this.almacenesService.delete(a.almacen_id).subscribe({
       next: () => this.load(),
       error: (err) => {
-        alert(err.error?.message || 'Error al eliminar');
+        alert(err.error?.message || 'No pudimos eliminar el almacén. Intentá de nuevo.');
         this.cdr.detectChanges();
       }
     });

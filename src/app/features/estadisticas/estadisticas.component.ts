@@ -26,7 +26,7 @@ export class EstadisticasComponent implements OnInit {
     datasets: [{
       label: 'Ventas',
       data: [0, 0],
-      backgroundColor: ['#0d9488', '#94a3b8'],
+      backgroundColor: ['#D22027', '#94a3b8'],
       borderRadius: 4
     }]
   };
@@ -53,7 +53,7 @@ export class EstadisticasComponent implements OnInit {
     datasets: [{
       label: 'Ingresos',
       data: [],
-      backgroundColor: '#0d9488',
+      backgroundColor: '#D22027',
       borderRadius: 4
     }]
   };
@@ -150,7 +150,7 @@ export class EstadisticasComponent implements OnInit {
       datasets: [{
         label: 'Ventas',
         data: [actual, anterior],
-        backgroundColor: ['#0d9488', '#94a3b8'],
+        backgroundColor: ['#D22027', '#94a3b8'],
         borderRadius: 4
       }]
     };
@@ -164,7 +164,7 @@ export class EstadisticasComponent implements OnInit {
       datasets: [{
         label: 'Ingresos',
         data,
-        backgroundColor: '#0d9488',
+        backgroundColor: '#D22027',
         borderRadius: 4
       }]
     };

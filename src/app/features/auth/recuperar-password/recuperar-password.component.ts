@@ -40,7 +40,7 @@ export class RecuperarPasswordComponent {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.error = err?.error?.message ?? 'Error al enviar. Intenta de nuevo.';
+        this.error = err?.error?.message ?? 'No pudimos enviar el correo. Intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });

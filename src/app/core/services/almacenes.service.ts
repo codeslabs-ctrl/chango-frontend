@@ -42,6 +42,14 @@ export class AlmacenesService {
     return this.http.get<{ success: boolean; data: Almacen[] }>(this.baseUrl, this.getOptions());
   }
 
+  /** Almacenes con estatus activo; para elegir origen en nueva venta (vendedor puede llamar). */
+  getParaVenta(): Observable<{ success: boolean; data: { almacen_id: number; nombre: string }[] }> {
+    return this.http.get<{ success: boolean; data: { almacen_id: number; nombre: string }[] }>(
+      `${this.baseUrl}/para-venta`,
+      this.getOptions()
+    );
+  }
+
   getProductos(almacenId: number): Observable<{ success: boolean; data: ProductoAlmacen[] }> {
     return this.http.get<{ success: boolean; data: ProductoAlmacen[] }>(
       `${this.baseUrl}/${almacenId}/productos`,

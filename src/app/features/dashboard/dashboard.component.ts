@@ -256,7 +256,7 @@ export class DashboardComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        alert(err.error?.message || 'Error al eliminar');
+        alert(err.error?.message || 'No pudimos eliminar. Intentá de nuevo.');
         this.cdr.detectChanges();
       }
     });

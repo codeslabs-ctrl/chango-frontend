@@ -79,6 +79,26 @@
           }
         </div>
 
+        <div class="cart-section almacen-section">
+          <h2><span class="page-icon">📦</span> Almacén</h2>
+          <p class="almacen-hint">El precio es el de lista (igual en todos los depósitos). El stock mostrado es solo del almacén elegido.</p>
+          @if (almacenesOpciones.length > 0) {
+            <div class="form-row almacen-select-row">
+              <label for="almacenVenta">Despacho desde</label>
+              <select
+                id="almacenVenta"
+                name="almacenVenta"
+                [(ngModel)]="almacenId"
+                (change)="onAlmacenChange()"
+              >
+                @for (a of almacenesOpciones; track a.almacen_id) {
+                  <option [ngValue]="a.almacen_id">{{ a.nombre }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+
         <div class="cart-section productos-section">
           <h2><span class="page-icon">➕</span> Añadir productos</h2>
           <div class="productos-add">
@@ -103,7 +123,7 @@
                       <li [class.highlighted]="i === productoHighlightIndex">
                         <button type="button" (mousedown)="seleccionarProducto(p)" [class.highlighted]="i === productoHighlightIndex">
                           <span class="producto-dropdown-name">{{ p.descripcion || p.nombre || p.codigo_interno }}</span>
-                          <span class="producto-dropdown-meta">Stock: {{ p.existencia_actual }} · {{ p.precio_venta_sugerido | number:'1.2-2' }}</span>
+                          <span class="producto-dropdown-meta">Stock en almacén: {{ p.existencia_actual }} · Precio: {{ p.precio_venta_sugerido | number:'1.2-2' }}</span>
                         </button>
                       </li>
                     }
@@ -117,6 +137,7 @@
 
         <div class="cart-section carrito-section">
           <h2><span class="page-icon">🛒</span> Carrito <span class="badge-count">{{ lineas.length }}</span></h2>
+          <p class="cart-hint">El stock mostrado y el descuento aplican al almacén cuyo nombre incluye «General».</p>
           @if (lineas.length === 0) {
             <div class="cart-empty">
               <span class="cart-icon">🛒</span>
@@ -127,36 +148,26 @@
             <ul class="cart-items">
               @for (linea of lineas; track linea.producto_id) {
                 <li class="cart-item">
-                  <div class="item-main" (click)="toggleDespacho(linea.producto_id)">
+                  <div class="item-main">
                     <div class="item-info">
                       <span class="item-name">{{ linea.descripcion }}</span>
-                      <span class="item-meta">Precio unit: {{ linea.precio_unitario | number:'1.2-2' }} · Stock: {{ linea.existencia_actual }}</span>
+                      <span class="item-meta">Precio unit: {{ linea.precio_unitario | number:'1.2-2' }} · Stock en almacén: {{ linea.existencia_actual }}</span>
                     </div>
                     <div class="item-qty">
                       <label>Cant:</label>
-                      <input type="number" [(ngModel)]="linea.cantidad" [name]="'cant_' + linea.producto_id" min="0" [max]="linea.existencia_actual" (blur)="onCantidadChange(linea)" (ngModelChange)="onCantidadChange(linea)" (click)="$event.stopPropagation()" />
+                      <input
+                        type="number"
+                        [(ngModel)]="linea.cantidad"
+                        [name]="'cant_' + linea.producto_id"
+                        min="0"
+                        [max]="linea.existencia_actual"
+                        (blur)="onCantidadChange(linea)"
+                        (ngModelChange)="onCantidadChange(linea)"
+                      />
                     </div>
                     <div class="item-subtotal">{{ getSubtotal(linea) | number:'1.2-2' }}</div>
-                    <button type="button" class="btn-remove-item" (click)="quitarLinea(linea.producto_id); $event.stopPropagation()" title="Quitar">🗑</button>
-                    <span class="expand-icon">{{ lineaExpandida === linea.producto_id ? '▼' : '▶' }}</span>
+                    <button type="button" class="btn-remove-item" (click)="quitarLinea(linea.producto_id)" title="Quitar">🗑</button>
                   </div>
-                  @if (lineaExpandida === linea.producto_id) {
-                    <div class="item-despachos">
-                      <p class="despacho-title">Despacho por almacén (suma = {{ linea.cantidad }})</p>
-                      <div class="despachos-grid">
-                        @for (a of linea.almacenes; track a.almacen_id) {
-                          <div class="despacho-cell">
-                            <span>{{ a.almacen_nombre }}</span>
-                            <span class="stock">Stock: {{ a.stock_actual }}</span>
-                            <input type="number" [(ngModel)]="a.cantidad_despachar" [name]="'desp_' + linea.producto_id + '_' + a.almacen_id" min="0" [max]="a.stock_actual" placeholder="0" (ngModelChange)="onDespachoChange(linea, a)" />
-                          </div>
-                        }
-                      </div>
-                      @if (getSumaDespachos(linea) !== linea.cantidad) {
-                        <p class="validation-err">La suma ({{ getSumaDespachos(linea) }}) debe ser {{ linea.cantidad }}</p>
-                      }
-                    </div>
-                  }
                 </li>
               }
             </ul>

@@ -4,6 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { VentasService, Venta, VentaConDetalles } from '../../core/services/ventas.service';
 
+function fechaLocalHoyYMD(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 @Component({
   selector: 'chango-ventas',
   standalone: true,
@@ -16,6 +24,9 @@ export class VentasComponent implements OnInit {
   loading = false;
   estatusFilter = '';
   filterText = '';
+  /** YYYY-MM-DD — por defecto hoy */
+  fechaDesde = '';
+  fechaHasta = '';
   confirmando: number | null = null;
   eliminando: number | null = null;
   pageSize = 10;
@@ -23,24 +34,13 @@ export class VentasComponent implements OnInit {
   modalVenta: VentaConDetalles | null = null;
   modalLoading = false;
 
-  get ventasFiltradas(): Venta[] {
-    const q = this.filterText.trim().toLowerCase();
-    if (!q) return this.ventas;
-    return this.ventas.filter(v =>
-      (v.cliente_nombre || '').toLowerCase().includes(q) ||
-      (v.cliente_telefono || '').toLowerCase().includes(q) ||
-      (v.productos_nombres || '').toLowerCase().includes(q) ||
-      (v.estatus || '').toLowerCase().includes(q)
-    );
-  }
-
   get ventasPaginadas(): Venta[] {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.ventasFiltradas.slice(start, start + this.pageSize);
+    return this.ventas.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.ventasFiltradas.length / this.pageSize));
+    return Math.max(1, Math.ceil(this.ventas.length / this.pageSize));
   }
 
   constructor(
@@ -48,17 +48,54 @@ export class VentasComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() { this.load(); }
+  ngOnInit() {
+    const hoy = fechaLocalHoyYMD();
+    this.fechaDesde = hoy;
+    this.fechaHasta = hoy;
+    this.load();
+  }
 
-  onEstatusChange(val: string) {
-    this.estatusFilter = val;
+  onEstatusChange(_val: string) {
+    this.load();
+  }
+
+  setRangoHoy() {
+    const hoy = fechaLocalHoyYMD();
+    this.fechaDesde = hoy;
+    this.fechaHasta = hoy;
+    this.load();
+  }
+
+  onFechasChange() {
     this.load();
   }
 
   load() {
     this.loading = true;
     this.cdr.detectChanges();
-    const filters = this.estatusFilter ? { estatus: this.estatusFilter } : undefined;
+
+    let desde = this.fechaDesde;
+    let hasta = this.fechaHasta;
+    if (desde && hasta && desde > hasta) {
+      const t = desde;
+      desde = hasta;
+      hasta = t;
+      this.fechaDesde = desde;
+      this.fechaHasta = hasta;
+    }
+
+    const filters: {
+      estatus?: string;
+      fechaDesde?: string;
+      fechaHasta?: string;
+      busqueda?: string;
+    } = {};
+    if (this.estatusFilter) filters.estatus = this.estatusFilter;
+    if (desde) filters.fechaDesde = desde;
+    if (hasta) filters.fechaHasta = hasta;
+    const q = this.filterText.trim();
+    if (q) filters.busqueda = q;
+
     this.ventasService.getAll(filters).subscribe({
       next: (res) => {
         this.ventas = res.data || [];

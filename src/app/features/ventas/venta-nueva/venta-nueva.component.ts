@@ -2,19 +2,10 @@ import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList, ElementR
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { VentasService, CreateVentaDetalleDto, DespachoAlmacenDto } from '../../../core/services/ventas.service';
+import { VentasService, CreateVentaDetalleDto } from '../../../core/services/ventas.service';
 import { ProductosService, Producto } from '../../../core/services/productos.service';
 import { ClientesService, Cliente } from '../../../core/services/clientes.service';
-
-interface ProductoAlmacen {
-  almacen_id: number;
-  almacen_nombre: string;
-  stock_actual: number;
-}
-
-interface ProductoConAlmacenes extends Producto {
-  almacenes?: ProductoAlmacen[];
-}
+import { AlmacenesService } from '../../../core/services/almacenes.service';
 
 interface LineaVenta {
   producto_id: number;
@@ -57,14 +48,17 @@ export class VentaNuevaComponent implements OnInit {
   @ViewChildren('sugerenciaItem') sugerenciaItems!: QueryList<ElementRef>;
   metodoPago = '';
   lineas: LineaVenta[] = [];
-  lineaExpandida: number | null = null;
   confirmarVenta = true;
+
+  almacenesOpciones: { almacen_id: number; nombre: string }[] = [];
+  almacenId: number | null = null;
 
   constructor(
     private router: Router,
     private ventasService: VentasService,
     private productosService: ProductosService,
     private clientesService: ClientesService,
+    private almacenesService: AlmacenesService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -76,7 +70,29 @@ export class VentaNuevaComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
-    this.productosService.getAll().subscribe({
+    this.almacenesService.getParaVenta().subscribe({
+      next: (res) => {
+        this.almacenesOpciones = res.data || [];
+        if (this.almacenesOpciones.length === 0) {
+          this.loading = false;
+          this.errorMsg = 'No hay almacenes activos. No se pueden registrar ventas hasta que exista al menos uno.';
+          this.cdr.detectChanges();
+          return;
+        }
+        this.almacenId = this.almacenesOpciones[0].almacen_id;
+        this.cargarProductos();
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMsg = 'No pudimos cargar los almacenes. Intentá de nuevo.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private cargarProductos() {
+    if (this.almacenId == null) return;
+    this.productosService.getAll({ almacenId: this.almacenId }).subscribe({
       next: (res) => {
         this.productos = (res.data || []).filter(
           p => (p.estatus || 'A') === 'A' && (p.existencia_actual ?? 0) > 0 && (p.precio_venta_sugerido ?? 0) > 0
@@ -86,49 +102,61 @@ export class VentaNuevaComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
+        this.errorMsg = 'No pudimos cargar los productos para este almacén.';
         this.cdr.detectChanges();
       }
     });
   }
 
+  onAlmacenChange() {
+    this.errorMsg = '';
+    this.lineas = [];
+    this.productoSeleccionado = null;
+    this.productoBusqueda = '';
+    this.loading = true;
+    this.cargarProductos();
+  }
+
   agregarProducto() {
     this.errorMsg = '';
+    if (this.almacenId == null) {
+      this.errorMsg = 'Elegí un almacén antes de añadir productos.';
+      return;
+    }
     if (!this.productoSeleccionado) return;
     const p = this.productos.find(x => x.producto_id === this.productoSeleccionado);
     if (!p || this.lineas.some(l => l.producto_id === p.producto_id)) return;
 
-    this.productosService.getById(p.producto_id).subscribe({
-      next: (res) => {
-        const data = res.data as ProductoConAlmacenes;
-        const almacenesRaw = data.almacenes || [];
-        if (almacenesRaw.length === 0) {
-          this.errorMsg = `El producto "${p.descripcion}" no tiene stock en ningún almacén.`;
-          this.cdr.detectChanges();
-          return;
-        }
-        const almacenes = almacenesRaw.map(a => ({
-          almacen_id: a.almacen_id,
-          almacen_nombre: a.almacen_nombre,
-          stock_actual: a.stock_actual ?? 0,
-          cantidad_despachar: 0
-        }));
-        this.lineas = [
-          ...this.lineas,
-          {
-            producto_id: p.producto_id,
-            descripcion: p.descripcion,
-            existencia_actual: p.existencia_actual ?? 0,
-            precio_unitario: p.precio_venta_sugerido ?? 0,
-            cantidad: 1,
-            almacenes
-          }
-        ];
-        this.lineaExpandida = p.producto_id;
-        this.productoSeleccionado = null;
-        this.productoBusqueda = '';
-        this.cdr.detectChanges();
+    const stock = Math.floor(Number(p.existencia_actual) || 0);
+    if (stock <= 0) {
+      this.errorMsg = `«${p.descripcion}» no tiene stock en el almacén seleccionado.`;
+      this.cdr.detectChanges();
+      return;
+    }
+    const almacen = this.almacenesOpciones.find(a => a.almacen_id === this.almacenId);
+    const cantidadInicial = Math.min(1, stock);
+    const almacenes = [
+      {
+        almacen_id: this.almacenId,
+        almacen_nombre: almacen?.nombre ?? '',
+        stock_actual: stock,
+        cantidad_despachar: cantidadInicial
       }
-    });
+    ];
+    this.lineas = [
+      ...this.lineas,
+      {
+        producto_id: p.producto_id,
+        descripcion: p.descripcion,
+        existencia_actual: stock,
+        precio_unitario: p.precio_venta_sugerido ?? 0,
+        cantidad: cantidadInicial,
+        almacenes
+      }
+    ];
+    this.productoSeleccionado = null;
+    this.productoBusqueda = '';
+    this.cdr.detectChanges();
   }
 
   quitarLinea(productoId: number) {
@@ -318,7 +346,8 @@ export class VentaNuevaComponent implements OnInit {
       },
       error: (err) => {
         this.guardandoCliente = false;
-        this.errorMsg = err?.error?.message || err?.message || 'Error al registrar el cliente';
+        this.errorMsg =
+          err?.error?.message || err?.message || 'No pudimos registrar el cliente. Intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });
@@ -332,37 +361,28 @@ export class VentaNuevaComponent implements OnInit {
     }, 0);
   }
 
-  toggleDespacho(productoId: number) {
-    this.lineaExpandida = this.lineaExpandida === productoId ? null : productoId;
-  }
-
   getSubtotal(linea: LineaVenta): number {
     return linea.cantidad * linea.precio_unitario;
   }
 
   onCantidadChange(linea: LineaVenta) {
     setTimeout(() => {
+      const stockMax = linea.almacenes[0]?.stock_actual ?? linea.existencia_actual;
       const n = Math.floor(Number(linea.cantidad) || 0);
-      const clamped = Math.max(0, Math.min(n, linea.existencia_actual));
+      const clamped = Math.max(0, Math.min(n, stockMax));
       linea.cantidad = clamped;
+      if (linea.almacenes[0]) {
+        linea.almacenes[0].cantidad_despachar = clamped;
+      }
       this.cdr.detectChanges();
     }, 0);
   }
 
-  onDespachoChange(linea: LineaVenta, a: { almacen_id: number; stock_actual: number; cantidad_despachar: number }) {
-    const n = Math.floor(Number(a.cantidad_despachar) || 0);
-    a.cantidad_despachar = Math.max(0, Math.min(n, a.stock_actual));
-    this.cdr.detectChanges();
-  }
-
-  getSumaDespachos(linea: LineaVenta): number {
-    return linea.almacenes.reduce((s, a) => s + (a.cantidad_despachar || 0), 0);
-  }
-
   getDespachosValidos(linea: LineaVenta): boolean {
-    const suma = this.getSumaDespachos(linea);
-    if (suma !== linea.cantidad) return false;
-    return linea.almacenes.every(a => (a.cantidad_despachar || 0) <= a.stock_actual);
+    const a = linea.almacenes[0];
+    if (!a) return false;
+    const desp = a.cantidad_despachar || 0;
+    return desp === linea.cantidad && desp <= a.stock_actual;
   }
 
   get totalVenta(): number {
@@ -373,10 +393,15 @@ export class VentaNuevaComponent implements OnInit {
     this.errorMsg = '';
     for (const l of this.lineas) {
       if (l.cantidad > 0 && !this.getDespachosValidos(l)) {
-        this.errorMsg = `Despachos inválidos para "${l.descripcion}": la suma debe ser ${l.cantidad} y no puede superar el stock por almacén.`;
+        this.errorMsg = `Revisá la cantidad de «${l.descripcion}» en el almacén elegido.`;
         this.cdr.detectChanges();
         return;
       }
+    }
+    if (this.almacenId == null) {
+      this.errorMsg = 'Elegí el almacén desde el cual se despacha la venta.';
+      this.cdr.detectChanges();
+      return;
     }
     if (!this.clienteId) {
       this.errorMsg = 'El cliente es obligatorio.';
@@ -420,7 +445,8 @@ export class VentaNuevaComponent implements OnInit {
       next: () => this.router.navigate(['/ventas']),
       error: (err) => {
         this.saving = false;
-        this.errorMsg = err?.error?.message || err?.message || 'Error al crear la venta';
+        this.errorMsg =
+          err?.error?.message || err?.message || 'No pudimos crear la venta. Intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });

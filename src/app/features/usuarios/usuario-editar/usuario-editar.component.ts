@@ -1,7 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 
 @Component({
@@ -13,9 +15,10 @@ import { UsuariosService } from '../../../core/services/usuarios.service';
 })
 export class UsuarioEditarComponent implements OnInit {
   usuarioId = 0;
-  form = { username: '', email: '', password: '', rol: 'usuario' as 'administrador' | 'usuario', activo: true };
+  form = { username: '', email: '', password: '', rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor', activo: true };
   loading = true;
   saving = false;
+  errorMsg = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -62,8 +65,9 @@ export class UsuarioEditarComponent implements OnInit {
   guardar() {
     if (!this.form.username.trim() || !this.form.email.trim()) return;
 
+    this.errorMsg = '';
     this.saving = true;
-    const dto: { username: string; email: string; password?: string; rol: 'administrador' | 'usuario'; activo: boolean } = {
+    const dto: { username: string; email: string; password?: string; rol: 'administrador' | 'usuario' | 'vendedor'; activo: boolean } = {
       username: this.form.username.trim(),
       email: this.form.email.trim(),
       rol: this.form.rol,
@@ -71,9 +75,23 @@ export class UsuarioEditarComponent implements OnInit {
     };
     if (this.form.password.trim()) dto.password = this.form.password;
 
-    this.usuariosService.update(this.usuarioId, dto).subscribe({
-      next: () => this.router.navigate(['/usuarios']),
-      error: () => { this.saving = false; this.cdr.detectChanges(); }
-    });
+    this.usuariosService
+      .update(this.usuarioId, dto)
+      .pipe(
+        finalize(() => {
+          this.saving = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/usuarios']),
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMsg =
+            typeof msg === 'string'
+              ? msg
+              : 'No pudimos guardar los cambios. Revisá la conexión e intentá de nuevo.';
+        }
+      });
   }
 }

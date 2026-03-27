@@ -31,7 +31,7 @@
               <td>{{ u.id }}</td>
               <td>{{ u.username }}</td>
               <td>{{ u.email }}</td>
-              <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Administrador' : 'Usuario' }}</span></td>
+              <td><span class="badge" [class.administrador]="u.rol === 'administrador'" [class.vendedor]="u.rol === 'vendedor'" [class.usuario]="u.rol === 'usuario'">{{ u.rol === 'administrador' ? 'Administrador' : u.rol === 'vendedor' ? 'Vendedor' : 'Usuario' }}</span></td>
               <td><span class="badge" [class.activo]="u.activo" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
               <td>{{ u.ultimo_login ? (u.ultimo_login | date:'short') : '-' }}</td>
               <td class="actions-cell">
@@ -62,7 +62,7 @@
           <div class="card-main">
             <div class="card-header">
               <span class="card-title">{{ u.username }}</span>
-              <span class="badge" [class.administrador]="u.rol === 'administrador'" [class.usuario]="u.rol !== 'administrador'">{{ u.rol === 'administrador' ? 'Admin' : 'Usuario' }}</span>
+              <span class="badge" [class.administrador]="u.rol === 'administrador'" [class.vendedor]="u.rol === 'vendedor'" [class.usuario]="u.rol === 'usuario'">{{ u.rol === 'administrador' ? 'Admin' : u.rol === 'vendedor' ? 'Vendedor' : 'Usuario' }}</span>
             </div>
             <dl class="card-details">
               <div class="card-row"><dt>Email</dt><dd>{{ u.email }}</dd></div>

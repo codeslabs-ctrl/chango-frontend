@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { ApiService } from './api.service';
 import { Router } from '@angular/router';
 
-export type RolUsuario = 'administrador' | 'usuario';
+export type RolUsuario = 'administrador' | 'usuario' | 'vendedor';
 
 export interface AuthUser {
   id: number;
@@ -26,6 +26,7 @@ export class AuthService {
   isAuthenticated = computed(() => !!this.token());
   username = computed(() => this.user()?.username ?? null);
   isAdmin = computed(() => this.user()?.rol === 'administrador');
+  isVendedor = computed(() => this.user()?.rol === 'vendedor');
 
   constructor(
     private api: ApiService,

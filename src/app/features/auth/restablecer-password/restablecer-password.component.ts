@@ -53,7 +53,9 @@ export class RestablecerPasswordComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.error = err?.error?.message ?? 'Error al restablecer. El enlace puede haber expirado.';
+        this.error =
+          err?.error?.message ??
+          'No pudimos restablecer la contraseña. El enlace puede haber vencido; pedí uno nuevo.';
       }
     });
   }
