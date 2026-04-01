@@ -26,13 +26,12 @@
       <div class="form-row">
         <label>Rol</label>
         <select [(ngModel)]="form.rol" name="rol">
-          <option value="usuario">Usuario</option>
           <option value="vendedor">Vendedor</option>
           <option value="administrador">Administrador</option>
         </select>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
         <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
       </div>
     </form>

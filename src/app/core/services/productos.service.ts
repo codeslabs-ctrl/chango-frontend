@@ -16,14 +16,18 @@ export interface Producto {
   existencia_actual: number;
   unidad_medida: string | null;
   precio_venta_sugerido: number;
+  costo?: number;
   fecha_ultimo_inventario: string | null;
   estatus?: string;
   tiene_ventas?: boolean;
+  imagen_url?: string | null;
 }
 
 export interface ProductoAlmacenDto {
   almacen_id: number;
   stock_actual?: number;
+  /** Si no se envía al crear, el servidor usa 10 */
+  stock_minimo?: number;
 }
 
 export interface CreateProductoDto {
@@ -34,6 +38,7 @@ export interface CreateProductoDto {
   proveedor_id?: number;
   unidad_medida?: string;
   precio_venta_sugerido?: number;
+  costo?: number;
   almacenes?: ProductoAlmacenDto[];
   estatus?: 'A' | 'C';
 }
@@ -99,5 +104,23 @@ export class ProductosService {
       dto,
       this.getOptions()
     );
+  }
+
+  /** Descarga imagen desde URL pública, valida tamaño/tipo en servidor y la asocia al producto. */
+  setImagenDesdeUrl(id: number, body: { url: string }): Observable<{ success: boolean; data: Producto }> {
+    return this.http.post<{ success: boolean; data: Producto }>(
+      `${this.baseUrl}/${id}/imagen-desde-url`,
+      body,
+      this.getOptions()
+    );
+  }
+
+  /** Sube imagen desde el equipo (multipart, campo `imagen`). Mismo límite de tamaño y formatos que por URL. */
+  setImagenArchivo(id: number, file: File): Observable<{ success: boolean; data: Producto }> {
+    const fd = new FormData();
+    fd.append('imagen', file, file.name);
+    return this.http.post<{ success: boolean; data: Producto }>(`${this.baseUrl}/${id}/imagen`, fd, {
+      headers: this.getOptions().headers
+    });
   }
 }

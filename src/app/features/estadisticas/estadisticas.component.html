@@ -1,97 +1,198 @@
 <div class="page internal-page estadisticas-page">
-  <div class="stats-kpi-row">
-    <div class="stats-kpi-card">
-      <div class="stats-kpi-label">Ventas pendientes</div>
-      @if (loading.ventas) {
-        <div class="stats-kpi-value stats-kpi-loading">...</div>
-      } @else {
-        <div class="stats-kpi-value">{{ ventasPendientes.length }}</div>
-      }
-      <a routerLink="/ventas" class="stats-kpi-link">Ver ventas</a>
-    </div>
-    <div class="stats-kpi-card">
-      <div class="stats-kpi-label">Comparativa mensual</div>
-      @if (loading.comparativa) {
-        <div class="stats-kpi-value stats-kpi-loading">...</div>
-      } @else if (comparativaMensual[0]; as row) {
-        <div class="stats-kpi-value">{{ row.monto_actual | number:'1.2-2' }}</div>
-        <span class="stats-kpi-sublabel" [class.positiva]="(row.variacion_porcentaje ?? 0) >= 0" [class.negativa]="(row.variacion_porcentaje ?? 0) < 0">
-          {{ row.variacion_porcentaje != null ? (row.variacion_porcentaje >= 0 ? '+' : '') + (row.variacion_porcentaje | number:'1.1-1') + '%' : '-' }} vs anterior
-        </span>
-      } @else {
-        <div class="stats-kpi-value">-</div>
-      }
-    </div>
-    <div class="stats-kpi-card">
-      <div class="stats-kpi-label">Top productos</div>
-      @if (loading.top) {
-        <div class="stats-kpi-value stats-kpi-loading">...</div>
-      } @else {
-        <div class="stats-kpi-value">{{ topProductos.length }}</div>
-        <span class="stats-kpi-sublabel">en ranking</span>
-      }
-    </div>
-    <div class="stats-kpi-card" [class.stats-kpi-alert]="getStockCriticoAlerta()">
-      <div class="stats-kpi-label">Stock crítico</div>
-      @if (loading.stock) {
-        <div class="stats-kpi-value stats-kpi-loading">...</div>
-      } @else {
-        <div class="stats-kpi-value">{{ stockCritico.length }}</div>
-        @if (getStockCriticoAlerta()) {
-          <span class="stats-kpi-sublabel">productos bajo umbral</span>
-        }
-      }
-      <a routerLink="/productos" class="stats-kpi-link">Ver productos</a>
-    </div>
+  <div class="page-header stats-page-header">
+    <h1><span class="page-icon" aria-hidden="true">📊</span> Estadísticas</h1>
   </div>
 
-  <section class="stats-charts-row">
-    <div class="chart-container">
-      <h3 class="chart-title">Comparativa mensual</h3>
-      @if (loading.comparativa) {
-        <div class="chart-loading">Cargando...</div>
-      } @else if (comparativaMensual.length === 0 || !comparativaMensual[0]) {
-        <div class="chart-empty">Sin datos</div>
-      } @else {
-        <div class="chart-wrapper">
-          <canvas baseChart
-            [data]="comparativaChartData"
-            [options]="comparativaChartOptions"
-            type="bar">
-          </canvas>
-        </div>
-      }
+  <section class="stats-section" aria-labelledby="stats-resumen-heading">
+    <h2 id="stats-resumen-heading" class="stats-section-title">Resumen de ventas</h2>
+
+    <div class="stats-resumen-toolbar" aria-label="Filtro por fechas del resumen por vendedor">
+      <div class="stats-resumen-toolbar-fields">
+        <label class="stats-rfield">
+          <span class="stats-rlabel">Desde</span>
+          <input type="date" [(ngModel)]="fechaDesde" name="estFechaDesde" />
+        </label>
+        <label class="stats-rfield">
+          <span class="stats-rlabel">Hasta</span>
+          <input type="date" [(ngModel)]="fechaHasta" name="estFechaHasta" />
+        </label>
+      </div>
+      <div class="stats-resumen-toolbar-actions">
+        <button type="button" class="btn-hoy-stats" (click)="setRangoHoy()" title="Desde y hasta = hoy">
+          Hoy
+        </button>
+        <button type="button" class="btn-buscar-stats" (click)="aplicarFiltroResumen()">Aplicar</button>
+      </div>
     </div>
-    <div class="chart-container">
-      <h3 class="chart-title">Top 10 productos por ingresos</h3>
-      @if (loading.top) {
-        <div class="chart-loading">Cargando...</div>
-      } @else if (topProductos.length === 0) {
-        <div class="chart-empty">Sin datos</div>
-      } @else {
-        <div class="chart-wrapper">
-          <canvas baseChart
-            [data]="topProductosChartData"
-            [options]="topProductosChartOptions"
-            type="bar">
-          </canvas>
-        </div>
-      }
+    <p class="stats-resumen-hint">Solo afecta a esta sección: ventas no eliminadas en el rango.</p>
+
+    <div class="stats-split">
+      <div class="stats-panel stats-table-panel">
+        @if (loading.resumen) {
+          <p class="stats-loading">Cargando…</p>
+        } @else if (errorResumen) {
+          <p class="stats-error-msg" role="alert">{{ errorResumen }}</p>
+        } @else if (resumenVendedores.length === 0) {
+          <p class="stats-empty">Sin datos en el rango seleccionado.</p>
+        } @else {
+          <div class="stats-table-wrap">
+            <table class="stats-data-table">
+              <thead>
+                <tr>
+                  <th>Vendedor</th>
+                  <th class="stats-col-num">Unidades vendidas</th>
+                  <th class="stats-col-num">Ingresos</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of resumenVendedores; track row.usuario_id === null ? 'agente' : row.usuario_id) {
+                  <tr>
+                    <td>{{ etiquetaVendedor(row) }}</td>
+                    <td class="stats-col-num">{{ row.unidades_vendidas | number: '1.0-0' }}</td>
+                    <td class="stats-col-num">{{ row.ingresos_totales | number: '1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="stats-tfoot-totals">
+                  <th>Total</th>
+                  <th class="stats-col-num">{{ totalUnidadesResumen() | number: '1.0-0' }}</th>
+                  <th class="stats-col-num">{{ totalIngresosResumen() | number: '1.2-2' }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </div>
+      <div class="stats-panel stats-chart-panel">
+        <h3 class="stats-chart-subtitle">Comparativa por vendedor (ingresos)</h3>
+        @if (loading.resumen) {
+          <div class="chart-loading">Cargando…</div>
+        } @else if (errorResumen) {
+          <div class="chart-empty" role="alert">{{ errorResumen }}</div>
+        } @else if (resumenVendedores.length === 0) {
+          <div class="chart-empty">Sin datos</div>
+        } @else {
+          <div class="chart-wrapper stats-chart-tall">
+            <canvas
+              baseChart
+              [data]="vendedoresChartData"
+              [options]="vendedoresChartOptions"
+              type="bar">
+            </canvas>
+          </div>
+        }
+      </div>
     </div>
   </section>
 
-  @if (getStockCriticoAlerta() && stockCritico.length > 0) {
-    <section class="stock-critico-section">
-      <h3 class="section-title">Productos con stock crítico</h3>
-      <div class="stock-list">
-        @for (row of stockCritico; track row.producto_id) {
-          <a [routerLink]="['/productos', row.producto_id, 'editar']" class="stock-row-link">
-            <span class="stock-product-name">{{ row.nombre ?? row.codigo_interno ?? '-' }}</span>
-            <span class="stock-product-qty">{{ row.stock_total }} {{ row.unidad_medida ?? 'und' }}</span>
-          </a>
+  <section class="stats-section" aria-labelledby="stats-top-heading">
+    <h2 id="stats-top-heading" class="stats-section-title">Top 10 productos</h2>
+    <div class="stats-split">
+      <div class="stats-panel stats-table-panel">
+        @if (loading.top) {
+          <p class="stats-loading">Cargando…</p>
+        } @else if (topProductos.length === 0) {
+          <p class="stats-empty">Sin datos en el rango seleccionado.</p>
+        } @else {
+          <div class="stats-table-wrap">
+            <table class="stats-data-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="stats-col-num">Unidades vendidas</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of topProductos; track p.producto_id) {
+                  <tr>
+                    <td>{{ p.nombre || '-' }}</td>
+                    <td class="stats-col-num">{{ p.unidades_vendidas | number: '1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         }
       </div>
-      <a routerLink="/productos" class="stock-critico-ver-link">Ver productos</a>
-    </section>
-  }
+      <div class="stats-panel stats-chart-panel">
+        <h3 class="stats-chart-subtitle">Comparativa de unidades</h3>
+        @if (loading.top) {
+          <div class="chart-loading">Cargando…</div>
+        } @else if (topProductos.length === 0) {
+          <div class="chart-empty">Sin datos</div>
+        } @else {
+          <div class="chart-wrapper stats-chart-tall">
+            <canvas
+              baseChart
+              [data]="topProductosChartData"
+              [options]="topProductosChartOptions"
+              type="bar">
+            </canvas>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="stock-critico"
+    class="stats-section stats-stock-section"
+    aria-labelledby="stats-stock-heading"
+  >
+    <h2 id="stats-stock-heading" class="stats-section-title">Productos con bajo stock</h2>
+    <div
+      class="stock-critico-section"
+      [class.stock-critico-section--ok]="!getStockCriticoAlerta()"
+    >
+    @if (loading.stock) {
+      <p class="chart-loading">Cargando…</p>
+    } @else if (stockCritico.length === 0) {
+      <p class="chart-empty">No hay productos con stock crítico.</p>
+    } @else {
+      <div class="stats-table-wrap">
+        <table class="stats-data-table stats-stock-critico-table">
+          <thead>
+            <tr>
+              <th scope="col">Producto / Almacén</th>
+              <th scope="col" class="stats-col-num">Stock actual</th>
+              <th scope="col" class="stats-col-num">Stock mín.</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of stockCritico; track stockCriticoTrackKey(row)) {
+              <tr class="stats-stock-row">
+                <td>
+                  <a
+                    [routerLink]="['/productos']"
+                    [queryParams]="{ stock: row.producto_id }"
+                    class="stats-stock-product-link"
+                  >
+                    <span class="stats-stock-prod-name">{{ row.nombre ?? row.codigo_interno ?? '-' }}</span>
+                    @if (row.almacen_nombre) {
+                      <span class="stats-stock-almacen">{{ row.almacen_nombre }}</span>
+                    }
+                  </a>
+                </td>
+                <td class="stats-col-num stats-stock-val-actual">
+                  {{ row.stock_total | number: '1.0-3' }}
+                  <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
+                </td>
+                <td class="stats-col-num">
+                  @if (row.stock_minimo != null) {
+                    {{ row.stock_minimo | number: '1.0-3' }}
+                    <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
+                  } @else {
+                    —
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <a routerLink="/productos" class="stock-critico-ver-link">Ir a la lista completa de productos</a>
+    }
+    </div>
+  </section>
 </div>

@@ -13,6 +13,9 @@
   --color-danger-hover: #b91c1c;
   --color-muted: #64748b;
   --color-muted-hover: #475569;
+  /** Botón Cancelar (mismo tono en todas las pantallas) */
+  --color-cancel: #475569;
+  --color-cancel-hover: #334155;
   --color-text: #1e293b;
   --color-text-muted: #475569;
   --color-text-light: #94a3b8;
@@ -144,6 +147,7 @@ h2 .page-icon { font-size: 1.25rem; opacity: 0.9; }
 }
 .form-actions .btn-primary,
 .form-actions .btn-secondary,
+.form-actions .btn-cancel,
 .form-actions .btn-muted,
 .form-actions .btn-danger,
 .form-actions a {
@@ -352,9 +356,31 @@ a.btn-small[class*="primary"]:hover {
   display: inline-block;
   transition: all 0.2s ease;
 }
-.btn-secondary:hover, .btn-muted:hover {
+.btn-secondary:hover:not(:disabled), .btn-muted:hover {
   background: var(--color-muted-hover);
   transform: translateY(-1px);
+}
+.btn-cancel {
+  background: var(--color-cancel);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: var(--font-size);
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+.btn-cancel:hover:not(:disabled) {
+  background: var(--color-cancel-hover);
+  transform: translateY(-1px);
+}
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .btn-small.btn-muted {
   background: var(--color-muted);
@@ -383,6 +409,43 @@ a.btn-small[class*="primary"]:hover {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
 }
 
+/* Tarjetas de venta (dashboard + gestión): confirmar y eliminar misma altura y mismo ancho en la fila */
+.venta-layout-actions.venta-layout-actions--wrap {
+  width: 100%;
+}
+
+.venta-layout-actions--wrap > button.venta-card-accion {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.venta-layout-actions button.venta-card-accion {
+  box-sizing: border-box;
+  height: 2.375rem;
+  min-height: 2.375rem;
+  max-height: 2.375rem;
+  padding: 0 0.75rem;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+/* Icono + texto: flex del botón centra ambos (el genérico btn-small usa inline-block y rompe la alineación) */
+.venta-layout-actions button.venta-card-accion > svg {
+  display: block;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.venta-layout-actions button.venta-btn-eliminar > span {
+  line-height: 1;
+}
+
 .btn-small {
   padding: 0.4rem 0.8rem;
   font-size: var(--font-size-sm);
@@ -391,7 +454,9 @@ a.btn-small[class*="primary"]:hover {
   border-radius: var(--radius);
   cursor: pointer;
 }
-button.btn-small:not(.btn-danger):not(.btn-muted),
+
+/* Excluir eliminar de venta: si no, este bloque gana por especificidad y pinta rojo + inline-block */
+button.btn-small:not(.btn-danger):not(.btn-muted):not(.venta-btn-eliminar),
 a.btn-small {
   background: var(--color-primary);
   color: white;
@@ -399,7 +464,36 @@ a.btn-small {
   display: inline-block;
 }
 a.btn-small:hover,
-button.btn-small:not(.btn-danger):not(.btn-muted):hover { opacity: 0.9; transform: translateY(-1px); }
+button.btn-small:not(.btn-danger):not(.btn-muted):not(.venta-btn-eliminar):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Después del genérico btn-small: flex en tarjeta y color cancelar para eliminar */
+.venta-layout-actions button.btn-small.venta-card-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.venta-layout-actions button.btn-small.venta-btn-eliminar {
+  background: var(--color-cancel);
+  color: #fff;
+  border: none;
+  font-weight: 500;
+  font-family: var(--font-body);
+}
+
+.venta-layout-actions button.btn-small.venta-btn-eliminar:hover:not(:disabled),
+.venta-layout-actions button.btn-small.venta-btn-eliminar:focus-visible:not(:disabled) {
+  background: var(--color-cancel-hover);
+  color: #fff;
+}
+
+.venta-layout-actions button.btn-small.venta-btn-eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .btn-icon {
   display: inline-flex;
@@ -469,12 +563,66 @@ a.btn-icon { text-decoration: none; }
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.badge.activo, .badge.confirmada { background: var(--color-success); color: #fff; }
+.badge.activo { background: var(--color-success); color: #fff; }
 .badge.inactivo, .badge.eliminada, .badge.cancelado { background: var(--color-danger); color: #fff; }
-.badge.pendiente, .badge.por-confirmar { background: var(--color-primary); color: #fff; }
+/* Estatus de venta: solo color de texto (sin pastilla; alinea con por-confirmar) */
+.badge.confirmada {
+  background: transparent;
+  color: var(--color-success);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+.badge.pendiente,
+.badge.por-confirmar {
+  background: transparent;
+  color: var(--color-primary);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+.badge.por-facturar {
+  background: transparent;
+  color: #7c3aed;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
 .badge.administrador { background: var(--color-primary); color: #fff; }
 .badge.vendedor { background: #7c3aed; color: #fff; }
 .badge.usuario { background: var(--color-muted); color: #fff; }
+
+/* Lista de productos: estatus Activo / Cancelado solo color de texto */
+.productos-page .badge.activo {
+  background: transparent;
+  color: var(--color-success);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+.productos-page .badge.cancelado {
+  background: transparent;
+  color: var(--color-danger);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+
+/* Lista de almacenes: estatus Activo / Inactivo solo color de texto */
+.almacenes-page .badge.activo {
+  background: transparent;
+  color: var(--color-success);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+.almacenes-page .badge.inactivo {
+  background: transparent;
+  color: var(--color-danger);
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
 
 /* ----- Paginación ----- */
 .pagination-wrapper {
@@ -1151,6 +1299,10 @@ a.btn-icon { text-decoration: none; }
     gap: 0.5rem;
     padding: 0.85rem;
   }
+  .item-thumb {
+    width: 56px;
+    height: 56px;
+  }
   .item-info { grid-column: 1; grid-row: 1; }
   .item-qty { grid-column: 1; grid-row: 2; }
   .item-subtotal { grid-column: 1; grid-row: 3; text-align: left; min-width: 0; }
@@ -1159,6 +1311,27 @@ a.btn-icon { text-decoration: none; }
 }
 .item-main:hover { background: #f0f0f0; }
 .item-info { display: flex; flex-direction: column; gap: 0.2rem; }
+.item-info-with-thumb {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.item-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: #e2e8f0;
+  display: block;
+}
+.item-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
 .item-name { font-weight: 600; color: #222; }
 .item-meta { font-size: var(--font-size-sm); color: var(--color-text-muted); }
 .item-qty { display: flex; align-items: center; gap: 0.4rem; }
@@ -1188,7 +1361,9 @@ a.btn-icon { text-decoration: none; }
 .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: var(--font-size); }
 .summary-row.total { font-size: 1.25rem; font-weight: 700; color: var(--color-success); margin-top: 0.5rem; padding-top: 1rem; border-top: 2px solid #e8e8e8; }
 .summary-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
-.summary-actions .btn-secondary, .summary-actions .btn-checkout { padding: 0.85rem 1.25rem; font-weight: 600; font-size: 1rem; }
+.summary-actions .btn-secondary,
+.summary-actions .btn-cancel,
+.summary-actions .btn-checkout { padding: 0.85rem 1.25rem; font-weight: 600; font-size: 1rem; }
 
 /* ----- Formularios con subcategorías / almacenes ----- */
 .subcategorias-list, .almacenes-list { display: flex; flex-direction: column; gap: 0.5rem; }

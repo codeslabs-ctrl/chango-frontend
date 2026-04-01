@@ -7,6 +7,11 @@
     <div class="form-card">
       <form (ngSubmit)="guardar()">
         <div class="form-row">
+          <label>Costo</label>
+          <input type="number" [(ngModel)]="form.costo" name="costo" min="0" step="0.01" />
+          <p class="hint">Costo de referencia por unidad (uso interno).</p>
+        </div>
+        <div class="form-row">
           <label>Precio venta sugerido</label>
           <input type="number" [(ngModel)]="form.precio_venta_sugerido" name="precio_venta_sugerido" min="0" step="0.01" />
         </div>
@@ -40,7 +45,119 @@
             }
           </select>
         </div>
-        <p class="hint">Para actualizar el stock, usa el botón "Stock" en la lista de productos.</p>
+        <div class="form-row">
+          <label>Existencia por almacén</label>
+          <div class="almacenes-list">
+            <div class="almacenes-select-row">
+              <select
+                [ngModel]="almacenSeleccionado"
+                name="almacen_select_edit"
+                (ngModelChange)="onAlmacenElegidoEnDropdown($event)"
+              >
+                <option [ngValue]="null">-- Seleccionar almacén --</option>
+                @for (a of almacenesDisponibles; track a.almacen_id) {
+                  <option [ngValue]="a.almacen_id">{{ a.nombre }}</option>
+                }
+              </select>
+            </div>
+            @for (item of form.almacenes; track item.almacen_id) {
+              <div class="almacen-row">
+                <span class="almacen-name">{{ getAlmacenById(item.almacen_id)?.nombre || '-' }}</span>
+                <div class="almacen-stock-fields">
+                  <label class="almacen-field">
+                    <span class="almacen-field-label">Stock</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="item.stock_actual"
+                      [name]="'stock_e_' + item.almacen_id"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      placeholder="Cantidad"
+                      class="stock-input"
+                      (keypress)="onlyNumbers($event)"
+                      (paste)="onStockPaste($event, item)"
+                    />
+                  </label>
+                  <label class="almacen-field">
+                    <span class="almacen-field-label">Stock mín.</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="item.stock_minimo"
+                      [name]="'stockmin_e_' + item.almacen_id"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      class="stock-input stock-input-min"
+                      (keypress)="onlyNumbers($event)"
+                    />
+                  </label>
+                </div>
+                <button type="button" class="btn-small btn-danger almacen-btn-remove" (click)="removeAlmacen(item.almacen_id)">−</button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Imagen del producto</label>
+          <div class="producto-imagen-preview">
+            <img [src]="imagenPreviewSrc()" alt="" width="120" height="120" class="producto-imagen-thumb" />
+          </div>
+          <div class="imagen-upload" [class.imagen-upload--busy]="imagenSaving">
+            <input
+              id="producto-imagen-file-edit"
+              class="imagen-upload-input"
+              type="file"
+              name="imagen_archivo_edit"
+              accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
+              [disabled]="imagenSaving"
+              (change)="onImagenArchivoElegido($event)"
+            />
+            <div
+              class="imagen-upload-drop-wrap"
+              (dragover)="onImagenDragOver($event)"
+              (dragleave)="onImagenDragLeave($event)"
+              (drop)="onImagenDrop($event)"
+            >
+            <label
+              for="producto-imagen-file-edit"
+              class="imagen-upload-drop"
+              [class.imagen-upload-drop--disabled]="imagenSaving"
+              [class.imagen-upload-drop--drag]="imagenDragSobreZona && !imagenSaving"
+            >
+              <span class="imagen-upload-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              </span>
+              <span class="imagen-upload-title">Elegir imagen</span>
+              <span class="imagen-upload-meta">PNG, JPG, WebP o GIF · máx. 500&nbsp;KB · podés arrastrar el archivo aquí</span>
+              @if (imagenArchivoNombre) {
+                <span class="imagen-upload-filename">{{ imagenArchivoNombre }}</span>
+              }
+            </label>
+            </div>
+            @if (imagenArchivoNombre && !imagenSaving) {
+              <button type="button" class="imagen-upload-clear" (click)="quitarImagenArchivo()">Quitar selección</button>
+            }
+          </div>
+          @if (imagenSaving) {
+            <p class="imagen-saving-msg" role="status">Actualizando imagen…</p>
+          }
+          <input
+            type="url"
+            [(ngModel)]="imagenUrlDraft"
+            name="imagen_url_draft"
+            class="imagen-url-field"
+            placeholder="URL de imagen (se guarda al pegar o al salir del campo)"
+            autocomplete="off"
+            [disabled]="imagenSaving"
+            (paste)="onImagenUrlPegado()"
+            (blur)="onImagenUrlBlur()"
+          />
+          <p class="hint">Elegí un archivo para subirla al instante, o pegá una URL pública (http…). Máximo 500&nbsp;KB en el servidor.</p>
+          @if (imagenFeedback) {
+            <p class="imagen-feedback" [class.imagen-feedback-error]="!imagenFeedbackOk">{{ imagenFeedback }}</p>
+          }
+        </div>
         <div class="form-row">
           <label>Estatus</label>
           <select [(ngModel)]="form.estatus" name="estatus">
@@ -52,7 +169,7 @@
           <p class="error-msg">{{ errorMsg }}</p>
         }
         <div class="form-actions">
-          <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
           <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
         </div>
       </form>

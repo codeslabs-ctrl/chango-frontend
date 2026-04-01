@@ -2,7 +2,9 @@
   <div class="page-header">
     <h1><span class="page-icon">📋</span> Gestionar Ventas</h1>
     <div class="header-actions">
-      <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
+      @if (!auth.isAdmin()) {
+        <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
+      }
     </div>
   </div>
   <section class="ventas-filters-panel" aria-label="Filtros de ventas">
@@ -39,7 +41,7 @@
           name="estatusFilter"
         >
           <option value="">Todas</option>
-          <option value="POR CONFIRMAR">Pendientes</option>
+          <option value="POR CONFIRMAR">Por confirmar</option>
           <option value="CONFIRMADA">Confirmadas</option>
           <option value="ELIMINADA">Eliminadas</option>
         </select>
@@ -65,88 +67,82 @@
       Si vaciás las fechas y tocás Buscar, se listan todas las fechas (puede ser lento).
     </p>
   </section>
-  <div class="table-wrapper">
-    <div class="table-view">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Productos</th>
-            <th>Total</th>
-            <th>Fecha</th>
-            <th>Estatus</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (ventas.length === 0 && !loading) {
-            <tr><td colspan="8" class="empty">No hay ventas</td></tr>
-          }
-          @for (v of ventasPaginadas; track v.venta_id) {
-            <tr>
-              <td>{{ v.venta_id }}</td>
-              <td>{{ v.cliente_nombre || '-' }}</td>
-              <td>{{ v.cliente_telefono || '-' }}</td>
-              <td>{{ v.productos_nombres || '-' }}</td>
-              <td>{{ v.total_venta | number:'1.2-2' }}</td>
-              <td>{{ v.fecha_venta | date:'short' }}</td>
-              <td><span class="badge" [class.confirmada]="v.estatus === 'CONFIRMADA'" [class.eliminada]="v.estatus === 'ELIMINADA'" [class.por-confirmar]="v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE'">{{ v.estatus }}</span></td>
-              <td class="ventas-actions-cell">
-                <div class="btn-actions">
-                  <button class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    <span>Ver</span>
-                  </button>
-                  @if (v.estatus === 'POR CONFIRMAR') {
-                    <button class="btn-small btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      Confirmar
-                    </button>
-                    <button class="btn-small btn-danger" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                      Eliminar
+  <div class="ventas-page-cards-wrap">
+    @if (loading) {
+      <p class="ventas-cards-loading">Cargando ventas…</p>
+    } @else if (ventas.length === 0) {
+      <p class="card-empty">No hay ventas</p>
+    } @else {
+      <div class="ventas-cards-grid">
+        @for (v of ventasPaginadas; track v.venta_id) {
+          <article class="venta-layout-card">
+            <div class="venta-layout-body">
+              <div class="venta-layout-info">
+                <div class="venta-layout-header">
+                  <span class="venta-layout-title">#{{ v.venta_id }} · {{ v.cliente_nombre || 'Sin cliente' }}</span>
+                  <span class="venta-layout-monto">{{ v.total_venta | number:'1.2-2' }}</span>
+                </div>
+                <dl class="venta-layout-dl">
+                  <div class="venta-layout-row">
+                    <dt>Teléfono</dt>
+                    <dd>{{ v.cliente_telefono || '—' }}</dd>
+                  </div>
+                  <div class="venta-layout-row">
+                    <dt>Productos</dt>
+                    <dd>{{ lineasVenta(v) }}</dd>
+                  </div>
+                  @if (v.usuario_id != null) {
+                    <div class="venta-layout-row">
+                      <dt>Vendedor</dt>
+                      <dd>{{ (v.usuario_nombre || '').trim() || ('#' + v.usuario_id) }}</dd>
+                    </div>
+                  }
+                  <div class="venta-layout-row">
+                    <dt>Fecha</dt>
+                    <dd>{{ v.fecha_venta | date:'short' }}</dd>
+                  </div>
+                  <div class="venta-layout-row">
+                    <dt>Estatus</dt>
+                    <dd>
+                      <span
+                        class="badge"
+                        [class.confirmada]="v.estatus === 'CONFIRMADA'"
+                        [class.eliminada]="v.estatus === 'ELIMINADA'"
+                        [class.por-confirmar]="
+                          v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR'
+                        "
+                        >{{ v.estatus === 'POR FACTURAR' ? 'POR CONFIRMAR' : v.estatus }}</span
+                      >
+                    </dd>
+                  </div>
+                </dl>
+                <div class="venta-layout-actions venta-layout-actions--wrap">
+                  @if (v.estatus === 'CONFIRMADA') {
+                    <button type="button" class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <span>Ver</span>
                     </button>
                   }
+                  @if (v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
+                    <button type="button" class="btn-small btn-confirm venta-card-accion" (click)="abrirFinalizar(v)" [disabled]="confirmando === v.venta_id">Facturar</button>
+                  }
+                  @if (v.estatus === 'POR CONFIRMAR' || v.estatus === 'POR FACTURAR' || v.estatus === 'PENDIENTE') {
+                    <button type="button" class="btn-small venta-btn-eliminar venta-card-accion" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Eliminar</button>
+                  }
                 </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    <div class="card-view">
-      @if (ventas.length === 0 && !loading) {
-        <p class="card-empty">No hay ventas</p>
-      }
-      @for (v of ventasPaginadas; track v.venta_id) {
-        <article class="data-card">
-          <div class="card-main">
-            <div class="card-header">
-              <span class="card-title">#{{ v.venta_id }} · {{ v.cliente_nombre || 'Sin cliente' }}</span>
-              <span class="card-badge card-badge-amount">{{ v.total_venta | number:'1.2-2' }}</span>
+              </div>
+              <div class="venta-layout-visual venta-layout-visual--carousel" aria-hidden="true">
+                <chango-venta-productos-carousel
+                  [destaqueRaw]="v.productos_destaque"
+                  [lineasTotal]="lineasVenta(v)"
+                  [nombresCsv]="v.productos_nombres ?? null"
+                />
+              </div>
             </div>
-            <dl class="card-details">
-              <div class="card-row"><dt>Teléfono</dt><dd>{{ v.cliente_telefono || '-' }}</dd></div>
-              <div class="card-row"><dt>Productos</dt><dd>{{ v.productos_nombres || '-' }}</dd></div>
-              <div class="card-row"><dt>Fecha</dt><dd>{{ v.fecha_venta | date:'short' }}</dd></div>
-              <div class="card-row"><dt>Estatus</dt><dd><span class="badge" [class.confirmada]="v.estatus === 'CONFIRMADA'" [class.eliminada]="v.estatus === 'ELIMINADA'" [class.por-confirmar]="v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE'">{{ v.estatus }}</span></dd></div>
-            </dl>
-          </div>
-          <div class="card-actions">
-            <button class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              Ver
-            </button>
-            @if (v.estatus === 'POR CONFIRMAR') {
-              <button class="btn-small btn-confirm" (click)="confirmar(v.venta_id)" [disabled]="confirmando === v.venta_id">Confirmar</button>
-              <button class="btn-small btn-danger" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Eliminar</button>
-            }
-          </div>
-        </article>
-      }
-    </div>
+          </article>
+        }
+      </div>
+    }
     @if (ventas.length > pageSize) {
       <div class="pagination-wrapper">
         <div class="pagination">
@@ -160,58 +156,14 @@
     }
   </div>
 
-  @if (modalVenta !== null || modalLoading) {
-    <div class="modal-overlay" (click)="!modalLoading && cerrarModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        @if (modalLoading) {
-          <p class="modal-loading">Cargando...</p>
-        } @else if (modalVenta) {
-          <div class="modal-header">
-            <h3>Detalle de venta #{{ modalVenta.venta.venta_id }}</h3>
-            <button type="button" class="modal-close" (click)="cerrarModal()">×</button>
-          </div>
-          <div class="modal-body">
-            <dl class="modal-dl">
-              <dt>Cliente</dt>
-              <dd>{{ modalVenta.venta.cliente_nombre || '-' }}</dd>
-              <dt>Cédula / RIF</dt>
-              <dd>{{ modalVenta.venta.cliente_cedula_rif || '-' }}</dd>
-              <dt>Teléfono</dt>
-              <dd>{{ modalVenta.venta.cliente_telefono || '-' }}</dd>
-              <dt>Fecha</dt>
-              <dd>{{ modalVenta.venta.fecha_venta | date:'medium' }}</dd>
-              <dt>Método de pago</dt>
-              <dd>{{ modalVenta.venta.metodo_pago || '-' }}</dd>
-              <dt>Estatus</dt>
-              <dd><span class="badge" [class.confirmada]="modalVenta.venta.estatus === 'CONFIRMADA'" [class.eliminada]="modalVenta.venta.estatus === 'ELIMINADA'" [class.por-confirmar]="modalVenta.venta.estatus === 'POR CONFIRMAR' || modalVenta.venta.estatus === 'PENDIENTE'">{{ modalVenta.venta.estatus }}</span></dd>
-            </dl>
-            <h4>Productos</h4>
-            <table class="modal-table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Cantidad</th>
-                  <th>Precio unit.</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (d of modalVenta.detalles; track d.detalle_id) {
-                  <tr>
-                    <td data-label="Producto">{{ d.producto_descripcion || d.producto_id }}</td>
-                    <td data-label="Cantidad">{{ d.cantidad }}</td>
-                    <td data-label="Precio unit.">{{ d.precio_unitario | number:'1.2-2' }}</td>
-                    <td data-label="Subtotal">{{ d.cantidad * d.precio_unitario | number:'1.2-2' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-            <div class="modal-total">
-              <strong>Total: {{ modalVenta.venta.total_venta | number:'1.2-2' }}</strong>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  }
+  <chango-venta-finalizar-modal
+    [open]="modalLoading || modalVenta !== null"
+    [loadingData]="modalLoading"
+    [data]="modalVenta"
+    [mode]="modalMode"
+    [submitting]="confirmando !== null"
+    [submitError]="modalSubmitError"
+    (closed)="cerrarModal()"
+    (finalizar)="onModalFinalizar($event)"
+  />
 </div>

@@ -3,52 +3,67 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { VentasService, Venta, VentaConDetalles } from '../../core/services/ventas.service';
-import { ProductosService, Producto } from '../../core/services/productos.service';
-import { EstadisticasService } from '../../core/services/estadisticas.service';
+import {
+  VentasService,
+  Venta,
+  VentaConDetalles,
+  ConfirmarVentaDto
+} from '../../core/services/ventas.service';
+import {
+  VentaFinalizarModalComponent,
+  VentaModalMode
+} from '../../shared/venta-finalizar-modal/venta-finalizar-modal.component';
+import {
+  EstadisticasService,
+  StockCriticoItem
+} from '../../core/services/estadisticas.service';
+import { VentaProductosCarouselComponent } from '../../shared/venta-productos-carousel/venta-productos-carousel.component';
+
+/** Solo estos estatus listan en el dashboard (nunca confirmadas ni eliminadas). */
+const ESTATUS_VENTA_PENDIENTE_DASHBOARD = new Set([
+  'POR CONFIRMAR',
+  'PENDIENTE',
+  'POR FACTURAR'
+]);
 
 @Component({
   selector: 'chango-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, VentaFinalizarModalComponent, VentaProductosCarouselComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   ventasPendientes: Venta[] = [];
-  productos: Producto[] = [];
   comparativaMensual: { monto_actual?: number; monto_anterior?: number; variacion_porcentaje?: number }[] = [];
-  stockCritico: { producto_id: number; nombre?: string; codigo_interno?: string; stock_total?: number }[] = [];
+  stockCritico: StockCriticoItem[] = [];
 
   loadingVentas = false;
-  loadingProductos = false;
   loadingStats = { comparativa: true, stock: true };
   confirmando: number | null = null;
+  eliminando: number | null = null;
   modalVenta: VentaConDetalles | null = null;
   modalLoading = false;
+  modalMode: VentaModalMode = 'confirmar';
+  modalSubmitError = '';
 
   filterVentas = '';
-  filterProductos = '';
+  /** Pestaña: pendientes con vendedor asignado vs ventas del agente (sin usuario_id). */
+  ventasDashboardTab: 'vendedor' | 'agente' = 'vendedor';
   ventasPageSize = 10;
   ventasCurrentPage = 1;
-  productosPageSize = 10;
-  productosCurrentPage = 1;
 
   ventasSortCol: string | null = null;
   ventasSortDir: 'asc' | 'desc' = 'desc';
-  productosSortCol: string | null = null;
-  productosSortDir: 'asc' | 'desc' = 'asc';
 
   constructor(
     private ventasService: VentasService,
-    private productosService: ProductosService,
     private estadisticasService: EstadisticasService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadVentas();
-    this.loadProductos();
     this.loadStats();
   }
 
@@ -86,11 +101,6 @@ export class DashboardComponent implements OnInit {
 
   get kpiMontoActual(): number {
     return Number(this.comparativaMensual[0]?.monto_actual) || 0;
-  }
-
-  get kpiVariacion(): number | null {
-    const v = this.comparativaMensual[0]?.variacion_porcentaje;
-    return v != null ? v : null;
   }
 
   get kpiStockCritico(): number {
@@ -140,6 +150,19 @@ export class DashboardComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  onVentasSortPick(value: string) {
+    const v = (value || '').trim();
+    if (!v) {
+      this.ventasSortCol = null;
+      this.ventasSortDir = 'desc';
+    } else {
+      this.ventasSortCol = v;
+      this.ventasSortDir = v === 'fecha_venta' || v === 'total_venta' ? 'desc' : 'asc';
+    }
+    this.ventasCurrentPage = 1;
+    this.cdr.detectChanges();
+  }
+
   get ventasPaginadas(): Venta[] {
     const start = (this.ventasCurrentPage - 1) * this.ventasPageSize;
     return this.ventasFiltradas.slice(start, start + this.ventasPageSize);
@@ -149,69 +172,25 @@ export class DashboardComponent implements OnInit {
     return Math.max(1, Math.ceil(this.ventasFiltradas.length / this.ventasPageSize));
   }
 
-  get productosFiltrados(): Producto[] {
-    const q = this.filterProductos.trim().toLowerCase();
-    let list = this.productos;
-    if (q) {
-      list = list.filter(p =>
-        (p.descripcion || '').toLowerCase().includes(q) ||
-        (p.nombre || '').toLowerCase().includes(q) ||
-        (p.codigo_interno || '').toLowerCase().includes(q) ||
-        (p.subcategoria_nombre || '').toLowerCase().includes(q)
-      );
-    }
-    return this.sortProductos(list);
-  }
-
-  private sortProductos(list: Producto[]): Producto[] {
-    if (!this.productosSortCol) return list;
-    const col = this.productosSortCol;
-    const dir = this.productosSortDir === 'asc' ? 1 : -1;
-    return [...list].sort((a, b) => {
-      let va: string | number = (a as unknown as Record<string, unknown>)[col] as string | number;
-      let vb: string | number = (b as unknown as Record<string, unknown>)[col] as string | number;
-      if (col === 'existencia_actual') {
-        va = Number(va) || 0;
-        vb = Number(vb) || 0;
-      } else {
-        va = String(va ?? '').toLowerCase();
-        vb = String(vb ?? '').toLowerCase();
-      }
-      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
-      return cmp * dir;
-    });
-  }
-
-  sortProductosBy(col: string) {
-    if (this.productosSortCol === col) {
-      this.productosSortDir = this.productosSortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.productosSortCol = col;
-      this.productosSortDir = col === 'existencia_actual' ? 'desc' : 'asc';
-    }
-    this.productosCurrentPage = 1;
-    this.cdr.detectChanges();
-  }
-
-  get productosPaginados(): Producto[] {
-    const start = (this.productosCurrentPage - 1) * this.productosPageSize;
-    return this.productosFiltrados.slice(start, start + this.productosPageSize);
-  }
-
-  get productosTotalPages(): number {
-    return Math.max(1, Math.ceil(this.productosFiltrados.length / this.productosPageSize));
-  }
-
   sortIcon(col: string, currentCol: string | null, dir: 'asc' | 'desc'): string {
     if (currentCol !== col) return '';
     return dir === 'asc' ? ' ▲' : ' ▼';
   }
 
+  onVentasDashboardTabChange(tab: 'vendedor' | 'agente') {
+    this.ventasDashboardTab = tab;
+    this.ventasCurrentPage = 1;
+    this.loadVentas();
+  }
+
   loadVentas() {
     this.loadingVentas = true;
-    this.ventasService.getAll({ estatus: 'POR CONFIRMAR' }).subscribe({
+    this.ventasService.getAll({ pendientesTipo: this.ventasDashboardTab }).subscribe({
       next: (res) => {
-        this.ventasPendientes = res.data || [];
+        const raw = res.data || [];
+        this.ventasPendientes = raw.filter(v =>
+          ESTATUS_VENTA_PENDIENTE_DASHBOARD.has(String(v.estatus || '').trim())
+        );
         this.loadingVentas = false;
         this.cdr.detectChanges();
       },
@@ -222,64 +201,13 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadProductos() {
-    this.loadingProductos = true;
-    this.productosService.getAll().subscribe({
-      next: (res) => {
-        this.productos = res.data || [];
-        this.loadingProductos = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.loadingProductos = false;
-        this.cdr.detectChanges();
-      }
-    });
+  abrirFinalizar(v: Venta) {
+    this.modalSubmitError = '';
+    this.modalMode = v.usuario_id != null ? 'confirmar' : 'facturar';
+    this.cargarModalVenta(v.venta_id);
   }
 
-  toggleEstatusProducto(p: Producto) {
-    const nuevo = (p.estatus || 'A') === 'A' ? 'C' : 'A';
-    this.productosService.updateEstatus(p.producto_id, nuevo).subscribe({
-      next: () => {
-        this.loadProductos();
-        this.cdr.detectChanges();
-      },
-      error: () => this.cdr.detectChanges()
-    });
-  }
-
-  eliminarProducto(p: Producto) {
-    if (!confirm('¿Eliminar el producto "' + (p.descripcion || p.nombre || p.codigo_interno) + '"?')) return;
-    this.productosService.delete(p.producto_id).subscribe({
-      next: () => {
-        this.loadProductos();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        alert(err.error?.message || 'No pudimos eliminar. Intentá de nuevo.');
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  confirmar(ventaId: number) {
-    this.confirmando = ventaId;
-    this.cdr.detectChanges();
-    this.ventasService.confirmar(ventaId).subscribe({
-      next: () => {
-        this.ventasPendientes = this.ventasPendientes.filter(v => v.venta_id !== ventaId);
-        this.confirmando = null;
-        this.modalVenta = null;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.confirmando = null;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  verDetalle(ventaId: number) {
+  private cargarModalVenta(ventaId: number) {
     this.modalVenta = null;
     this.modalLoading = true;
     this.cdr.detectChanges();
@@ -296,8 +224,63 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  eliminar(ventaId: number) {
+    if (!confirm('¿Eliminar esta venta?')) return;
+    this.eliminando = ventaId;
+    this.cdr.detectChanges();
+    this.ventasService.eliminar(ventaId).subscribe({
+      next: () => {
+        this.eliminando = null;
+        this.ventasPendientes = this.ventasPendientes.filter(v => v.venta_id !== ventaId);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.eliminando = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onModalFinalizar(dto: ConfirmarVentaDto) {
+    if (!this.modalVenta) return;
+    const id = this.modalVenta.venta.venta_id;
+    this.modalSubmitError = '';
+    this.confirmando = id;
+    this.cdr.detectChanges();
+    this.ventasService.confirmar(id, dto).subscribe({
+      next: () => {
+        this.ventasPendientes = this.ventasPendientes.filter(v => v.venta_id !== id);
+        this.confirmando = null;
+        this.cerrarModal();
+        this.cdr.detectChanges();
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.confirmando = null;
+        this.modalSubmitError =
+          err.error?.message || 'No se pudo finalizar la venta.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   cerrarModal() {
     this.modalVenta = null;
+    this.modalLoading = false;
+    this.modalSubmitError = '';
     this.cdr.detectChanges();
   }
+
+  etiquetaBotonAccion(): string {
+    return 'Facturar';
+  }
+
+  /** Cantidad de líneas / productos en la venta. */
+  lineasVenta(v: Venta): number {
+    const n = v.cantidad_productos;
+    if (n != null && n >= 0) return n;
+    const s = v.productos_nombres?.trim();
+    if (!s) return 0;
+    return s.split(',').filter(x => x.trim().length > 0).length;
+  }
+
 }

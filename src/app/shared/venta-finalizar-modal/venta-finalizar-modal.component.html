@@ -1,0 +1,247 @@
+@if (open) {
+  <div class="modal-overlay" (click)="onClickOverlay()">
+    <div
+      class="modal-content"
+      [class.modal-wide]="mode === 'facturar' || mode === 'confirmar'"
+      (click)="$event.stopPropagation()"
+    >
+      @if (loadingData) {
+        <p class="modal-loading">Cargando...</p>
+      } @else if (data) {
+        <div class="modal-header">
+          <h3>{{ tituloModal }}</h3>
+          <button
+            type="button"
+            class="modal-close"
+            (click)="onCerrar()"
+            [disabled]="submitting"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (mode === 'facturar') {
+            <h4 class="modal-section-title">Cliente</h4>
+            <div class="vf-form-grid">
+              <label>
+                <span>Nombre</span>
+                <input
+                  type="text"
+                  name="vfNombre"
+                  [(ngModel)]="clienteNombre"
+                  [disabled]="submitting"
+                  autocomplete="name"
+                />
+              </label>
+              <label>
+                <span>Cédula / RIF</span>
+                <input
+                  type="text"
+                  name="vfCedula"
+                  [(ngModel)]="clienteCedula"
+                  [disabled]="submitting"
+                  autocomplete="off"
+                />
+              </label>
+              <label>
+                <span>Teléfono</span>
+                <input
+                  type="text"
+                  name="vfTel"
+                  [(ngModel)]="clienteTelefono"
+                  [disabled]="submitting"
+                  autocomplete="tel"
+                />
+              </label>
+              <label>
+                <span>Correo</span>
+                <input
+                  type="email"
+                  name="vfEmail"
+                  [(ngModel)]="clienteEmail"
+                  [disabled]="submitting"
+                  autocomplete="email"
+                />
+              </label>
+              <label class="vf-span-2">
+                <span>Dirección</span>
+                <input
+                  type="text"
+                  name="vfDir"
+                  [(ngModel)]="clienteDireccion"
+                  [disabled]="submitting"
+                  autocomplete="street-address"
+                />
+              </label>
+            </div>
+          } @else {
+            <dl class="modal-dl">
+              <dt>Cliente</dt>
+              <dd>{{ data.venta.cliente_nombre || '-' }}</dd>
+              <dt>Cédula / RIF</dt>
+              <dd>{{ data.venta.cliente_cedula_rif || '-' }}</dd>
+              <dt>Teléfono</dt>
+              <dd>{{ data.venta.cliente_telefono || '-' }}</dd>
+              <dt>Correo</dt>
+              <dd>{{ data.venta.cliente_email || '-' }}</dd>
+              <dt>Dirección</dt>
+              <dd>{{ data.venta.cliente_direccion || '-' }}</dd>
+            </dl>
+          }
+
+          <h4 class="modal-section-title">Venta</h4>
+          <dl class="modal-dl">
+            <dt>Fecha</dt>
+            <dd>{{ data.venta.fecha_venta | date: 'medium' }}</dd>
+            <dt>Estatus</dt>
+            <dd>
+              <span
+                class="badge"
+                [class.confirmada]="data.venta.estatus === 'CONFIRMADA'"
+                [class.eliminada]="data.venta.estatus === 'ELIMINADA'"
+                [class.por-confirmar]="
+                  data.venta.estatus === 'POR CONFIRMAR' ||
+                  data.venta.estatus === 'PENDIENTE' ||
+                  data.venta.estatus === 'POR FACTURAR'
+                "
+                >{{ data.venta.estatus === 'POR FACTURAR' ? 'POR CONFIRMAR' : data.venta.estatus }}</span
+              >
+            </dd>
+            <dt>ID vendedor</dt>
+            <dd>
+              @if (data.venta.usuario_id != null) {
+                <span>{{ data.venta.usuario_id }}</span>
+                @if (data.venta.usuario_nombre) {
+                  <span class="vf-vendedor-nombre">({{ data.venta.usuario_nombre }})</span>
+                }
+              } @else {
+                —
+              }
+            </dd>
+          </dl>
+
+          @if (mode === 'ver') {
+            <h4 class="modal-section-title">Pago</h4>
+            <dl class="modal-dl">
+              <dt>Método de pago</dt>
+              <dd>{{ etiquetaMetodoActual() }}</dd>
+              @if (refLeidaDesdeVenta()) {
+                <dt>Referencia</dt>
+                <dd>{{ refLeidaDesdeVenta() }}</dd>
+              }
+            </dl>
+          }
+
+          @if (mode === 'confirmar') {
+            <h4 class="modal-section-title">Pago</h4>
+            <dl class="modal-dl vf-readonly-pago">
+              <dt>Método de pago</dt>
+              <dd>{{ etiquetaMetodoActual() }}</dd>
+              @if (refLeidaDesdeVenta()) {
+                <dt>Referencia</dt>
+                <dd>{{ refLeidaDesdeVenta() }}</dd>
+              }
+            </dl>
+            @if (mostrarCompletarRefConfirmar()) {
+              <div class="vf-form-grid vf-ref-solo">
+                <label class="vf-span-2">
+                  <span>Nº de referencia (obligatorio)</span>
+                  <input
+                    type="text"
+                    name="vfRefConfirmar"
+                    [(ngModel)]="refCompletarConfirmar"
+                    [disabled]="submitting"
+                    placeholder="Referencia del comprobante"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            }
+          }
+
+          @if (mode === 'facturar') {
+            <h4 class="modal-section-title">Pago</h4>
+            <div class="vf-form-grid">
+              <label class="vf-span-2 vf-select-field">
+                <span>Método de pago</span>
+                <select
+                  name="vfTipoPago"
+                  class="vf-select-metodo"
+                  [(ngModel)]="tipoPagoCodigo"
+                  [disabled]="submitting"
+                  required
+                >
+                  <option value="">— Elegir método —</option>
+                  @for (opt of opcionesMetodoPago; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </label>
+              @if (necesitaReferenciaParaTipo(tipoPagoCodigo)) {
+                <label class="vf-span-2">
+                  <span>Nº de referencia</span>
+                  <input
+                    type="text"
+                    name="vfRefFac"
+                    [(ngModel)]="referenciaPago"
+                    [disabled]="submitting"
+                    placeholder="Referencia del comprobante"
+                    autocomplete="off"
+                  />
+                </label>
+              }
+            </div>
+          }
+
+          <h4 class="modal-section-title">Productos</h4>
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio unit.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of data.detalles; track d.detalle_id) {
+                <tr>
+                  <td data-label="Producto">{{ d.producto_descripcion || d.producto_id }}</td>
+                  <td data-label="Cantidad">{{ d.cantidad }}</td>
+                  <td data-label="Precio unit.">{{ d.precio_unitario | number: '1.2-2' }}</td>
+                  <td data-label="Subtotal">{{ d.cantidad * d.precio_unitario | number: '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="modal-total">
+            <strong>Total: {{ data.venta.total_venta | number: '1.2-2' }}</strong>
+          </div>
+
+          @if (localError) {
+            <p class="vf-error" role="alert">{{ localError }}</p>
+          }
+          @if (submitError && !localError) {
+            <p class="vf-error" role="alert">{{ submitError }}</p>
+          }
+
+          @if (mode !== 'ver') {
+            <div class="vf-actions">
+              <button type="button" class="btn-cancel" (click)="onCerrar()" [disabled]="submitting">
+                Cancelar
+              </button>
+              <button type="button" class="vf-btn-ok" (click)="onFinalizarClick()" [disabled]="submitting">
+                @if (submitting) {
+                  Facturando…
+                } @else {
+                  Facturar
+                }
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

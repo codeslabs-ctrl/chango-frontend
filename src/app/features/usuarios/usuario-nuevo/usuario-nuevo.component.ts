@@ -19,7 +19,7 @@ export class UsuarioNuevoComponent {
     username: '',
     email: '',
     password: '',
-    rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor'
+    rol: 'vendedor' as 'administrador' | 'vendedor'
   };
   saving = false;
   errorMsg = '';

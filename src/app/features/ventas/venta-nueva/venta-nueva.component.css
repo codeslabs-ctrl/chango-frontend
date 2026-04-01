@@ -22,6 +22,78 @@ h1 { color: #000; }
 }
 .cliente-search { position: relative; }
 
+.form-row-metodo .vn-select-metodo {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.75rem;
+  font-size: var(--font-size, 1rem);
+  font-family: inherit;
+  line-height: 1.45;
+  color: #0f172a;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  min-height: 2.65rem;
+}
+
+.form-row-metodo .vn-select-metodo:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.form-row-metodo .vn-select-metodo option {
+  padding: 0.4rem 0.5rem;
+}
+
+.vn-datos-pago-panel {
+  margin: 0 0 0.85rem;
+  padding: 0.85rem 1rem;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  color: #0c4a6e;
+}
+
+.vn-datos-pago-empresa {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #075985;
+}
+
+.vn-datos-pago-bloque {
+  margin-top: 0.6rem;
+}
+
+.vn-datos-pago-bloque:first-of-type {
+  margin-top: 0;
+}
+
+.vn-datos-pago-bloque-titulo {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: var(--font-size-sm);
+  color: #0f172a;
+}
+
+.vn-datos-pago-linea {
+  margin: 0.2rem 0 0;
+  font-size: var(--font-size-sm);
+}
+
+.vn-datos-pago-k {
+  font-weight: 600;
+  color: #0369a1;
+  margin-right: 0.35rem;
+}
+
 /* Nuevo cliente */
 .btn-nuevo-cliente {
   width: 100%;
@@ -199,6 +271,7 @@ h1 { color: #000; }
   }
 
   .summary-actions .btn-secondary,
+  .summary-actions .btn-cancel,
   .summary-actions .btn-checkout {
     width: 100%;
     justify-content: center;

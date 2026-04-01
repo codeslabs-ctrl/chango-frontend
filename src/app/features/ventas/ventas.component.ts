@@ -2,7 +2,18 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { VentasService, Venta, VentaConDetalles } from '../../core/services/ventas.service';
+import {
+  VentasService,
+  Venta,
+  VentaConDetalles,
+  ConfirmarVentaDto
+} from '../../core/services/ventas.service';
+import {
+  VentaFinalizarModalComponent,
+  VentaModalMode
+} from '../../shared/venta-finalizar-modal/venta-finalizar-modal.component';
+import { VentaProductosCarouselComponent } from '../../shared/venta-productos-carousel/venta-productos-carousel.component';
+import { AuthService } from '../../core/services/auth.service';
 
 function fechaLocalHoyYMD(): string {
   const d = new Date();
@@ -15,7 +26,7 @@ function fechaLocalHoyYMD(): string {
 @Component({
   selector: 'chango-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, VentaFinalizarModalComponent, VentaProductosCarouselComponent],
   templateUrl: './ventas.component.html',
   styleUrl: './ventas.component.css'
 })
@@ -33,6 +44,8 @@ export class VentasComponent implements OnInit {
   currentPage = 1;
   modalVenta: VentaConDetalles | null = null;
   modalLoading = false;
+  modalMode: VentaModalMode = 'ver';
+  modalSubmitError = '';
 
   get ventasPaginadas(): Venta[] {
     const start = (this.currentPage - 1) * this.pageSize;
@@ -44,6 +57,7 @@ export class VentasComponent implements OnInit {
   }
 
   constructor(
+    public auth: AuthService,
     private ventasService: VentasService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -110,21 +124,6 @@ export class VentasComponent implements OnInit {
     });
   }
 
-  confirmar(ventaId: number) {
-    this.confirmando = ventaId;
-    this.cdr.detectChanges();
-    this.ventasService.confirmar(ventaId).subscribe({
-      next: () => {
-        this.confirmando = null;
-        this.load();
-      },
-      error: () => {
-        this.confirmando = null;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   eliminar(ventaId: number) {
     if (!confirm('¿Eliminar esta venta?')) return;
     this.eliminando = ventaId;
@@ -142,6 +141,18 @@ export class VentasComponent implements OnInit {
   }
 
   verDetalle(ventaId: number) {
+    this.modalSubmitError = '';
+    this.modalMode = 'ver';
+    this.cargarModalVenta(ventaId);
+  }
+
+  abrirFinalizar(v: Venta) {
+    this.modalSubmitError = '';
+    this.modalMode = v.usuario_id != null ? 'confirmar' : 'facturar';
+    this.cargarModalVenta(v.venta_id);
+  }
+
+  private cargarModalVenta(ventaId: number) {
     this.modalVenta = null;
     this.modalLoading = true;
     this.cdr.detectChanges();
@@ -158,8 +169,40 @@ export class VentasComponent implements OnInit {
     });
   }
 
+  onModalFinalizar(dto: ConfirmarVentaDto) {
+    if (!this.modalVenta) return;
+    const id = this.modalVenta.venta.venta_id;
+    this.modalSubmitError = '';
+    this.confirmando = id;
+    this.cdr.detectChanges();
+    this.ventasService.confirmar(id, dto).subscribe({
+      next: () => {
+        this.confirmando = null;
+        this.cerrarModal();
+        this.load();
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.confirmando = null;
+        this.modalSubmitError =
+          err.error?.message || 'No se pudo finalizar la venta.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   cerrarModal() {
     this.modalVenta = null;
+    this.modalLoading = false;
+    this.modalSubmitError = '';
     this.cdr.detectChanges();
+  }
+
+  /** Cantidad de líneas / productos en la venta (fallback desde nombres si el API es antiguo). */
+  lineasVenta(v: Venta): number {
+    const n = v.cantidad_productos;
+    if (n != null && n >= 0) return n;
+    const s = v.productos_nombres?.trim();
+    if (!s) return 0;
+    return s.split(',').filter(x => x.trim().length > 0).length;
   }
 }

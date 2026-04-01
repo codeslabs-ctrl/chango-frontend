@@ -20,7 +20,7 @@ export class UsuarioEditarComponent implements OnInit {
     username: '',
     email: '',
     password: '',
-    rol: 'usuario' as 'administrador' | 'usuario' | 'vendedor',
+    rol: 'vendedor' as 'administrador' | 'vendedor',
     activo: true
   };
   loading = true;
@@ -48,12 +48,15 @@ export class UsuarioEditarComponent implements OnInit {
           this.router.navigate(['/usuarios']);
           return;
         }
+        const rolApi = u.rol || 'vendedor';
+        const rolForm: 'administrador' | 'vendedor' =
+          rolApi === 'administrador' ? 'administrador' : 'vendedor';
         this.form = {
           nombre_usuario: u.nombre_usuario ?? '',
           username: u.username,
           email: u.email,
           password: '',
-          rol: u.rol || 'usuario',
+          rol: rolForm,
           activo: u.activo ?? true
         };
         this.loading = false;
@@ -80,7 +83,7 @@ export class UsuarioEditarComponent implements OnInit {
       email: string;
       nombre_usuario: string | null;
       password?: string;
-      rol: 'administrador' | 'usuario' | 'vendedor';
+      rol: 'administrador' | 'vendedor';
       activo: boolean;
     } = {
       username: this.form.username.trim(),

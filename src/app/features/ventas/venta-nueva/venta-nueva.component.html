@@ -70,7 +70,7 @@
                 <input [(ngModel)]="nuevoClienteCorreo" name="nuevoClienteCorreo" type="email" placeholder="Correo electrónico" />
               </div>
               <div class="nuevo-cliente-actions">
-                <button type="button" class="btn-secondary" (click)="cancelarFormNuevoCliente()">Cancelar</button>
+                <button type="button" class="btn-cancel" (click)="cancelarFormNuevoCliente()">Cancelar</button>
                 <button type="button" class="btn-primary" (click)="guardarNuevoCliente()" [disabled]="!nuevoClienteNombre.trim() || guardandoCliente">
                   {{ guardandoCliente ? 'Guardando...' : 'Registrar y usar' }}
                 </button>
@@ -149,9 +149,19 @@
               @for (linea of lineas; track linea.producto_id) {
                 <li class="cart-item">
                   <div class="item-main">
-                    <div class="item-info">
-                      <span class="item-name">{{ linea.descripcion }}</span>
-                      <span class="item-meta">Precio unit: {{ linea.precio_unitario | number:'1.2-2' }} · Stock en almacén: {{ linea.existencia_actual }}</span>
+                    <div class="item-info item-info-with-thumb">
+                      <img
+                        class="item-thumb"
+                        [src]="lineaImagenSrc(linea)"
+                        [alt]="linea.descripcion"
+                        width="64"
+                        height="64"
+                        loading="lazy"
+                      />
+                      <div class="item-info-text">
+                        <span class="item-name">{{ linea.descripcion }}</span>
+                        <span class="item-meta">Precio unit: {{ linea.precio_unitario | number:'1.2-2' }} · Stock en almacén: {{ linea.existencia_actual }}</span>
+                      </div>
                     </div>
                     <div class="item-qty">
                       <label>Cant:</label>
@@ -186,19 +196,62 @@
             <span>Total</span>
             <span>{{ totalVenta | number:'1.2-2' }}</span>
           </div>
-          <div class="form-row">
-            <label>Método de pago</label>
-            <input [(ngModel)]="metodoPago" name="metodoPago" placeholder="Efectivo, transferencia..." />
+          <div class="form-row form-row-metodo">
+            <label for="tipoPagoVenta">Método de pago</label>
+            <select
+              id="tipoPagoVenta"
+              name="tipoPagoVenta"
+              class="vn-select-metodo"
+              [(ngModel)]="tipoPagoCodigo"
+            >
+              <option value="">{{ labelPlaceholderMetodoPago }}</option>
+              @for (opt of opcionesMetodoPago; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
           </div>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="confirmarVenta" name="confirmar" />
-            Confirmar venta (descontar stock)
-          </label>
+          @if (muestraDatosPagoMovil || muestraDatosTransferencia) {
+            <div class="vn-datos-pago-panel" role="region" aria-label="Datos de la cuenta para el pago">
+              <p class="vn-datos-pago-empresa">Métodos de pago — Santa Bárbara Changó F6, C.A.</p>
+              @if (muestraDatosPagoMovil) {
+                <div class="vn-datos-pago-bloque">
+                  <strong class="vn-datos-pago-bloque-titulo">1. Pago móvil Banco de Venezuela</strong>
+                  <p class="vn-datos-pago-linea"><span class="vn-datos-pago-k">N° telefónico:</span> 0414-2841972</p>
+                  <p class="vn-datos-pago-linea"><span class="vn-datos-pago-k">C.I.:</span> 19.368.993</p>
+                  <p class="vn-datos-pago-linea"><span class="vn-datos-pago-k">Banco:</span> Banco de Venezuela</p>
+                </div>
+              }
+              @if (muestraDatosTransferencia) {
+                <div class="vn-datos-pago-bloque">
+                  <strong class="vn-datos-pago-bloque-titulo">2. Cuenta corriente Banca Amiga</strong>
+                  <p class="vn-datos-pago-linea">
+                    <span class="vn-datos-pago-k">Titular:</span> Santa Bárbara Changó F6, C.A.
+                  </p>
+                  <p class="vn-datos-pago-linea">
+                    <span class="vn-datos-pago-k">N° de cuenta:</span> 0172-0107-77-1075387611
+                  </p>
+                </div>
+              }
+            </div>
+          }
+          @if (necesitaReferenciaMetodo()) {
+            <div class="form-row">
+              <label for="refBancoVenta">Nº de referencia</label>
+              <input
+                id="refBancoVenta"
+                type="text"
+                name="referenciaBanco"
+                [(ngModel)]="referenciaBanco"
+                placeholder="Referencia del comprobante"
+                autocomplete="off"
+              />
+            </div>
+          }
           @if (errorMsg) {
             <p class="error-msg">{{ errorMsg }}</p>
           }
           <div class="summary-actions">
-            <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+            <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
             <button type="submit" class="btn-checkout" [disabled]="saving || lineas.length === 0">
               {{ saving ? 'Procesando...' : 'Procesar venta' }}
             </button>

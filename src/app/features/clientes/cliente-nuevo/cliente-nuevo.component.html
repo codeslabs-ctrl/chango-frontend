@@ -24,7 +24,7 @@
         <input [(ngModel)]="direccion" name="direccion" placeholder="Dirección" />
       </div>
       <div class="form-actions">
-        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
         <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Registrar cliente' }}</button>
       </div>
     </form>

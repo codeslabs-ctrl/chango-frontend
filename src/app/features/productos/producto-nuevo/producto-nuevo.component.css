@@ -1,5 +1,147 @@
 /* Estilos específicos producto-nuevo */
+.imagen-upload {
+  margin-bottom: 0.65rem;
+}
+
+.imagen-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.imagen-upload-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 1.35rem 1rem;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.imagen-upload-drop:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(210, 32, 39, 0.12);
+}
+
+.imagen-upload-drop-wrap {
+  display: block;
+}
+
+.imagen-upload-drop--drag {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(210, 32, 39, 0.12);
+}
+
+.imagen-upload-icon {
+  color: var(--color-primary);
+  opacity: 0.9;
+  line-height: 0;
+}
+
+.imagen-upload-title {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.imagen-upload-meta {
+  font-size: var(--font-size-sm, 0.8125rem);
+  color: var(--color-text-light);
+}
+
+.imagen-upload-filename {
+  font-size: var(--font-size-sm, 0.8125rem);
+  color: var(--color-success);
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.5rem;
+}
+
+.imagen-upload-clear {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: var(--font-size-sm, 0.8125rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 6px);
+  background: #fff;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.imagen-upload-clear:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.imagen-url-field {
+  margin-top: 0.25rem;
+}
 .page { max-width: 600px; }
 h1 { color: #000; }
 .back { color: var(--color-primary); }
 .btn-primary { background: var(--color-primary); color: white; }
+
+.almacen-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.almacen-name {
+  flex: 1 1 140px;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.almacen-btn-remove {
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.almacen-stock-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1 1 220px;
+}
+
+.almacen-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 6.5rem;
+}
+
+.almacen-field-label {
+  font-size: var(--font-size-sm, 0.8rem);
+  color: var(--color-text-muted);
+}
+
+.stock-input-min {
+  max-width: 7rem;
+}

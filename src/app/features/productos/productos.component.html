@@ -146,7 +146,7 @@
             <input type="number" [(ngModel)]="stockModalPrecio" name="precio" min="0" step="0.01" placeholder="Precio" />
           </div>
           <div class="form-actions" style="margin-top: 1.5rem;">
-            <button type="button" class="btn-secondary" (click)="closeStockModal()">Cancelar</button>
+            <button type="button" class="btn-cancel" (click)="closeStockModal()">Cancelar</button>
             <button type="submit" class="btn-primary" [disabled]="stockModalSaving">
               {{ stockModalSaving ? 'Guardando...' : 'Guardar' }}
             </button>

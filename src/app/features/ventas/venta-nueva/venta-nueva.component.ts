@@ -6,10 +6,35 @@ import { VentasService, CreateVentaDetalleDto } from '../../../core/services/ven
 import { ProductosService, Producto } from '../../../core/services/productos.service';
 import { ClientesService, Cliente } from '../../../core/services/clientes.service';
 import { AlmacenesService } from '../../../core/services/almacenes.service';
+import { AuthService } from '../../../core/services/auth.service';
+import {
+  OPCIONES_METODO_PAGO_LISTA,
+  requiereReferenciaTipoPago,
+  esTipoPagoEnListaScroll,
+  normalizarTipoPago
+} from '../../../core/tipos-pago';
+import { resolveProductImageUrl } from '../../../core/utils/product-image.util';
+
+/** Solo dígitos significativos del número (sin 58 ni ceros a la izquierda). Sirve para comparar búsqueda vs BD. */
+function digitosNucleoTelefonoVe(raw: string): string {
+  let d = raw.replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('58')) d = d.slice(2);
+  while (d.startsWith('0')) d = d.slice(1);
+  return d;
+}
+
+/** Guarda teléfono como 58 + número nacional (sin 0 inicial), p. ej. 0412… → 58412…. */
+function telefonoVenParaBaseDatos(raw: string | undefined | null): string | undefined {
+  const nucleo = digitosNucleoTelefonoVe(raw ?? '');
+  if (!nucleo) return undefined;
+  return `58${nucleo}`;
+}
 
 interface LineaVenta {
   producto_id: number;
   descripcion: string;
+  imagen_url?: string | null;
   existencia_actual: number;
   precio_unitario: number;
   cantidad: number;
@@ -46,9 +71,11 @@ export class VentaNuevaComponent implements OnInit {
   nuevoClienteCorreo = '';
   guardandoCliente = false;
   @ViewChildren('sugerenciaItem') sugerenciaItems!: QueryList<ElementRef>;
-  metodoPago = '';
+  readonly opcionesMetodoPago = OPCIONES_METODO_PAGO_LISTA;
+  /** Código: efectivo | transaccion | pago movil; vacío → A convenir (solo admin sin confirmar al instante) */
+  tipoPagoCodigo = '';
+  referenciaBanco = '';
   lineas: LineaVenta[] = [];
-  confirmarVenta = true;
 
   almacenesOpciones: { almacen_id: number; nombre: string }[] = [];
   almacenId: number | null = null;
@@ -59,8 +86,27 @@ export class VentaNuevaComponent implements OnInit {
     private productosService: ProductosService,
     private clientesService: ClientesService,
     private almacenesService: AlmacenesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public auth: AuthService
   ) {}
+
+  get labelPlaceholderMetodoPago(): string {
+    return this.auth.isVendedor()
+      ? '— Elegir método —'
+      : '— A convenir / elegir —';
+  }
+
+  necesitaReferenciaMetodo(): boolean {
+    return requiereReferenciaTipoPago(this.tipoPagoCodigo);
+  }
+
+  get muestraDatosPagoMovil(): boolean {
+    return normalizarTipoPago(this.tipoPagoCodigo) === 'pago movil';
+  }
+
+  get muestraDatosTransferencia(): boolean {
+    return normalizarTipoPago(this.tipoPagoCodigo) === 'transaccion';
+  }
 
   ngOnInit() {
     this.clientesService.getAll().subscribe({
@@ -148,6 +194,7 @@ export class VentaNuevaComponent implements OnInit {
       {
         producto_id: p.producto_id,
         descripcion: p.descripcion,
+        imagen_url: p.imagen_url ?? null,
         existencia_actual: stock,
         precio_unitario: p.precio_venta_sugerido ?? 0,
         cantidad: cantidadInicial,
@@ -235,9 +282,12 @@ export class VentaNuevaComponent implements OnInit {
     if (!q) return this.clientes;
     return this.clientes.filter(c => {
       const cedula = (c.cedula_rif || '').toLowerCase();
-      const telefono = (c.telefono || '').replace(/\D/g, '');
-      const qDigits = q.replace(/\D/g, '');
-      return cedula.includes(q) || (qDigits.length >= 4 && telefono.includes(qDigits));
+      if (cedula.includes(q)) return true;
+      const qNucleo = digitosNucleoTelefonoVe(q);
+      if (qNucleo.length < 3) return false;
+      const telNucleo = digitosNucleoTelefonoVe(c.telefono || '');
+      if (!telNucleo) return false;
+      return telNucleo.includes(qNucleo) || qNucleo.includes(telNucleo);
     });
   }
 
@@ -316,14 +366,14 @@ export class VentaNuevaComponent implements OnInit {
     const nombre = (this.nuevoClienteNombre || '').trim();
     if (!nombre) return;
     const cedula = (this.nuevoClienteCedula || '').trim();
-    const telefono = (this.nuevoClienteTelefono || '').trim();
+    const telefonoNormalizado = telefonoVenParaBaseDatos(this.nuevoClienteTelefono);
     this.guardandoCliente = true;
     this.errorMsg = '';
     this.cdr.detectChanges();
     this.clientesService.create({
       nombre,
       cedula_rif: cedula || undefined,
-      telefono: telefono || undefined,
+      telefono: telefonoNormalizado,
       direccion: this.nuevoClienteDireccion.trim() || undefined,
       email: this.nuevoClienteCorreo.trim() || undefined
     }).subscribe({
@@ -359,6 +409,10 @@ export class VentaNuevaComponent implements OnInit {
       const el = items?.[this.clienteHighlightIndex]?.nativeElement;
       if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     }, 0);
+  }
+
+  lineaImagenSrc(linea: LineaVenta): string {
+    return resolveProductImageUrl(linea.imagen_url);
   }
 
   getSubtotal(linea: LineaVenta): number {
@@ -413,10 +467,16 @@ export class VentaNuevaComponent implements OnInit {
       this.cdr.detectChanges();
       return;
     }
-    if (this.confirmarVenta && !(this.metodoPago || '').trim()) {
-      this.errorMsg = 'El método de pago es obligatorio al confirmar la venta.';
-      this.cdr.detectChanges();
-      return;
+    const tipoSel = (this.tipoPagoCodigo || '').trim();
+    const refBanco = (this.referenciaBanco || '').trim();
+    const exigeMetodoLista = this.auth.isVendedor();
+    if (exigeMetodoLista) {
+      if (!esTipoPagoEnListaScroll(tipoSel)) {
+        this.errorMsg =
+          'Elegí un método de pago (efectivo, transferencia o pago móvil).';
+        this.cdr.detectChanges();
+        return;
+      }
     }
 
     const lineasConCantidad = this.lineas.filter(l => l.cantidad > 0);
@@ -438,9 +498,10 @@ export class VentaNuevaComponent implements OnInit {
     this.cdr.detectChanges();
     this.ventasService.create({
       cliente_id: this.clienteId ?? undefined,
-      metodo_pago: this.metodoPago || undefined,
+      tipo_pago: tipoSel || undefined,
+      referencia_banco: refBanco || undefined,
       detalles,
-      confirmar: this.confirmarVenta
+      confirmar: false
     }).subscribe({
       next: () => this.router.navigate(['/ventas']),
       error: (err) => {

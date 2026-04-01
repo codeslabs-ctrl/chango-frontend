@@ -10,13 +10,36 @@ export interface Venta {
   cliente_nombre?: string | null;
   cliente_cedula_rif?: string | null;
   cliente_telefono?: string | null;
+  cliente_email?: string | null;
+  cliente_direccion?: string | null;
   productos_nombres?: string | null;
+  /** Número de ítems (líneas) en la venta */
+  cantidad_productos?: number;
   usuario_id?: number | null;
   usuario_nombre?: string | null;
   fecha_venta: string;
   total_venta: number;
   metodo_pago: string | null;
+  tipo_pago?: string | null;
+  referencia_banco?: string | null;
+  referencia_pago?: string | null;
   estatus: string;
+  /** JSON desde API: productos destacados (imagen, descripción, cantidad), uno por línea de detalle relevante */
+  productos_destaque?: unknown;
+}
+
+export interface ConfirmarVentaDto {
+  tipo_pago?: string;
+  referencia_banco?: string;
+  metodo_pago?: string;
+  referencia_pago?: string;
+  cliente?: {
+    nombre?: string;
+    cedula_rif?: string;
+    telefono?: string;
+    email?: string;
+    direccion?: string;
+  };
 }
 
 export interface VentaDetalle {
@@ -47,6 +70,9 @@ export interface CreateVentaDetalleDto {
 export interface CreateVentaDto {
   cliente_id?: number;
   metodo_pago?: string;
+  tipo_pago?: string;
+  referencia_banco?: string;
+  referencia_pago?: string;
   detalles: CreateVentaDetalleDto[];
   confirmar?: boolean;
 }
@@ -70,6 +96,8 @@ export class VentasService {
     fechaDesde?: string;
     fechaHasta?: string;
     busqueda?: string;
+    /** Dashboard: cola pendientes por vendedor (usuario_id) vs agente (sin usuario_id). */
+    pendientesTipo?: 'vendedor' | 'agente';
   }): Observable<{ success: boolean; data: Venta[] }> {
     let params = new HttpParams();
     if (filters?.clienteId) params = params.set('clienteId', String(filters.clienteId));
@@ -77,6 +105,7 @@ export class VentasService {
     if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
     if (filters?.busqueda) params = params.set('busqueda', filters.busqueda);
+    if (filters?.pendientesTipo) params = params.set('pendientesTipo', filters.pendientesTipo);
     return this.http.get<{ success: boolean; data: Venta[] }>(this.baseUrl, {
       ...this.getOptions(),
       params
@@ -94,10 +123,13 @@ export class VentasService {
     return this.http.post<{ success: boolean; data: { venta: Venta; detalles: CreateVentaDetalleDto[] } }>(this.baseUrl, dto, this.getOptions());
   }
 
-  confirmar(id: number): Observable<{ success: boolean; data: VentaConDetalles }> {
+  confirmar(
+    id: number,
+    body?: ConfirmarVentaDto
+  ): Observable<{ success: boolean; data: VentaConDetalles }> {
     return this.http.patch<{ success: boolean; data: VentaConDetalles }>(
       `${this.baseUrl}/${id}/confirmar`,
-      {},
+      body ?? {},
       this.getOptions()
     );
   }

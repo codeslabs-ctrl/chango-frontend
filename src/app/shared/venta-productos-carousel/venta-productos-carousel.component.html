@@ -1,0 +1,66 @@
+<div
+  class="vpc"
+  (touchstart)="onTouchStart($event)"
+  (touchend)="onTouchEnd($event)"
+>
+  @if (items.length === 0) {
+    <div class="vpc-slide vpc-slide--solo">
+      <div class="vpc-media">
+        <img [src]="placeholderSrc" alt="" loading="lazy" />
+      </div>
+    </div>
+  } @else {
+    @let p = currentItem!;
+    <div
+      class="vpc-slide"
+      [attr.aria-label]="'Producto ' + (current + 1) + ' de ' + items.length"
+      role="group"
+    >
+      <div class="vpc-media">
+        <img [src]="imagenSrc(p.imagen_url)" [alt]="p.descripcion || 'Producto'" loading="lazy" />
+      </div>
+      <div class="vpc-caption">
+        <span class="vpc-name">{{ p.descripcion || 'Producto' }}</span>
+        <span class="vpc-qty">× {{ p.cantidad | number: '1.0-2' }}</span>
+      </div>
+    </div>
+    @if (items.length > 1) {
+      <span class="vpc-sr-only" aria-live="polite">
+        {{ current + 1 }} de {{ items.length }}: {{ p.descripcion || 'Producto' }}
+      </span>
+      <button
+        type="button"
+        class="vpc-nav vpc-nav--prev"
+        aria-label="Producto anterior"
+        (click)="onArrowClick(-1)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="vpc-nav vpc-nav--next"
+        aria-label="Producto siguiente"
+        (click)="onArrowClick(1)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+      <div class="vpc-dots" role="tablist" aria-label="Productos en la venta">
+        @for (it of items; track $index) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="current === $index"
+            [class.vpc-dot--active]="current === $index"
+            class="vpc-dot"
+            [attr.aria-label]="'Mostrar producto ' + ($index + 1)"
+            (click)="onDotClick($index)"
+          ></button>
+        }
+      </div>
+    }
+  }
+</div>
