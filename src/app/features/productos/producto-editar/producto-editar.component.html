@@ -100,6 +100,15 @@
         </div>
         <div class="form-row">
           <label>Imagen del producto</label>
+          @if (imagenSaving) {
+            <div class="imagen-saving-banner" role="status" aria-live="polite" aria-busy="true">
+              <span class="imagen-saving-spinner" aria-hidden="true"></span>
+              <div class="imagen-saving-body">
+                <span class="imagen-saving-text">Actualizando imagen…</span>
+                <span class="imagen-saving-hint">Esperá un momento hasta que cargue la vista previa y se guarde en el servidor.</span>
+              </div>
+            </div>
+          }
           <div class="producto-imagen-preview">
             <img [src]="imagenPreviewSrc()" alt="" width="120" height="120" class="producto-imagen-thumb" />
           </div>
@@ -139,9 +148,6 @@
               <button type="button" class="imagen-upload-clear" (click)="quitarImagenArchivo()">Quitar selección</button>
             }
           </div>
-          @if (imagenSaving) {
-            <p class="imagen-saving-msg" role="status">Actualizando imagen…</p>
-          }
           <input
             type="url"
             [(ngModel)]="imagenUrlDraft"
