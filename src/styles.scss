@@ -590,6 +590,7 @@ a.btn-icon { text-decoration: none; }
 }
 .badge.administrador { background: var(--color-primary); color: #fff; }
 .badge.vendedor { background: #7c3aed; color: #fff; }
+.badge.facturador,
 .badge.usuario { background: var(--color-muted); color: #fff; }
 
 /* Lista de productos: estatus Activo / Cancelado solo color de texto */

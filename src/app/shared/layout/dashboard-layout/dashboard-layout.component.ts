@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, normalizeRolUsuario } from '../../../core/services/auth.service';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 
 @Component({
@@ -26,7 +26,8 @@ export class DashboardLayoutComponent implements OnInit {
         this.auth.updateUser({
           username: d.username,
           email: d.email,
-          nombre_usuario: d.nombre_usuario ?? null
+          nombre_usuario: d.nombre_usuario ?? null,
+          rol: normalizeRolUsuario(d.rol as string)
         });
       },
       error: () => {}

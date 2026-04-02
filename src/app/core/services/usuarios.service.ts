@@ -4,13 +4,15 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
-export type RolUsuario = 'administrador' | 'usuario' | 'vendedor';
+export type RolUsuario = 'administrador' | 'facturador' | 'vendedor';
 
 export interface Usuario {
   id: number;
   username: string;
   email: string;
   nombre_usuario?: string | null;
+  /** 0–100; solo aplica a vendedores */
+  porcentaje_comision?: number | string | null;
   rol: RolUsuario;
   activo: boolean;
   ultimo_login?: string | null;
@@ -50,6 +52,7 @@ export class UsuariosService {
     password: string;
     rol?: RolUsuario;
     nombre_usuario?: string | null;
+    porcentaje_comision?: number | null;
   }): Observable<{ success: boolean; data: Usuario }> {
     return this.http.post<{ success: boolean; data: Usuario }>(this.baseUrl, dto, this.getOptions());
   }
@@ -63,6 +66,7 @@ export class UsuariosService {
       password?: string;
       rol?: RolUsuario;
       activo?: boolean;
+      porcentaje_comision?: number | null;
     }
   ): Observable<{ success: boolean; data: Usuario }> {
     return this.http.put<{ success: boolean; data: Usuario }>(`${this.baseUrl}/${id}`, dto, this.getOptions());

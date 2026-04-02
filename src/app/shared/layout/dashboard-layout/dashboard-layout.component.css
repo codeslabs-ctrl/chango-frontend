@@ -242,7 +242,7 @@
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  min-width: 200px;
+  min-width: 17.5rem;
   background: white;
   border-radius: var(--radius);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -259,6 +259,7 @@
   padding: 0.6rem 1rem;
   font-size: var(--font-size);
   transition: background 0.15s;
+  white-space: nowrap;
 }
 .dropdown a svg,
 .dropdown-item svg,
@@ -300,6 +301,7 @@
   text-align: left;
   cursor: pointer;
   transition: background 0.15s;
+  white-space: nowrap;
 }
 .dropdown-btn:hover {
   background: var(--color-bg);

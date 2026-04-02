@@ -37,6 +37,14 @@ export class UsuariosComponent implements OnInit {
     return Math.max(1, Math.ceil(this.usuariosFiltrados.length / this.pageSize));
   }
 
+  etiquetaRol(rol: string | undefined): string {
+    const r = (rol || '').trim();
+    if (r === 'administrador') return 'Administrador';
+    if (r === 'vendedor') return 'Vendedor';
+    if (r === 'facturador' || r === 'usuario') return 'Facturador';
+    return r || '—';
+  }
+
   constructor(
     private usuariosService: UsuariosService,
     private cdr: ChangeDetectorRef

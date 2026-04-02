@@ -2,7 +2,15 @@ import { Injectable, signal, computed } from '@angular/core';
 import { ApiService } from './api.service';
 import { Router } from '@angular/router';
 
-export type RolUsuario = 'administrador' | 'usuario' | 'vendedor';
+export type RolUsuario = 'administrador' | 'facturador' | 'vendedor';
+
+/** Compat: tokens o datos viejos con rol `usuario`. */
+export function normalizeRolUsuario(raw: string | undefined | null): RolUsuario {
+  const r = (raw ?? '').trim();
+  if (r === 'administrador' || r === 'vendedor' || r === 'facturador') return r;
+  if (r === 'usuario') return 'facturador';
+  return 'facturador';
+}
 
 export interface AuthUser {
   id: number;
@@ -23,7 +31,7 @@ export class AuthService {
   private userKey = 'chango_user';
 
   token = signal<string | null>(this.getStoredToken());
-  user = signal<AuthUser | null>(this.getStoredUser());
+  user = signal<AuthUser | null>(this.normalizeStoredUser(this.getStoredUserRaw()));
   isAuthenticated = computed(() => !!this.token());
   username = computed(() => this.user()?.username ?? null);
   /** Nombre completo para mostrar (navbar): `nombre_usuario` o, si no hay, `username` */
@@ -45,13 +53,18 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  private getStoredUser(): AuthUser | null {
+  private getStoredUserRaw(): AuthUser | null {
     try {
       const s = localStorage.getItem(this.userKey);
       return s ? JSON.parse(s) : null;
     } catch {
       return null;
     }
+  }
+
+  private normalizeStoredUser(u: AuthUser | null): AuthUser | null {
+    if (!u || typeof u !== 'object') return null;
+    return { ...u, rol: normalizeRolUsuario(u.rol as string) };
   }
 
   login(username: string, password: string) {
@@ -62,16 +75,21 @@ export class AuthService {
   }
 
   setSession(token: string, user: AuthUser): void {
+    const u = { ...user, rol: normalizeRolUsuario(user.rol as string) };
     localStorage.setItem(this.tokenKey, token);
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+    localStorage.setItem(this.userKey, JSON.stringify(u));
     this.token.set(token);
-    this.user.set(user);
+    this.user.set(u);
   }
 
   updateUser(user: Partial<AuthUser>): void {
     const current = this.user();
     if (!current) return;
-    const updated = { ...current, ...user };
+    const updated = {
+      ...current,
+      ...user,
+      ...(user.rol !== undefined ? { rol: normalizeRolUsuario(user.rol as string) } : {})
+    };
     localStorage.setItem(this.userKey, JSON.stringify(updated));
     this.user.set(updated);
   }

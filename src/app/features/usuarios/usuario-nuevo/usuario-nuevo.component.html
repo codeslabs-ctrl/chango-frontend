@@ -26,10 +26,26 @@
       <div class="form-row">
         <label>Rol</label>
         <select [(ngModel)]="form.rol" name="rol">
-          <option value="vendedor">Vendedor</option>
           <option value="administrador">Administrador</option>
+          <option value="facturador">Facturador</option>
+          <option value="vendedor">Vendedor</option>
         </select>
       </div>
+      @if (form.rol === 'vendedor') {
+        <div class="form-row">
+          <label>Porcentaje de comisión (%)</label>
+          <input
+            [(ngModel)]="form.porcentaje_comision"
+            name="porcentaje_comision"
+            type="number"
+            min="0"
+            max="100"
+            step="0.01"
+            placeholder="0"
+          />
+          <p class="field-hint">Sobre el total de cada venta FACTURADA asignada a este vendedor.</p>
+        </div>
+      }
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
         <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>

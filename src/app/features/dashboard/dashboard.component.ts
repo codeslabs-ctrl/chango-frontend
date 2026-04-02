@@ -18,13 +18,10 @@ import {
   StockCriticoItem
 } from '../../core/services/estadisticas.service';
 import { VentaProductosCarouselComponent } from '../../shared/venta-productos-carousel/venta-productos-carousel.component';
+import { AuthService } from '../../core/services/auth.service';
 
 /** Solo estos estatus listan en el dashboard (nunca confirmadas ni eliminadas). */
-const ESTATUS_VENTA_PENDIENTE_DASHBOARD = new Set([
-  'POR CONFIRMAR',
-  'PENDIENTE',
-  'POR FACTURAR'
-]);
+const ESTATUS_VENTA_PENDIENTE_DASHBOARD = new Set(['PENDIENTE', 'POR FACTURAR']);
 
 @Component({
   selector: 'chango-dashboard',
@@ -59,7 +56,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private ventasService: VentasService,
     private estadisticasService: EstadisticasService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    protected auth: AuthService
   ) {}
 
   ngOnInit() {

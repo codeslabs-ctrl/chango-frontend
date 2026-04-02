@@ -15,7 +15,11 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [denyVendedorGuard] },
-      { path: 'estadisticas', loadComponent: () => import('./features/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent), canActivate: [denyVendedorGuard] },
+      {
+        path: 'estadisticas',
+        loadComponent: () => import('./features/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent),
+        canActivate: [denyVendedorGuard, adminGuard]
+      },
       { path: 'ventas', loadComponent: () => import('./features/ventas/ventas.component').then(m => m.VentasComponent) },
       { path: 'ventas/nuevo', loadComponent: () => import('./features/ventas/venta-nueva/venta-nueva.component').then(m => m.VentaNuevaComponent) },
       {
@@ -40,7 +44,12 @@ export const routes: Routes = [
       { path: 'cuenta/password', loadComponent: () => import('./features/cuenta/cuenta-password/cuenta-password.component').then(m => m.CuentaPasswordComponent) },
       { path: 'usuarios', loadComponent: () => import('./features/usuarios/usuarios.component').then(m => m.UsuariosComponent), canActivate: [adminGuard] },
       { path: 'usuarios/nuevo', loadComponent: () => import('./features/usuarios/usuario-nuevo/usuario-nuevo.component').then(m => m.UsuarioNuevoComponent), canActivate: [adminGuard] },
-      { path: 'usuarios/:id/editar', loadComponent: () => import('./features/usuarios/usuario-editar/usuario-editar.component').then(m => m.UsuarioEditarComponent), canActivate: [adminGuard] }
+      { path: 'usuarios/:id/editar', loadComponent: () => import('./features/usuarios/usuario-editar/usuario-editar.component').then(m => m.UsuarioEditarComponent), canActivate: [adminGuard] },
+      {
+        path: 'comisiones',
+        loadComponent: () => import('./features/comisiones/comisiones.component').then(m => m.ComisionesComponent),
+        canActivate: [adminGuard]
+      }
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

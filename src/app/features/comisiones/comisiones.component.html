@@ -1,0 +1,219 @@
+<div class="page internal-page">
+  <div class="page-header">
+    <h1><span class="page-icon">💵</span> Comisiones de vendedores</h1>
+    <p class="intro">
+      El pago se gestiona fuera del sistema. En esta pantalla puede registrar que las comisiones de cada vendedor ya fueron
+      pagadas (ventas en estado <strong>FACTURADA</strong>).
+    </p>
+    <p class="intro-note">
+      Los importes se muestran en <strong>dólares estadounidenses (USD)</strong>, en línea con el precio de referencia de los
+      productos.
+    </p>
+  </div>
+
+  @if (errorMsg && !loading) {
+    <p class="error-msg" role="alert">{{ errorMsg }}</p>
+  }
+
+  @if (loading) {
+    <p>Cargando...</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Vendedor</th>
+            <th>% comisión</th>
+            <th>Ventas pendientes</th>
+            <th>Comisión pendiente</th>
+            <th>Ventas ya pagadas</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (resumen.length === 0) {
+            <tr>
+              <td colspan="5" class="empty">No hay vendedores registrados.</td>
+            </tr>
+          }
+          @for (r of resumen; track r.usuario_id) {
+            <tr>
+              <td>
+                <strong>{{ nombreVendedor(r) }}</strong>
+                <span class="muted">@{{ r.username }}</span>
+              </td>
+              <td>{{ num(r.porcentaje_comision) | number: '1.0-2' }}%</td>
+              <td>{{ r.ventas_pendientes }}</td>
+              <td>{{ num(r.comision_pendiente) | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+              <td>{{ r.ventas_pagadas }}</td>
+            </tr>
+            @if (vendedorTieneDetalle(r)) {
+              <tr class="detail-row">
+                <td colspan="5">
+                  <div class="detail-panel">
+                    @if (detallePorVendedor[r.usuario_id]?.status === 'loading') {
+                      <p>Cargando...</p>
+                    } @else if (detallePorVendedor[r.usuario_id]?.status === 'err') {
+                      <p class="error-msg">No se pudo cargar el listado. Actualice la página o intente más tarde.</p>
+                    } @else if (
+                      pendientesRows(r.usuario_id).length === 0 && pagadasRows(r.usuario_id).length === 0
+                    ) {
+                      <p class="muted">No hay ventas FACTURADAS con comisión para este vendedor.</p>
+                    } @else {
+                      @if (pendientesRows(r.usuario_id).length > 0) {
+                        <h3 class="detail-title">Comisión pendiente de pago</h3>
+                        <table class="data-table sub-table">
+                          <thead>
+                            <tr>
+                              <th class="col-check">
+                                <input
+                                  type="checkbox"
+                                  [checked]="allPendientesEnTablaSeleccionados(r.usuario_id)"
+                                  (change)="
+                                    onToggleSeleccionarTodasPendientesEnTabla(
+                                      r.usuario_id,
+                                      $any($event.target).checked
+                                    )
+                                  "
+                                  [attr.aria-label]="'Seleccionar todas las ventas pendientes'"
+                                />
+                              </th>
+                              <th>Venta</th>
+                              <th>Fecha</th>
+                              <th>Total venta</th>
+                              <th>Comisión</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (v of pendientesRows(r.usuario_id); track v.venta_id) {
+                              <tr>
+                                <td class="col-check">
+                                  <input
+                                    type="checkbox"
+                                    [checked]="isVentaSeleccionada(r.usuario_id, v.venta_id)"
+                                    (change)="
+                                      onToggleVentaSeleccion(
+                                        r.usuario_id,
+                                        v.venta_id,
+                                        $any($event.target).checked
+                                      )
+                                    "
+                                    [attr.aria-label]="'Incluir venta ' + v.venta_id + ' al marcar pago'"
+                                  />
+                                </td>
+                                <td>#{{ v.venta_id }}</td>
+                                <td>{{ v.fecha_venta }}</td>
+                                <td>{{ num(v.total_venta) | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                                <td>{{ num(v.monto_comision) | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <p class="muted section-gap">No hay comisiones pendientes de pago.</p>
+                      }
+
+                      @if (pagadasRows(r.usuario_id).length > 0) {
+                        <h3 class="detail-title section-gap">Comisión ya registrada como pagada</h3>
+                        <table class="data-table sub-table">
+                          <thead>
+                            <tr>
+                              <th>Venta</th>
+                              <th>Fecha venta</th>
+                              <th>Total venta</th>
+                              <th>Comisión</th>
+                              <th>Marcada el</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (v of pagadasRows(r.usuario_id); track v.venta_id) {
+                              <tr>
+                                <td>#{{ v.venta_id }}</td>
+                                <td>{{ v.fecha_venta }}</td>
+                                <td>{{ num(v.total_venta) | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                                <td>{{ num(v.monto_comision) | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                                <td>
+                                  @if (v.comision_pagada_at) {
+                                    {{ v.comision_pagada_at | date: 'short' }}
+                                  } @else {
+                                    —
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else if (pendientesRows(r.usuario_id).length > 0) {
+                        <p class="muted section-gap">Aún no hay ventas con comisión marcada como pagada.</p>
+                      }
+
+                      @if (pendientesRows(r.usuario_id).length > 0) {
+                        <div class="marcar-block">
+                          <p class="marcar-label">Marcar como pagado (tras el pago fuera del sistema)</p>
+                          <div class="marcar-actions marcar-actions-wrap">
+                            <button
+                              type="button"
+                              class="btn-primary"
+                              [disabled]="marcando[r.usuario_id] || countSeleccionados(r.usuario_id) === 0"
+                              (click)="marcarSoloSeleccionadas(r)"
+                            >
+                              @if (marcando[r.usuario_id] && marcarEnCurso[r.usuario_id] === 'seleccion') {
+                                Guardando...
+                              } @else {
+                                Marcar solo las seleccionadas
+                                @if (countSeleccionados(r.usuario_id) > 0) {
+                                  <span class="sel-count">({{ countSeleccionados(r.usuario_id) }})</span>
+                                }
+                              }
+                            </button>
+                            <button
+                              type="button"
+                              class="btn-small"
+                              [disabled]="marcando[r.usuario_id] || r.ventas_pendientes === 0"
+                              (click)="marcarTodasPendientes(r)"
+                            >
+                              @if (marcando[r.usuario_id] && marcarEnCurso[r.usuario_id] === 'todas') {
+                                Guardando...
+                              } @else {
+                                Todas las pendientes
+                              }
+                            </button>
+                            <span class="or">o hasta fecha</span>
+                            <input
+                              type="date"
+                              [(ngModel)]="hastaFecha[r.usuario_id]"
+                              [name]="'hasta_' + r.usuario_id"
+                            />
+                            <button
+                              type="button"
+                              class="btn-small"
+                              [disabled]="marcando[r.usuario_id] || r.ventas_pendientes === 0"
+                              (click)="marcarHastaFecha(r)"
+                            >
+                              @if (marcando[r.usuario_id] && marcarEnCurso[r.usuario_id] === 'fecha') {
+                                Guardando...
+                              } @else {
+                                Marcar hasta esa fecha
+                              }
+                            </button>
+                          </div>
+                          @if (feedback[r.usuario_id]) {
+                            <p class="feedback" role="status">{{ feedback[r.usuario_id] }}</p>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <p class="footer-hint">
+    Puede modificar el <strong>porcentaje de comisión</strong> de cada vendedor en
+    <a routerLink="/usuarios">Administrar usuarios</a> → Editar usuario.
+  </p>
+</div>

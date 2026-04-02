@@ -6,6 +6,8 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 
+type RolForm = 'administrador' | 'facturador' | 'vendedor';
+
 @Component({
   selector: 'chango-usuario-nuevo',
   standalone: true,
@@ -19,7 +21,8 @@ export class UsuarioNuevoComponent {
     username: '',
     email: '',
     password: '',
-    rol: 'vendedor' as 'administrador' | 'vendedor'
+    rol: 'vendedor' as RolForm,
+    porcentaje_comision: 0
   };
   saving = false;
   errorMsg = '';
@@ -46,7 +49,10 @@ export class UsuarioNuevoComponent {
         email: this.form.email.trim(),
         password: this.form.password,
         rol: this.form.rol,
-        ...(nombre ? { nombre_usuario: nombre } : {})
+        ...(nombre ? { nombre_usuario: nombre } : {}),
+        ...(this.form.rol === 'vendedor'
+          ? { porcentaje_comision: Number(this.form.porcentaje_comision) || 0 }
+          : {})
       })
       .pipe(
         finalize(() => {

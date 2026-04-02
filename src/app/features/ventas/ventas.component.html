@@ -41,8 +41,8 @@
           name="estatusFilter"
         >
           <option value="">Todas</option>
-          <option value="POR CONFIRMAR">Por confirmar</option>
-          <option value="CONFIRMADA">Confirmadas</option>
+          <option value="POR FACTURAR">Por facturar</option>
+          <option value="FACTURADA">Facturadas</option>
           <option value="ELIMINADA">Eliminadas</option>
         </select>
       </div>
@@ -106,27 +106,27 @@
                     <dd>
                       <span
                         class="badge"
-                        [class.confirmada]="v.estatus === 'CONFIRMADA'"
+                        [class.confirmada]="v.estatus === 'FACTURADA'"
                         [class.eliminada]="v.estatus === 'ELIMINADA'"
                         [class.por-confirmar]="
-                          v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR'
+                          v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR'
                         "
-                        >{{ v.estatus === 'POR FACTURAR' ? 'POR CONFIRMAR' : v.estatus }}</span
+                        >{{ v.estatus }}</span
                       >
                     </dd>
                   </div>
                 </dl>
                 <div class="venta-layout-actions venta-layout-actions--wrap">
-                  @if (v.estatus === 'CONFIRMADA') {
+                  @if (v.estatus === 'FACTURADA') {
                     <button type="button" class="btn-icon btn-eye" (click)="verDetalle(v.venta_id)" title="Ver detalles">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       <span>Ver</span>
                     </button>
                   }
-                  @if (v.estatus === 'POR CONFIRMAR' || v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
+                  @if (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
                     <button type="button" class="btn-small btn-confirm venta-card-accion" (click)="abrirFinalizar(v)" [disabled]="confirmando === v.venta_id">Facturar</button>
                   }
-                  @if (v.estatus === 'POR CONFIRMAR' || v.estatus === 'POR FACTURAR' || v.estatus === 'PENDIENTE') {
+                  @if (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
                     <button type="button" class="btn-small venta-btn-eliminar venta-card-accion" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Eliminar</button>
                   }
                 </div>

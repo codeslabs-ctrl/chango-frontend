@@ -6,6 +6,16 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 
+type RolForm = 'administrador' | 'facturador' | 'vendedor';
+
+function apiRolToForm(rol: string | undefined | null): RolForm {
+  const r = (rol || '').trim();
+  if (r === 'administrador') return 'administrador';
+  if (r === 'vendedor') return 'vendedor';
+  if (r === 'facturador' || r === 'usuario') return 'facturador';
+  return 'facturador';
+}
+
 @Component({
   selector: 'chango-usuario-editar',
   standalone: true,
@@ -20,7 +30,8 @@ export class UsuarioEditarComponent implements OnInit {
     username: '',
     email: '',
     password: '',
-    rol: 'vendedor' as 'administrador' | 'vendedor',
+    rol: 'facturador' as RolForm,
+    porcentaje_comision: 0,
     activo: true
   };
   loading = true;
@@ -48,15 +59,20 @@ export class UsuarioEditarComponent implements OnInit {
           this.router.navigate(['/usuarios']);
           return;
         }
-        const rolApi = u.rol || 'vendedor';
-        const rolForm: 'administrador' | 'vendedor' =
-          rolApi === 'administrador' ? 'administrador' : 'vendedor';
+        const pctRaw = u.porcentaje_comision;
+        const pct =
+          pctRaw === null || pctRaw === undefined || pctRaw === ''
+            ? 0
+            : typeof pctRaw === 'string'
+              ? parseFloat(pctRaw.replace(',', '.'))
+              : Number(pctRaw);
         this.form = {
           nombre_usuario: u.nombre_usuario ?? '',
           username: u.username,
           email: u.email,
           password: '',
-          rol: rolForm,
+          rol: apiRolToForm(u.rol),
+          porcentaje_comision: Number.isFinite(pct) ? pct : 0,
           activo: u.activo ?? true
         };
         this.loading = false;
@@ -83,8 +99,9 @@ export class UsuarioEditarComponent implements OnInit {
       email: string;
       nombre_usuario: string | null;
       password?: string;
-      rol: 'administrador' | 'vendedor';
+      rol: RolForm;
       activo: boolean;
+      porcentaje_comision?: number;
     } = {
       username: this.form.username.trim(),
       email: this.form.email.trim(),
@@ -93,6 +110,9 @@ export class UsuarioEditarComponent implements OnInit {
       activo: this.form.activo
     };
     if (this.form.password.trim()) dto.password = this.form.password;
+    if (this.form.rol === 'vendedor') {
+      dto.porcentaje_comision = Number(this.form.porcentaje_comision) || 0;
+    }
 
     this.usuariosService
       .update(this.usuarioId, dto)

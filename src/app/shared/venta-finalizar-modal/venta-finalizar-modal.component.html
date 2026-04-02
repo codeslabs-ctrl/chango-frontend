@@ -98,14 +98,13 @@
             <dd>
               <span
                 class="badge"
-                [class.confirmada]="data.venta.estatus === 'CONFIRMADA'"
+                [class.confirmada]="data.venta.estatus === 'FACTURADA'"
                 [class.eliminada]="data.venta.estatus === 'ELIMINADA'"
                 [class.por-confirmar]="
-                  data.venta.estatus === 'POR CONFIRMAR' ||
                   data.venta.estatus === 'PENDIENTE' ||
                   data.venta.estatus === 'POR FACTURAR'
                 "
-                >{{ data.venta.estatus === 'POR FACTURAR' ? 'POR CONFIRMAR' : data.venta.estatus }}</span
+                >{{ data.venta.estatus }}</span
               >
             </dd>
             <dt>ID vendedor</dt>
