@@ -216,6 +216,9 @@ export class EstadisticasComponent implements OnInit {
       if (err.status === 0) {
         return 'No se pudo conectar con el servidor (comprobá que el backend esté en marcha y que la URL de la API en environment sea correcta, p. ej. puerto 3005).';
       }
+      if (err.status === 404) {
+        return 'El servidor respondió 404: esa ruta no existe en el API desplegado. En el VPS suele pasar si el backend no está actualizado: subí la última versión de chango-backend, ejecutá `npm run build` y reiniciá el proceso (pm2, systemd, Docker, etc.). Verificá también que nginx (o el proxy) reenvíe `/api` al Node.';
+      }
       const msg = (err.error as { message?: string } | null)?.message;
       if (msg) return msg;
     }
