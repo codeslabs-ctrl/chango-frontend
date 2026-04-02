@@ -1,10 +1,14 @@
 .estadisticas-page {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 1.5rem max(1.25rem, env(safe-area-inset-left)) 1.75rem
+    max(1.25rem, env(safe-area-inset-right));
+  box-sizing: border-box;
 }
 
 .stats-page-header {
   margin-bottom: 1.25rem;
+  padding-inline: 0.15rem;
 }
 
 .stats-page-header h1 {
@@ -21,7 +25,7 @@
   gap: 1rem 1.25rem;
   margin-bottom: 0.75rem;
   max-width: 56rem;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.35rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -110,6 +114,7 @@
 
 .stats-resumen-hint {
   margin: 0 0 1.25rem;
+  padding-inline: 0.2rem;
   max-width: 42rem;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -126,7 +131,7 @@
   font-size: 1.15rem;
   font-weight: 700;
   color: #1a1a2e;
-  padding-bottom: 0.5rem;
+  padding: 0 0.35rem 0.5rem;
   border-bottom: 2px solid var(--color-primary-light);
 }
 
@@ -149,7 +154,7 @@
 .stats-panel {
   background: #fff;
   border-radius: var(--radius);
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.5rem;
   border: 1px solid var(--color-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   min-width: 0;
@@ -159,8 +164,31 @@
   align-items: stretch;
 }
 
+/* Viewport estrecho: espaciado tipo card */
+@media (max-width: 959px) {
+  .stats-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .stats-split {
+    gap: 1rem;
+  }
+
+  .stats-panel {
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .stats-section-title {
+    font-size: 1.05rem;
+    margin-bottom: 0.85rem;
+    padding-inline: 0.25rem;
+  }
+}
+
 .stats-chart-subtitle {
   margin: 0 0 0.75rem;
+  padding-inline: 0.2rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text);
@@ -176,10 +204,175 @@
   width: 100%;
 }
 
+.stats-responsive-data {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0.15rem;
+  box-sizing: border-box;
+}
+
+/* Vista móvil/tablet: listas en cards (evita tablas cortadas) */
+.stats-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stats-metric-card {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: #fafbfc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.stats-metric-card--total {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  font-weight: 600;
+}
+
+.stats-metric-card--total .stats-metric-card__header {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stats-metric-card--compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.stats-metric-card__header {
+  margin: 0 0 0.6rem;
+  font-size: var(--font-size);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.stats-metric-card__dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.stats-metric-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+}
+
+.stats-metric-card__row dt {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stats-metric-card__row dd {
+  margin: 0;
+  font-size: var(--font-size);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-text);
+}
+
+.stats-stock-card {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--color-danger);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.stats-stock-card__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.65rem;
+}
+
+.stats-stock-card__dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.75rem;
+}
+
+.stats-stock-card__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.stats-stock-card__row dt {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stats-stock-card__row dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-stock-card__min {
+  color: var(--color-text);
+}
+
+@media (max-width: 900px) {
+  .stats-card-list {
+    display: flex;
+  }
+
+  .stats-table-wrap--desktop-only {
+    display: none;
+  }
+}
+
+@media (min-width: 901px) {
+  .stats-card-list {
+    display: none !important;
+  }
+}
+
 .stats-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   width: 100%;
   max-width: 100%;
+  padding-inline: 0.2rem;
+  margin-inline: 0.1rem;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+
+@media print {
+  .stats-card-list {
+    display: none !important;
+  }
+
+  .stats-table-wrap--desktop-only {
+    display: block !important;
+  }
 }
 
 .stats-data-table {
@@ -224,14 +417,16 @@
 
 .chart-wrapper {
   position: relative;
-  height: 260px;
+  height: clamp(220px, 42vw, 280px);
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  padding-inline: 0.35rem;
+  box-sizing: border-box;
 }
 
 .stats-chart-tall {
-  height: 280px;
+  height: clamp(240px, 48vw, 300px);
 }
 
 .chart-loading,
@@ -254,7 +449,7 @@
 .stock-critico-section {
   background: #fff;
   border-radius: var(--radius);
-  padding: 1.25rem 1.35rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--color-danger);
   background: rgba(220, 38, 38, 0.02);
@@ -350,19 +545,60 @@
 }
 
 @media (max-width: 768px) {
+  .stats-resumen-toolbar {
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stats-resumen-toolbar-fields {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats-rfield {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .stats-rfield input[type='date'] {
+    max-width: none;
+  }
+
+  .stats-data-table {
+    font-size: var(--font-size-xs, 0.8125rem);
+  }
+
+  .stats-data-table th,
+  .stats-data-table td {
+    padding: 0.45rem 0.5rem;
+  }
+
+  .chart-wrapper {
+    height: clamp(200px, 55vw, 260px);
+  }
+
   .stats-chart-tall {
-    height: 240px;
+    height: clamp(220px, 58vw, 280px);
+  }
+
+  .stock-critico-section {
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .estadisticas-page {
-    padding: 0 0.5rem;
+    padding: 1.25rem max(1rem, env(safe-area-inset-left)) 1.5rem
+      max(1rem, env(safe-area-inset-right));
   }
 
   .stats-resumen-toolbar {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.85rem 1rem;
   }
 
   .stats-resumen-toolbar-actions {
@@ -382,5 +618,14 @@
   .stats-stock-critico-table th:nth-child(3),
   .stats-stock-critico-table td:nth-child(3) {
     width: auto;
+  }
+
+  .stats-panel {
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1rem;
+  }
+
+  .chart-wrapper {
+    padding-inline: 0.25rem;
   }
 }

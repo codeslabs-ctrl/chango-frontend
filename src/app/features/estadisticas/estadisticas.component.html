@@ -35,32 +35,64 @@
         } @else if (resumenVendedores.length === 0) {
           <p class="stats-empty">Sin datos en el rango seleccionado.</p>
         } @else {
-          <div class="stats-table-wrap">
-            <table class="stats-data-table">
-              <thead>
-                <tr>
-                  <th>Vendedor</th>
-                  <th class="stats-col-num">Unidades vendidas</th>
-                  <th class="stats-col-num">Ingresos</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of resumenVendedores; track row.usuario_id === null ? 'agente' : row.usuario_id) {
+          <div class="stats-responsive-data">
+            <ul class="stats-card-list" aria-label="Resumen por vendedor">
+              @for (row of resumenVendedores; track row.usuario_id === null ? 'agente' : row.usuario_id) {
+                <li class="stats-metric-card">
+                  <div class="stats-metric-card__header">{{ etiquetaVendedor(row) }}</div>
+                  <dl class="stats-metric-card__dl">
+                    <div class="stats-metric-card__row">
+                      <dt>Unidades vendidas</dt>
+                      <dd>{{ row.unidades_vendidas | number: '1.0-0' }}</dd>
+                    </div>
+                    <div class="stats-metric-card__row">
+                      <dt>Ingresos</dt>
+                      <dd>{{ row.ingresos_totales | number: '1.2-2' }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              }
+              <li class="stats-metric-card stats-metric-card--total">
+                <div class="stats-metric-card__header">Total</div>
+                <dl class="stats-metric-card__dl">
+                  <div class="stats-metric-card__row">
+                    <dt>Unidades vendidas</dt>
+                    <dd>{{ totalUnidadesResumen() | number: '1.0-0' }}</dd>
+                  </div>
+                  <div class="stats-metric-card__row">
+                    <dt>Ingresos</dt>
+                    <dd>{{ totalIngresosResumen() | number: '1.2-2' }}</dd>
+                  </div>
+                </dl>
+              </li>
+            </ul>
+            <div class="stats-table-wrap stats-table-wrap--desktop-only">
+              <table class="stats-data-table">
+                <thead>
                   <tr>
-                    <td>{{ etiquetaVendedor(row) }}</td>
-                    <td class="stats-col-num">{{ row.unidades_vendidas | number: '1.0-0' }}</td>
-                    <td class="stats-col-num">{{ row.ingresos_totales | number: '1.2-2' }}</td>
+                    <th>Vendedor</th>
+                    <th class="stats-col-num">Unidades vendidas</th>
+                    <th class="stats-col-num">Ingresos</th>
                   </tr>
-                }
-              </tbody>
-              <tfoot>
-                <tr class="stats-tfoot-totals">
-                  <th>Total</th>
-                  <th class="stats-col-num">{{ totalUnidadesResumen() | number: '1.0-0' }}</th>
-                  <th class="stats-col-num">{{ totalIngresosResumen() | number: '1.2-2' }}</th>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody>
+                  @for (row of resumenVendedores; track row.usuario_id === null ? 'agente' : row.usuario_id) {
+                    <tr>
+                      <td>{{ etiquetaVendedor(row) }}</td>
+                      <td class="stats-col-num">{{ row.unidades_vendidas | number: '1.0-0' }}</td>
+                      <td class="stats-col-num">{{ row.ingresos_totales | number: '1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr class="stats-tfoot-totals">
+                    <th>Total</th>
+                    <th class="stats-col-num">{{ totalUnidadesResumen() | number: '1.0-0' }}</th>
+                    <th class="stats-col-num">{{ totalIngresosResumen() | number: '1.2-2' }}</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         }
       </div>
@@ -95,23 +127,38 @@
         } @else if (topProductos.length === 0) {
           <p class="stats-empty">Sin datos en el rango seleccionado.</p>
         } @else {
-          <div class="stats-table-wrap">
-            <table class="stats-data-table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th class="stats-col-num">Unidades vendidas</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (p of topProductos; track p.producto_id) {
+          <div class="stats-responsive-data">
+            <ul class="stats-card-list stats-card-list--compact" aria-label="Top productos por unidades">
+              @for (p of topProductos; track p.producto_id) {
+                <li class="stats-metric-card stats-metric-card--compact">
+                  <div class="stats-metric-card__header">{{ p.nombre || '-' }}</div>
+                  <dl class="stats-metric-card__dl">
+                    <div class="stats-metric-card__row">
+                      <dt>Unidades vendidas</dt>
+                      <dd>{{ p.unidades_vendidas | number: '1.0-0' }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              }
+            </ul>
+            <div class="stats-table-wrap stats-table-wrap--desktop-only">
+              <table class="stats-data-table">
+                <thead>
                   <tr>
-                    <td>{{ p.nombre || '-' }}</td>
-                    <td class="stats-col-num">{{ p.unidades_vendidas | number: '1.0-0' }}</td>
+                    <th>Producto</th>
+                    <th class="stats-col-num">Unidades vendidas</th>
                   </tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @for (p of topProductos; track p.producto_id) {
+                    <tr>
+                      <td>{{ p.nombre || '-' }}</td>
+                      <td class="stats-col-num">{{ p.unidades_vendidas | number: '1.0-0' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
         }
       </div>
@@ -150,46 +197,84 @@
     } @else if (stockCritico.length === 0) {
       <p class="chart-empty">No hay productos con stock crítico.</p>
     } @else {
-      <div class="stats-table-wrap">
-        <table class="stats-data-table stats-stock-critico-table">
-          <thead>
-            <tr>
-              <th scope="col">Producto / Almacén</th>
-              <th scope="col" class="stats-col-num">Stock actual</th>
-              <th scope="col" class="stats-col-num">Stock mín.</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of stockCritico; track stockCriticoTrackKey(row)) {
-              <tr class="stats-stock-row">
-                <td>
-                  <a
-                    [routerLink]="['/productos']"
-                    [queryParams]="{ stock: row.producto_id }"
-                    class="stats-stock-product-link"
-                  >
-                    <span class="stats-stock-prod-name">{{ row.nombre ?? row.codigo_interno ?? '-' }}</span>
-                    @if (row.almacen_nombre) {
-                      <span class="stats-stock-almacen">{{ row.almacen_nombre }}</span>
-                    }
-                  </a>
-                </td>
-                <td class="stats-col-num stats-stock-val-actual">
-                  {{ row.stock_total | number: '1.0-3' }}
-                  <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
-                </td>
-                <td class="stats-col-num">
-                  @if (row.stock_minimo != null) {
-                    {{ row.stock_minimo | number: '1.0-3' }}
+      <div class="stats-responsive-data">
+        <ul class="stats-card-list stats-stock-card-list" aria-label="Productos con bajo stock">
+          @for (row of stockCritico; track stockCriticoTrackKey(row)) {
+            <li class="stats-stock-card">
+              <a
+                [routerLink]="['/productos']"
+                [queryParams]="{ stock: row.producto_id }"
+                class="stats-stock-product-link stats-stock-card__link"
+              >
+                <span class="stats-stock-prod-name">{{ row.nombre ?? row.codigo_interno ?? '-' }}</span>
+                @if (row.almacen_nombre) {
+                  <span class="stats-stock-almacen">{{ row.almacen_nombre }}</span>
+                }
+              </a>
+              <dl class="stats-stock-card__dl">
+                <div class="stats-stock-card__row">
+                  <dt>Stock actual</dt>
+                  <dd class="stats-stock-val-actual">
+                    {{ row.stock_total | number: '1.0-3' }}
                     <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
-                  } @else {
-                    —
-                  }
-                </td>
+                  </dd>
+                </div>
+                <div class="stats-stock-card__row">
+                  <dt>Stock mín.</dt>
+                  <dd class="stats-stock-card__min">
+                    @if (row.stock_minimo != null) {
+                      {{ row.stock_minimo | number: '1.0-3' }}
+                      <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
+                    } @else {
+                      —
+                    }
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          }
+        </ul>
+        <div class="stats-table-wrap stats-table-wrap--desktop-only">
+          <table class="stats-data-table stats-stock-critico-table">
+            <thead>
+              <tr>
+                <th scope="col">Producto / Almacén</th>
+                <th scope="col" class="stats-col-num">Stock actual</th>
+                <th scope="col" class="stats-col-num">Stock mín.</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (row of stockCritico; track stockCriticoTrackKey(row)) {
+                <tr class="stats-stock-row">
+                  <td>
+                    <a
+                      [routerLink]="['/productos']"
+                      [queryParams]="{ stock: row.producto_id }"
+                      class="stats-stock-product-link"
+                    >
+                      <span class="stats-stock-prod-name">{{ row.nombre ?? row.codigo_interno ?? '-' }}</span>
+                      @if (row.almacen_nombre) {
+                        <span class="stats-stock-almacen">{{ row.almacen_nombre }}</span>
+                      }
+                    </a>
+                  </td>
+                  <td class="stats-col-num stats-stock-val-actual">
+                    {{ row.stock_total | number: '1.0-3' }}
+                    <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
+                  </td>
+                  <td class="stats-col-num">
+                    @if (row.stock_minimo != null) {
+                      {{ row.stock_minimo | number: '1.0-3' }}
+                      <span class="stats-stock-unit">{{ row.unidad_medida ?? 'und' }}</span>
+                    } @else {
+                      —
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
       <a routerLink="/productos" class="stock-critico-ver-link">Ir a la lista completa de productos</a>
     }

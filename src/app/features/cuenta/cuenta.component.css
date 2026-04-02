@@ -1,2 +1,53 @@
 /* Estilos específicos cuenta */
-.page { max-width: 600px; }
+.page {
+  max-width: 600px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.form-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.form-row {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-row .value {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.form-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-actions a,
+.form-actions button {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.form-actions a {
+  white-space: normal;
+  text-align: center;
+}
+
+.form-actions .btn-primary,
+.form-actions .btn-danger {
+  justify-content: center;
+}
+
+.form-actions .btn-danger {
+  white-space: normal;
+}
