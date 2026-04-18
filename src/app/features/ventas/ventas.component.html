@@ -2,7 +2,7 @@
   <div class="page-header">
     <h1><span class="page-icon">📋</span> Gestionar Ventas</h1>
     <div class="header-actions">
-      @if (!auth.isAdmin()) {
+      @if (!auth.isAdmin() && !auth.isFacturador()) {
         <a routerLink="/ventas/nuevo" class="btn-add-venta">+ Añadir venta</a>
       }
     </div>
@@ -43,7 +43,7 @@
           <option value="">Todas</option>
           <option value="POR FACTURAR">Por facturar</option>
           <option value="FACTURADA">Facturadas</option>
-          <option value="ELIMINADA">Eliminadas</option>
+          <option value="ANULADA">Anuladas</option>
         </select>
       </div>
       <div class="vfg vfg-grid-cell">
@@ -107,7 +107,7 @@
                       <span
                         class="badge"
                         [class.confirmada]="v.estatus === 'FACTURADA'"
-                        [class.eliminada]="v.estatus === 'ELIMINADA'"
+                        [class.eliminada]="v.estatus === 'ANULADA'"
                         [class.por-confirmar]="
                           v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR'
                         "
@@ -123,11 +123,11 @@
                       <span>Ver</span>
                     </button>
                   }
-                  @if (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
+                  @if (!auth.isVendedor() && (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR')) {
                     <button type="button" class="btn-small btn-confirm venta-card-accion" (click)="abrirFinalizar(v)" [disabled]="confirmando === v.venta_id">Facturar</button>
                   }
-                  @if (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR') {
-                    <button type="button" class="btn-small venta-btn-eliminar venta-card-accion" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Eliminar</button>
+                  @if (!auth.isVendedor() && (v.estatus === 'PENDIENTE' || v.estatus === 'POR FACTURAR')) {
+                    <button type="button" class="btn-small venta-btn-eliminar venta-card-accion" (click)="eliminar(v.venta_id)" [disabled]="eliminando === v.venta_id">Anular</button>
                   }
                 </div>
               </div>

@@ -3,158 +3,227 @@
   <h1>Nuevo producto</h1>
   <div class="form-card">
     <form (ngSubmit)="guardar()">
-      <div class="form-row">
-        <label>Código interno *</label>
-        <input [(ngModel)]="form.codigo_interno" name="codigo_interno" required />
+      <div class="wizard-header">
+        <p class="wizard-title">Paso {{ pasoActual }} de {{ totalPasos }}</p>
+        <div class="wizard-steps">
+          <button type="button" class="wizard-step" [class.is-active]="pasoActual === 1" [class.is-complete]="pasoActual > 1" (click)="irAPaso(1)">1. Básico</button>
+          <button type="button" class="wizard-step" [class.is-active]="pasoActual === 2" [class.is-complete]="pasoActual > 2" (click)="irAPaso(2)">2. Inventario</button>
+          <button type="button" class="wizard-step" [class.is-active]="pasoActual === 3" [class.is-complete]="pasoActual > 3" (click)="irAPaso(3)">3. Imagen</button>
+          <button type="button" class="wizard-step" [class.is-active]="pasoActual === 4" (click)="irAPaso(4)">4. Precio y estado</button>
+        </div>
       </div>
-      <div class="form-row">
-        <label>Descripción *</label>
-        <input [(ngModel)]="form.descripcion" name="descripcion" required />
-      </div>
-      <div class="form-row">
-        <label>Nombre</label>
-        <input [(ngModel)]="form.nombre" name="nombre" />
-      </div>
-      <div class="form-row">
-        <label>Categoría</label>
-        <select [(ngModel)]="form.categoria_id" name="categoria_id" (ngModelChange)="onCategoriaChange()">
-          <option [ngValue]="null">-- Seleccionar --</option>
-          @for (c of categorias; track c.categoria_id) {
-            <option [ngValue]="c.categoria_id">{{ c.nombre }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Subcategoría</label>
-        <select [(ngModel)]="form.subcategoria_id" name="subcategoria_id">
-          <option [ngValue]="null">-- Seleccionar --</option>
-          @for (s of subcategorias; track s.subcategoria_id) {
-            <option [ngValue]="s.subcategoria_id">{{ s.nombre }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Existencia por almacén</label>
-        <div class="almacenes-list">
-          <div class="almacenes-select-row">
-            <select
-              [ngModel]="almacenSeleccionado"
-              name="almacen_select"
-              (ngModelChange)="onAlmacenElegidoEnDropdown($event)"
-            >
-              <option [ngValue]="null">-- Seleccionar almacén --</option>
-              @for (a of almacenesDisponibles; track a.almacen_id) {
-                <option [ngValue]="a.almacen_id">{{ a.nombre }}</option>
-              }
-            </select>
+      @if (pasoActual === 1) {
+        <div class="form-row">
+          <label>Código interno *</label>
+          <input [(ngModel)]="form.codigo_interno" name="codigo_interno" required />
+        </div>
+        <div class="form-row">
+          <label>Descripción *</label>
+          <input [(ngModel)]="form.descripcion" name="descripcion" required />
+        </div>
+        <div class="form-row">
+          <label>Nombre</label>
+          <input [(ngModel)]="form.nombre" name="nombre" />
+        </div>
+        <div class="form-row">
+          <label>Categoría</label>
+          <select [(ngModel)]="form.categoria_id" name="categoria_id" (ngModelChange)="onCategoriaChange()">
+            <option [ngValue]="null">-- Seleccionar --</option>
+            @for (c of categorias; track c.categoria_id) {
+              <option [ngValue]="c.categoria_id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Subcategoría</label>
+          <select [(ngModel)]="form.subcategoria_id" name="subcategoria_id">
+            <option [ngValue]="null">-- Seleccionar --</option>
+            @for (s of subcategorias; track s.subcategoria_id) {
+              <option [ngValue]="s.subcategoria_id">{{ s.nombre }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (pasoActual === 2) {
+        <div class="form-row">
+          <label>Existencia por almacén</label>
+          <div class="almacenes-list">
+            <div class="almacenes-select-row">
+              <select
+                [ngModel]="almacenSeleccionado"
+                name="almacen_select"
+                (ngModelChange)="onAlmacenElegidoEnDropdown($event)"
+              >
+                <option [ngValue]="null">-- Seleccionar almacén --</option>
+                @for (a of almacenesDisponibles; track a.almacen_id) {
+                  <option [ngValue]="a.almacen_id">{{ a.nombre }}</option>
+                }
+              </select>
+            </div>
+            @for (item of form.almacenes; track item.almacen_id) {
+              <div class="almacen-row">
+                <span class="almacen-name">{{ getAlmacenById(item.almacen_id)?.nombre || '-' }}</span>
+                <div class="almacen-stock-fields">
+                  <label class="almacen-field">
+                    <span class="almacen-field-label">Stock</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="item.stock_actual"
+                      [name]="'stock_' + item.almacen_id"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      placeholder="Cantidad"
+                      class="stock-input"
+                      (keypress)="onlyNumbers($event)"
+                      (paste)="onStockPaste($event, item)"
+                    />
+                  </label>
+                  <label class="almacen-field">
+                    <span class="almacen-field-label">Stock mín.</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="item.stock_minimo"
+                      [name]="'stockmin_' + item.almacen_id"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      class="stock-input stock-input-min"
+                      (keypress)="onlyNumbers($event)"
+                    />
+                  </label>
+                </div>
+                <button type="button" class="btn-small btn-danger almacen-btn-remove" (click)="removeAlmacen(item.almacen_id)">−</button>
+              </div>
+            }
           </div>
-          @for (item of form.almacenes; track item.almacen_id) {
+        </div>
+      }
+
+      @if (pasoActual === 3) {
+        <div class="form-row">
+          <label>Imagen del producto (opcional)</label>
+          <div class="imagen-upload">
+            <input
+              id="producto-imagen-file-nuevo"
+              class="imagen-upload-input"
+              type="file"
+              name="imagen_archivo_nuevo"
+              accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
+              (change)="onImagenArchivoElegido($event)"
+            />
+            <div
+              class="imagen-upload-drop-wrap"
+              (dragover)="onImagenDragOver($event)"
+              (dragleave)="onImagenDragLeave($event)"
+              (drop)="onImagenDrop($event)"
+            >
+              <label
+                for="producto-imagen-file-nuevo"
+                class="imagen-upload-drop"
+                [class.imagen-upload-drop--drag]="imagenDragSobreZona"
+              >
+              <span class="imagen-upload-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              </span>
+              <span class="imagen-upload-title">Elegir imagen</span>
+              <span class="imagen-upload-meta">PNG, JPG, WebP o GIF · máx. 500&nbsp;KB · podés arrastrar el archivo aquí</span>
+              @if (imagenArchivoNombre) {
+                <span class="imagen-upload-filename">{{ imagenArchivoNombre }}</span>
+              }
+            </label>
+            </div>
+            @if (imagenArchivoNombre) {
+              <button type="button" class="imagen-upload-clear" (click)="quitarImagenArchivo()">Quitar archivo</button>
+            }
+          </div>
+          <input
+            type="url"
+            [(ngModel)]="imagenUrlDraft"
+            name="imagen_url_draft"
+            class="imagen-url-field"
+            placeholder="O pegá una URL: https://ejemplo.com/imagen.jpg"
+            autocomplete="off"
+            (ngModelChange)="onImagenUrlDraftChange()"
+          />
+          <p class="hint">Al guardar se sube el archivo (si elegiste uno) o se descarga la URL. Una sola imagen por producto.</p>
+          @if (imagenError) {
+            <p class="error-msg">{{ imagenError }}</p>
+          }
+        </div>
+      }
+
+      @if (pasoActual === 4) {
+        <div class="form-row">
+          <label>Costo</label>
+          <input type="number" [(ngModel)]="form.costo" name="costo" min="0" step="0.01" />
+          <p class="hint">Costo de referencia por unidad (uso interno).</p>
+        </div>
+        <div class="form-row">
+          <label>Precios por método de pago</label>
+          <div class="almacenes-list">
             <div class="almacen-row">
-              <span class="almacen-name">{{ getAlmacenById(item.almacen_id)?.nombre || '-' }}</span>
+              <span class="almacen-name">Efectivo, otros</span>
               <div class="almacen-stock-fields">
                 <label class="almacen-field">
-                  <span class="almacen-field-label">Stock</span>
+                  <span class="almacen-field-label">Precio</span>
                   <input
                     type="number"
-                    [(ngModel)]="item.stock_actual"
-                    [name]="'stock_' + item.almacen_id"
+                    [ngModel]="precioUnificadoContado"
+                    (ngModelChange)="setPrecioUnificadoContado($event)"
+                    name="precio_unificado_contado"
                     min="0"
-                    step="1"
-                    inputmode="numeric"
-                    placeholder="Cantidad"
+                    step="0.01"
                     class="stock-input"
-                    (keypress)="onlyNumbers($event)"
-                    (paste)="onStockPaste($event, item)"
-                  />
-                </label>
-                <label class="almacen-field">
-                  <span class="almacen-field-label">Stock mín.</span>
-                  <input
-                    type="number"
-                    [(ngModel)]="item.stock_minimo"
-                    [name]="'stockmin_' + item.almacen_id"
-                    min="0"
-                    step="1"
-                    inputmode="numeric"
-                    class="stock-input stock-input-min"
-                    (keypress)="onlyNumbers($event)"
                   />
                 </label>
               </div>
-              <button type="button" class="btn-small btn-danger almacen-btn-remove" (click)="removeAlmacen(item.almacen_id)">−</button>
             </div>
-          }
-        </div>
-      </div>
-      <div class="form-row">
-        <label>Imagen del producto (opcional)</label>
-        <div class="imagen-upload">
-          <input
-            id="producto-imagen-file-nuevo"
-            class="imagen-upload-input"
-            type="file"
-            name="imagen_archivo_nuevo"
-            accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
-            (change)="onImagenArchivoElegido($event)"
-          />
-          <div
-            class="imagen-upload-drop-wrap"
-            (dragover)="onImagenDragOver($event)"
-            (dragleave)="onImagenDragLeave($event)"
-            (drop)="onImagenDrop($event)"
-          >
-            <label
-              for="producto-imagen-file-nuevo"
-              class="imagen-upload-drop"
-              [class.imagen-upload-drop--drag]="imagenDragSobreZona"
-            >
-            <span class="imagen-upload-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            </span>
-            <span class="imagen-upload-title">Elegir imagen</span>
-            <span class="imagen-upload-meta">PNG, JPG, WebP o GIF · máx. 500&nbsp;KB · podés arrastrar el archivo aquí</span>
-            @if (imagenArchivoNombre) {
-              <span class="imagen-upload-filename">{{ imagenArchivoNombre }}</span>
+            @for (metodo of metodosIndividuales; track metodo.metodo_id) {
+              <div class="almacen-row">
+                <span class="almacen-name">{{ tipoPagoLabel(metodo.tipo_pago) }}</span>
+                <div class="almacen-stock-fields">
+                  <label class="almacen-field">
+                    <span class="almacen-field-label">Precio</span>
+                    <input
+                      type="number"
+                      [ngModel]="getPrecioMetodo(metodo.metodo_id)"
+                      (ngModelChange)="setPrecioMetodo(metodo.metodo_id, $event)"
+                      [name]="'precio_metodo_' + metodo.metodo_id"
+                      min="0"
+                      step="0.01"
+                      class="stock-input"
+                    />
+                  </label>
+                </div>
+              </div>
             }
-          </label>
           </div>
-          @if (imagenArchivoNombre) {
-            <button type="button" class="imagen-upload-clear" (click)="quitarImagenArchivo()">Quitar archivo</button>
-          }
         </div>
-        <input
-          type="url"
-          [(ngModel)]="imagenUrlDraft"
-          name="imagen_url_draft"
-          class="imagen-url-field"
-          placeholder="O pegá una URL: https://ejemplo.com/imagen.jpg"
-          autocomplete="off"
-          (ngModelChange)="onImagenUrlDraftChange()"
-        />
-        <p class="hint">Al guardar se sube el archivo (si elegiste uno) o se descarga la URL. Una sola imagen por producto.</p>
-        @if (imagenError) {
-          <p class="error-msg">{{ imagenError }}</p>
-        }
-      </div>
-      <div class="form-row">
-        <label>Costo</label>
-        <input type="number" [(ngModel)]="form.costo" name="costo" min="0" step="0.01" />
-        <p class="hint">Costo de referencia por unidad (uso interno).</p>
-      </div>
-      <div class="form-row">
-        <label>Precio venta sugerido</label>
-        <input type="number" [(ngModel)]="form.precio_venta_sugerido" name="precio_venta_sugerido" min="0" step="0.01" />
-      </div>
-      <div class="form-row">
-        <label>Estatus</label>
-        <select [(ngModel)]="form.estatus" name="estatus">
-          <option value="A">Activo</option>
-          <option value="C">Cancelado</option>
-        </select>
-      </div>
+        <div class="form-row">
+          <label>Estatus</label>
+          <select [(ngModel)]="form.estatus" name="estatus">
+            <option value="A">Activo</option>
+            <option value="C">Cancelado</option>
+          </select>
+        </div>
+      }
+
+      @if (errorMsg) {
+        <p class="error-msg">{{ errorMsg }}</p>
+      }
+
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
-        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
+        @if (pasoActual > 1) {
+          <button type="button" class="btn-cancel" (click)="pasoAnterior()">Anterior</button>
+        }
+        @if (pasoActual < totalPasos) {
+          <button type="button" class="btn-primary" [disabled]="!puedeContinuarPasoActual()" (click)="pasoSiguiente()">Continuar</button>
+        } @else {
+          <button type="submit" class="btn-primary" [disabled]="!puedeFinalizar()">{{ saving ? 'Finalizando...' : 'Finalizar' }}</button>
+        }
       </div>
     </form>
   </div>

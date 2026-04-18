@@ -49,6 +49,11 @@ export const routes: Routes = [
         path: 'comisiones',
         loadComponent: () => import('./features/comisiones/comisiones.component').then(m => m.ComisionesComponent),
         canActivate: [adminGuard]
+      },
+      {
+        path: 'cierre-venta',
+        loadComponent: () => import('./features/cierre-venta/cierre-venta.component').then(m => m.CierreVentaComponent),
+        canActivate: [denyVendedorGuard]
       }
     ]
   },

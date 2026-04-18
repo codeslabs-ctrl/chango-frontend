@@ -230,3 +230,46 @@ h1 { color: #000; }
 .imagen-feedback-error {
   color: #b91c1c;
 }
+
+.wizard-header {
+  margin-bottom: 1rem;
+}
+
+.wizard-title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.wizard-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.wizard-step {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wizard-step.is-active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.wizard-step.is-complete {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+@media (max-width: 640px) {
+  .wizard-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

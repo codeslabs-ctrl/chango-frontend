@@ -13,16 +13,14 @@ export interface Venta {
   cliente_email?: string | null;
   cliente_direccion?: string | null;
   productos_nombres?: string | null;
-  /** Número de ítems (líneas) en la venta */
+  /** Cantidad total de productos vendidos (suma de cantidades) */
   cantidad_productos?: number;
   usuario_id?: number | null;
   usuario_nombre?: string | null;
   fecha_venta: string;
   total_venta: number;
-  metodo_pago: string | null;
   tipo_pago?: string | null;
   referencia_banco?: string | null;
-  referencia_pago?: string | null;
   estatus: string;
   /** JSON desde API: productos destacados (imagen, descripción, cantidad), uno por línea de detalle relevante */
   productos_destaque?: unknown;
@@ -31,8 +29,6 @@ export interface Venta {
 export interface ConfirmarVentaDto {
   tipo_pago?: string;
   referencia_banco?: string;
-  metodo_pago?: string;
-  referencia_pago?: string;
   cliente?: {
     nombre?: string;
     cedula_rif?: string;
@@ -69,10 +65,8 @@ export interface CreateVentaDetalleDto {
 
 export interface CreateVentaDto {
   cliente_id?: number;
-  metodo_pago?: string;
   tipo_pago?: string;
   referencia_banco?: string;
-  referencia_pago?: string;
   detalles: CreateVentaDetalleDto[];
   confirmar?: boolean;
 }

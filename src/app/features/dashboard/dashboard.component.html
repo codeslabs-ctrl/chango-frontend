@@ -15,6 +15,41 @@
         <a routerLink="/estadisticas" fragment="stock-critico" class="kpi-link">Ir a productos</a>
       }
     </div>
+    <div class="kpi-card kpi-card-taza">
+      <div class="kpi-label">Taza del día (USD → VES)</div>
+      @if (loadingStats.taza) {
+        <div class="kpi-sublabel">Cargando taza…</div>
+      } @else {
+        <div class="kpi-sublabel">
+          Google: {{ tazaDia.tasa_google != null ? (tazaDia.tasa_google | number:'1.2-4') : 'No disponible' }}
+          ·
+          <a [href]="tazaDia.fuente_google" target="_blank" rel="noopener noreferrer">Fuente</a>
+        </div>
+        <div class="kpi-taza-form">
+          <label for="tazaManualInput" class="kpi-sublabel">Taza manual</label>
+          <div class="kpi-taza-row">
+            <input
+              id="tazaManualInput"
+              type="number"
+              min="0"
+              step="0.0001"
+              [(ngModel)]="tazaManualInput"
+              name="tazaManualInput"
+              placeholder="Ej: 36.45"
+            />
+            <button type="button" class="btn-small btn-confirm" (click)="guardarTazaDiaManual()" [disabled]="tazaDiaSaving">
+              {{ tazaDiaSaving ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+          @if (tazaDia.taza_manual != null) {
+            <div class="kpi-sublabel">Actual: {{ tazaDia.taza_manual | number:'1.2-4' }}</div>
+          }
+          @if (tazaDiaError) {
+            <div class="error-msg">{{ tazaDiaError }}</div>
+          }
+        </div>
+      }
+    </div>
   </section>
 
   <section class="table-section dashboard-ventas-section">
@@ -107,30 +142,32 @@
                       <dd>{{ v.fecha_venta | date:'short' }}</dd>
                     </div>
                   </dl>
-                  <div class="venta-layout-actions venta-layout-actions--wrap">
-                    <button
-                      type="button"
-                      class="btn-confirm venta-card-accion"
-                      (click)="abrirFinalizar(v)"
-                      [disabled]="confirmando === v.venta_id || eliminando === v.venta_id"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      {{ etiquetaBotonAccion() }}
-                    </button>
-                    @if (v.estatus === 'POR FACTURAR' || v.estatus === 'PENDIENTE') {
+                  @if (!auth.isVendedor()) {
+                    <div class="venta-layout-actions venta-layout-actions--wrap">
                       <button
                         type="button"
-                        class="btn-small venta-btn-eliminar venta-card-accion"
-                        (click)="eliminar(v.venta_id)"
-                        [disabled]="eliminando === v.venta_id || confirmando === v.venta_id"
-                        title="Eliminar venta"
-                        aria-label="Eliminar venta"
+                        class="btn-confirm venta-card-accion"
+                        (click)="abrirFinalizar(v)"
+                        [disabled]="confirmando === v.venta_id || eliminando === v.venta_id"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                        <span>Eliminar</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        {{ etiquetaBotonAccion() }}
                       </button>
-                    }
-                  </div>
+                      @if (v.estatus === 'POR FACTURAR' || v.estatus === 'PENDIENTE') {
+                        <button
+                          type="button"
+                          class="btn-small venta-btn-eliminar venta-card-accion"
+                          (click)="eliminar(v.venta_id)"
+                          [disabled]="eliminando === v.venta_id || confirmando === v.venta_id"
+                          title="Anular venta"
+                          aria-label="Anular venta"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                          <span>Anular</span>
+                        </button>
+                      }
+                    </div>
+                  }
                 </div>
                 <div class="venta-layout-visual venta-layout-visual--carousel" aria-hidden="true">
                   <chango-venta-productos-carousel
@@ -158,14 +195,52 @@
     </div>
   </section>
 
+  @if (ventasParaImprimir.length > 0) {
+    <section class="table-section dashboard-print-section">
+      <div class="section-header">
+        <div class="section-icon">🖨️</div>
+        <h3 class="section-title">Ventas facturadas listas para imprimir</h3>
+      </div>
+      <div class="card-view" style="display: grid;">
+        @for (item of ventasParaImprimir; track item.venta.venta_id) {
+          <article class="data-card">
+            <div class="card-main">
+              <div class="card-header">
+                <span class="card-title">#{{ item.venta.venta_id }} · {{ item.venta.cliente_nombre || 'Sin cliente' }}</span>
+                <span class="card-badge card-badge-amount">{{ item.venta.total_venta | number:'1.2-2' }}</span>
+              </div>
+              <dl class="card-details">
+                <div class="card-row"><dt>Fecha</dt><dd>{{ item.venta.fecha_venta | date:'short' }}</dd></div>
+                <div class="card-row"><dt>Productos</dt><dd>{{ lineasVenta(item.venta) }}</dd></div>
+                <div class="card-row"><dt>Método</dt><dd>{{ item.venta.tipo_pago || 'Otro' }}</dd></div>
+              </dl>
+            </div>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="btn-confirm"
+                (click)="imprimirVenta(item.venta.venta_id)"
+                [disabled]="imprimiendoVentaId === item.venta.venta_id"
+              >
+                {{ imprimiendoVentaId === item.venta.venta_id ? 'Imprimiendo…' : 'Imprimir' }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
   <chango-venta-finalizar-modal
     [open]="modalLoading || modalVenta !== null"
     [loadingData]="modalLoading"
     [data]="modalVenta"
     [mode]="modalMode"
+    [showPrintAction]="modalShowPrintAction"
     [submitting]="confirmando !== null"
     [submitError]="modalSubmitError"
     (closed)="cerrarModal()"
     (finalizar)="onModalFinalizar($event)"
+    (imprimir)="onModalImprimir()"
   />
 </div>

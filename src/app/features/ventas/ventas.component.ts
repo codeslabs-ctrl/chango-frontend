@@ -125,7 +125,7 @@ export class VentasComponent implements OnInit {
   }
 
   eliminar(ventaId: number) {
-    if (!confirm('¿Eliminar esta venta?')) return;
+    if (!confirm('¿Anular esta venta?')) return;
     this.eliminando = ventaId;
     this.cdr.detectChanges();
     this.ventasService.eliminar(ventaId).subscribe({
@@ -197,7 +197,7 @@ export class VentasComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  /** Cantidad de líneas / productos en la venta (fallback desde nombres si el API es antiguo). */
+  /** Cantidad total de productos vendidos (fallback por líneas si el API es antiguo). */
   lineasVenta(v: Venta): number {
     const n = v.cantidad_productos;
     if (n != null && n >= 0) return n;

@@ -1,0 +1,30 @@
+.cv-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cv-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.kpi-card {
+  background: var(--surface-color, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.kpi-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}

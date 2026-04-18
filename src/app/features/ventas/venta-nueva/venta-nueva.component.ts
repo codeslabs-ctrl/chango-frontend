@@ -72,7 +72,7 @@ export class VentaNuevaComponent implements OnInit {
   guardandoCliente = false;
   @ViewChildren('sugerenciaItem') sugerenciaItems!: QueryList<ElementRef>;
   readonly opcionesMetodoPago = OPCIONES_METODO_PAGO_LISTA;
-  /** Código: efectivo | transaccion | pago movil; vacío → A convenir (solo admin sin confirmar al instante) */
+  /** Código: efectivo | pago movil | transferencia | cashea | divisa; vacío → A convenir */
   tipoPagoCodigo = '';
   referenciaBanco = '';
   lineas: LineaVenta[] = [];
@@ -105,7 +105,17 @@ export class VentaNuevaComponent implements OnInit {
   }
 
   get muestraDatosTransferencia(): boolean {
-    return normalizarTipoPago(this.tipoPagoCodigo) === 'transaccion';
+    return normalizarTipoPago(this.tipoPagoCodigo) === 'transferencia';
+  }
+
+  precioProductoParaTipo(producto: Producto, tipoPago: string): number {
+    const tipo = normalizarTipoPago(tipoPago);
+    const precios = producto.precios_metodo || [];
+    const row = precios.find(
+      p => normalizarTipoPago(p.tipo_pago) === tipo
+    );
+    if (row) return Number(row.precio) || 0;
+    return Number(producto.precio_venta_sugerido) || 0;
   }
 
   ngOnInit() {
@@ -196,7 +206,7 @@ export class VentaNuevaComponent implements OnInit {
         descripcion: p.descripcion,
         imagen_url: p.imagen_url ?? null,
         existencia_actual: stock,
-        precio_unitario: p.precio_venta_sugerido ?? 0,
+        precio_unitario: this.precioProductoParaTipo(p, this.tipoPagoCodigo),
         cantidad: cantidadInicial,
         almacenes
       }
@@ -441,6 +451,19 @@ export class VentaNuevaComponent implements OnInit {
 
   get totalVenta(): number {
     return this.lineas.reduce((s, l) => s + l.cantidad * l.precio_unitario, 0);
+  }
+
+  onTipoPagoChange() {
+    const tipo = this.tipoPagoCodigo;
+    this.lineas = this.lineas.map(linea => {
+      const producto = this.productos.find(p => p.producto_id === linea.producto_id);
+      if (!producto) return linea;
+      return {
+        ...linea,
+        precio_unitario: this.precioProductoParaTipo(producto, tipo)
+      };
+    });
+    this.cdr.detectChanges();
   }
 
   guardar() {

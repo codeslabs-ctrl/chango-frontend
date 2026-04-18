@@ -81,7 +81,7 @@
 
         <div class="cart-section almacen-section">
           <h2><span class="page-icon">📦</span> Almacén</h2>
-          <p class="almacen-hint">El precio es el de lista (igual en todos los depósitos). El stock mostrado es solo del almacén elegido.</p>
+          <p class="almacen-hint">El stock mostrado es solo del almacén elegido.</p>
           @if (almacenesOpciones.length > 0) {
             <div class="form-row almacen-select-row">
               <label for="almacenVenta">Despacho desde</label>
@@ -203,6 +203,7 @@
               name="tipoPagoVenta"
               class="vn-select-metodo"
               [(ngModel)]="tipoPagoCodigo"
+              (ngModelChange)="onTipoPagoChange()"
             >
               <option value="">{{ labelPlaceholderMetodoPago }}</option>
               @for (opt of opcionesMetodoPago; track opt.value) {

@@ -99,7 +99,7 @@
               <span
                 class="badge"
                 [class.confirmada]="data.venta.estatus === 'FACTURADA'"
-                [class.eliminada]="data.venta.estatus === 'ELIMINADA'"
+                [class.eliminada]="data.venta.estatus === 'ANULADA'"
                 [class.por-confirmar]="
                   data.venta.estatus === 'PENDIENTE' ||
                   data.venta.estatus === 'POR FACTURAR'
@@ -168,6 +168,7 @@
                   name="vfTipoPago"
                   class="vf-select-metodo"
                   [(ngModel)]="tipoPagoCodigo"
+                  (ngModelChange)="onTipoPagoChange($event)"
                   [disabled]="submitting"
                   required
                 >
@@ -208,12 +209,15 @@
                 <tr>
                   <td data-label="Producto">{{ d.producto_descripcion || d.producto_id }}</td>
                   <td data-label="Cantidad">{{ d.cantidad }}</td>
-                  <td data-label="Precio unit.">{{ d.precio_unitario | number: '1.2-2' }}</td>
-                  <td data-label="Subtotal">{{ d.cantidad * d.precio_unitario | number: '1.2-2' }}</td>
+                  <td data-label="Precio unit.">{{ getPrecioUnitarioVista(d) | number: '1.2-2' }}</td>
+                  <td data-label="Subtotal">{{ getSubtotalVista(d) | number: '1.2-2' }}</td>
                 </tr>
               }
             </tbody>
           </table>
+          @if (mode === 'facturar' && previewLoading) {
+            <p class="hint">Actualizando precios por método de pago...</p>
+          }
           <div class="modal-total">
             <strong>Total: {{ data.venta.total_venta | number: '1.2-2' }}</strong>
           </div>
@@ -236,6 +240,16 @@
                 } @else {
                   Facturar
                 }
+              </button>
+            </div>
+          }
+          @if (mode === 'ver' && showPrintAction) {
+            <div class="vf-actions">
+              <button type="button" class="btn-cancel" (click)="onCerrar()" [disabled]="submitting">
+                Cerrar
+              </button>
+              <button type="button" class="vf-btn-ok" (click)="onImprimirClick()" [disabled]="submitting">
+                Imprimir
               </button>
             </div>
           }

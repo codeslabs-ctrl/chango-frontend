@@ -17,6 +17,25 @@ export interface StockCriticoItem {
   categoria?: string | null;
 }
 
+export interface CierreVentaDiaItem {
+  tipo_pago: string;
+  cantidad_ventas: number;
+  monto_total: number;
+}
+
+export interface CierreVentaDiaResumen {
+  fecha: string;
+  resumen_por_metodo: CierreVentaDiaItem[];
+  total_ventas: number;
+  total_monto: number;
+}
+
+export interface TazaDiaResumen {
+  tasa_google: number | null;
+  taza_manual: number | null;
+  fuente_google: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class EstadisticasService {
   private baseUrl = `${environment.apiUrl}/estadisticas`;
@@ -99,5 +118,29 @@ export class EstadisticasService {
       ...this.getOptions(),
       params
     });
+  }
+
+  getCierreVentaDia(fecha?: string): Observable<{ success: boolean; data: CierreVentaDiaResumen }> {
+    let params = new HttpParams();
+    if (fecha) params = params.set('fecha', fecha);
+    return this.http.get<{ success: boolean; data: CierreVentaDiaResumen }>(
+      `${this.baseUrl}/cierre-venta-dia`,
+      { ...this.getOptions(), params }
+    );
+  }
+
+  getTazaDia(): Observable<{ success: boolean; data: TazaDiaResumen }> {
+    return this.http.get<{ success: boolean; data: TazaDiaResumen }>(
+      `${this.baseUrl}/taza-dia`,
+      this.getOptions()
+    );
+  }
+
+  saveTazaDiaManual(valor: number): Observable<{ success: boolean; data: TazaDiaResumen }> {
+    return this.http.put<{ success: boolean; data: TazaDiaResumen }>(
+      `${this.baseUrl}/taza-dia`,
+      { valor },
+      this.getOptions()
+    );
   }
 }

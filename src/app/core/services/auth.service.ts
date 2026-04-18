@@ -42,6 +42,7 @@ export class AuthService {
     return n || u.username;
   });
   isAdmin = computed(() => this.user()?.rol === 'administrador');
+  isFacturador = computed(() => this.user()?.rol === 'facturador');
   isVendedor = computed(() => this.user()?.rol === 'vendedor');
 
   constructor(

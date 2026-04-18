@@ -1,0 +1,62 @@
+<div class="page internal-page">
+  <div class="page-header">
+    <h1><span class="page-icon">🧾</span> Cierre de venta</h1>
+  </div>
+
+  <section class="form-card cv-filters">
+    <div class="form-row">
+      <label for="cvFecha">Fecha</label>
+      <input id="cvFecha" type="date" [(ngModel)]="fecha" name="fecha" />
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-primary" (click)="cargar()" [disabled]="loading">
+        {{ loading ? 'Cargando...' : 'Consultar' }}
+      </button>
+    </div>
+  </section>
+
+  @if (error) {
+    <p class="error-msg">{{ error }}</p>
+  }
+
+  @if (data) {
+    <section class="cv-kpis">
+      <article class="kpi-card">
+        <div class="kpi-label">Fecha</div>
+        <div class="kpi-value">{{ data.fecha }}</div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-label">Total ventas</div>
+        <div class="kpi-value">{{ data.total_ventas }}</div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-label">Total monto</div>
+        <div class="kpi-value">{{ data.total_monto | number:'1.2-2' }}</div>
+      </article>
+    </section>
+
+    <section class="table-section">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Método de pago</th>
+            <th>Cantidad de ventas</th>
+            <th>Monto total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if ((data.resumen_por_metodo || []).length === 0) {
+            <tr><td colspan="3" class="empty">No hay ventas para esta fecha</td></tr>
+          }
+          @for (r of data.resumen_por_metodo; track r.tipo_pago) {
+            <tr>
+              <td>{{ r.tipo_pago }}</td>
+              <td>{{ r.cantidad_ventas }}</td>
+              <td>{{ r.monto_total | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</div>

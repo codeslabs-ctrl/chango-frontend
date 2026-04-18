@@ -15,10 +15,14 @@ import { AlmacenesService } from '../../../core/services/almacenes.service';
   styleUrl: './producto-nuevo.component.css'
 })
 export class ProductoNuevoComponent implements OnInit {
+  readonly totalPasos = 4;
+  pasoActual = 1;
   categorias: { categoria_id: number; nombre: string }[] = [];
   subcategorias: { subcategoria_id: number; nombre: string; categoria_id: number }[] = [];
   almacenes: { almacen_id: number; nombre: string; estatus?: string }[] = [];
+  metodosPago: { metodo_id: number; tipo_pago: string }[] = [];
   saving = false;
+  errorMsg = '';
   imagenUrlDraft = '';
   imagenArchivoListo: File | null = null;
   imagenArchivoNombre = '';
@@ -33,6 +37,7 @@ export class ProductoNuevoComponent implements OnInit {
     subcategoria_id: null as number | null,
     costo: 0,
     precio_venta_sugerido: 0,
+    precios_metodo: [] as { metodo_id: number; precio: number }[],
     almacenes: [] as { almacen_id: number; stock_actual: number; stock_minimo: number }[],
     estatus: 'A' as 'A' | 'C'
   };
@@ -44,6 +49,78 @@ export class ProductoNuevoComponent implements OnInit {
 
   getAlmacenById(id: number) {
     return this.almacenes.find(a => a.almacen_id === id);
+  }
+
+  private normalizarTipoPago(tipo: string): string {
+    return tipo
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
+  }
+
+  private esMetodoAgrupado(tipo: string): boolean {
+    const t = this.normalizarTipoPago(tipo);
+    return t === 'efectivo' || t === 'transferencia' || t === 'pago movil';
+  }
+
+  private asegurarPreciosMetodoIniciales() {
+    if (!this.metodosPago.length) return;
+    const existente = new Map(this.form.precios_metodo.map(p => [p.metodo_id, Math.max(0, Number(p.precio) || 0)]));
+    this.form.precios_metodo = this.metodosPago.map(m => ({
+      metodo_id: m.metodo_id,
+      precio: existente.get(m.metodo_id) ?? 0
+    }));
+  }
+
+  tipoPagoLabel(tipo: string): string {
+    const t = this.normalizarTipoPago(tipo);
+    if (t === 'pago movil') return 'Pago móvil';
+    if (t === 'efectivo') return 'Efectivo';
+    if (t === 'transferencia') return 'Transferencia';
+    if (!tipo) return '';
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+  }
+
+  get metodosIndividuales() {
+    return this.metodosPago.filter(m => !this.esMetodoAgrupado(m.tipo_pago));
+  }
+
+  get precioUnificadoContado(): number {
+    const primerAgrupado = this.metodosPago.find(m => this.esMetodoAgrupado(m.tipo_pago));
+    if (!primerAgrupado) return Math.max(0, Number(this.form.precio_venta_sugerido) || 0);
+    return this.getPrecioMetodo(primerAgrupado.metodo_id);
+  }
+
+  setPrecioUnificadoContado(value: number) {
+    const precio = Math.max(0, Number(value) || 0);
+    this.form.precio_venta_sugerido = precio;
+    const idsAgrupados = this.metodosPago.filter(m => this.esMetodoAgrupado(m.tipo_pago)).map(m => m.metodo_id);
+    this.form.precios_metodo = this.form.precios_metodo.map(pm =>
+      idsAgrupados.includes(pm.metodo_id) ? { ...pm, precio } : pm
+    );
+    this.cdr.detectChanges();
+  }
+
+  getPrecioMetodo(metodoId: number): number {
+    const row = this.form.precios_metodo.find(m => m.metodo_id === metodoId);
+    return Math.max(0, Number(row?.precio) || 0);
+  }
+
+  setPrecioMetodo(metodoId: number, value: number) {
+    const precio = Math.max(0, Number(value) || 0);
+    this.form.precios_metodo = this.form.precios_metodo.map(pm =>
+      pm.metodo_id === metodoId ? { ...pm, precio } : pm
+    );
+    this.cdr.detectChanges();
+  }
+
+  private buildPreciosMetodoPayload(): { metodo_id: number; precio: number }[] {
+    const precioUnificado = this.precioUnificadoContado;
+    return this.metodosPago.map((m) => ({
+      metodo_id: m.metodo_id,
+      precio: this.esMetodoAgrupado(m.tipo_pago) ? precioUnificado : this.getPrecioMetodo(m.metodo_id)
+    }));
   }
 
   onAlmacenElegidoEnDropdown(id: number | null) {
@@ -100,6 +177,11 @@ export class ProductoNuevoComponent implements OnInit {
       this.almacenes = res.data || [];
       this.cdr.detectChanges();
     });
+    this.productosService.getMetodosPago().subscribe(res => {
+      this.metodosPago = res.data || [];
+      this.asegurarPreciosMetodoIniciales();
+      this.cdr.detectChanges();
+    });
   }
 
   onCategoriaChange() {
@@ -116,6 +198,61 @@ export class ProductoNuevoComponent implements OnInit {
 
   cancelar() {
     this.router.navigate(['/productos']);
+  }
+
+  irAPaso(paso: number) {
+    if (paso < 1 || paso > this.totalPasos) return;
+    this.pasoActual = paso;
+    this.cdr.detectChanges();
+  }
+
+  pasoSiguiente() {
+    if (this.pasoActual < this.totalPasos) {
+      this.pasoActual += 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  pasoAnterior() {
+    if (this.pasoActual > 1) {
+      this.pasoActual -= 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  puedeContinuarPasoActual(): boolean {
+    if (this.pasoActual !== 1) return true;
+    return !!this.form.codigo_interno.trim() && !!this.form.descripcion.trim();
+  }
+
+  private inventarioObligatorioCompleto(): boolean {
+    if (!this.form.almacenes.length) return false;
+    return this.form.almacenes.every((a) => {
+      const stockActual = Number(a.stock_actual);
+      const stockMinimo = Number(a.stock_minimo);
+      return Number.isFinite(stockActual) && stockActual >= 0 && Number.isFinite(stockMinimo) && stockMinimo >= 0;
+    });
+  }
+
+  private costoYPrecioObligatoriosCompletos(): boolean {
+    const costo = Number(this.form.costo);
+    const precio = Number(this.form.precio_venta_sugerido);
+    return Number.isFinite(costo) && costo >= 0 && Number.isFinite(precio) && precio >= 0;
+  }
+
+  private estatusObligatorioCompleto(): boolean {
+    return this.form.estatus === 'A' || this.form.estatus === 'C';
+  }
+
+  puedeFinalizar(): boolean {
+    const basicoCompleto = !!this.form.codigo_interno.trim() && !!this.form.descripcion.trim();
+    return (
+      basicoCompleto &&
+      this.inventarioObligatorioCompleto() &&
+      this.costoYPrecioObligatoriosCompletos() &&
+      this.estatusObligatorioCompleto() &&
+      !this.saving
+    );
   }
 
   private esImagenAceptada(file: File): boolean {
@@ -209,6 +346,7 @@ export class ProductoNuevoComponent implements OnInit {
   }
 
   guardar() {
+    this.errorMsg = '';
     this.saving = true;
     this.cdr.detectChanges();
     const dto = {
@@ -217,7 +355,8 @@ export class ProductoNuevoComponent implements OnInit {
       nombre: this.form.nombre || undefined,
       subcategoria_id: this.form.subcategoria_id ?? undefined,
       costo: this.form.costo,
-      precio_venta_sugerido: this.form.precio_venta_sugerido,
+      precio_venta_sugerido: this.precioUnificadoContado,
+      precios_metodo: this.buildPreciosMetodoPayload(),
       almacenes: this.form.almacenes.length
         ? this.form.almacenes.map(a => {
             const nMin = Math.max(0, Math.floor(Number(a.stock_minimo ?? 10)));
@@ -269,8 +408,10 @@ export class ProductoNuevoComponent implements OnInit {
           }
         });
       },
-      error: () => {
+      error: (err: { error?: { message?: string }; message?: string }) => {
         this.saving = false;
+        this.errorMsg =
+          err?.error?.message || err?.message || 'No pudimos guardar el producto. Intentá de nuevo.';
         this.cdr.detectChanges();
       }
     });

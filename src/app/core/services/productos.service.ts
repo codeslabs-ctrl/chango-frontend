@@ -17,6 +17,7 @@ export interface Producto {
   unidad_medida: string | null;
   precio_venta_sugerido: number;
   costo?: number;
+  precios_metodo?: { metodo_id: number; tipo_pago: string; precio: number }[];
   fecha_ultimo_inventario: string | null;
   estatus?: string;
   tiene_ventas?: boolean;
@@ -40,7 +41,13 @@ export interface CreateProductoDto {
   precio_venta_sugerido?: number;
   costo?: number;
   almacenes?: ProductoAlmacenDto[];
+  precios_metodo?: { metodo_id: number; precio: number }[];
   estatus?: 'A' | 'C';
+}
+
+export interface MetodoPagoCatalogoItem {
+  metodo_id: number;
+  tipo_pago: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -79,6 +86,13 @@ export class ProductosService {
     return this.http.post<{ success: boolean; data: Producto }>(this.baseUrl, dto, this.getOptions());
   }
 
+  getMetodosPago(): Observable<{ success: boolean; data: MetodoPagoCatalogoItem[] }> {
+    return this.http.get<{ success: boolean; data: MetodoPagoCatalogoItem[] }>(
+      `${this.baseUrl}/metodos-pago`,
+      this.getOptions()
+    );
+  }
+
   update(id: number, dto: Partial<CreateProductoDto>): Observable<{ success: boolean; data: Producto }> {
     return this.http.put<{ success: boolean; data: Producto }>(`${this.baseUrl}/${id}`, dto, this.getOptions());
   }
@@ -97,7 +111,7 @@ export class ProductosService {
 
   addStock(
     id: number,
-    dto: { almacenes: { almacen_id: number; cantidad_a_sumar: number }[]; precio_venta_sugerido?: number }
+    dto: { almacenes: { almacen_id: number; cantidad_a_sumar: number }[] }
   ): Observable<{ success: boolean; data: Producto }> {
     return this.http.post<{ success: boolean; data: Producto }>(
       `${this.baseUrl}/${id}/stock`,

@@ -12,20 +12,18 @@
             <th>Producto</th>
             <th>Stock actual</th>
             <th>Stock mínimo</th>
-            <th>Punto reorden</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @if (productosFiltrados.length === 0 && !loading) {
-            <tr><td colspan="5" class="empty">No hay productos en este almacén</td></tr>
+            <tr><td colspan="4" class="empty">No hay productos en este almacén</td></tr>
           }
           @for (p of productosPaginados; track p.producto_almacen_id) {
             <tr>
               <td>{{ p.descripcion || p.producto_nombre || p.producto_id }}</td>
               <td>{{ p.stock_actual }}</td>
               <td>{{ p.stock_minimo }}</td>
-              <td>{{ p.punto_reorden }}</td>
               <td>
                 <a [routerLink]="['/productos']" [queryParams]="{ stock: p.producto_id }" class="btn-small" title="Ir a actualizar stock">Ver</a>
               </td>

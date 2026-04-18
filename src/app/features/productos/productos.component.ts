@@ -34,7 +34,6 @@ export class ProductosComponent implements OnInit {
 
   stockModalProducto: Producto | null = null;
   stockModalInputs: StockAlmacenInput[] = [];
-  stockModalPrecio: number = 0;
   stockModalSaving = false;
 
   get productosFiltrados(): Producto[] {
@@ -156,7 +155,6 @@ export class ProductosComponent implements OnInit {
                 cantidad_a_sumar: 0
               }));
             this.stockModalProducto = p;
-            this.stockModalPrecio = p.precio_venta_sugerido ?? 0;
             this.ngZone.run(() => this.cdr.detectChanges());
           }
         });
@@ -193,16 +191,13 @@ export class ProductosComponent implements OnInit {
         cantidad_a_sumar: Math.max(0, Math.floor(Number(i.cantidad_a_sumar) || 0))
       }))
       .filter(i => i.cantidad_a_sumar > 0);
-    const tieneAlmacenes = almacenes.length > 0;
-    const precioCambiado = this.stockModalPrecio !== (this.stockModalProducto.precio_venta_sugerido ?? 0);
-    if (!tieneAlmacenes && !precioCambiado) {
+    if (almacenes.length === 0) {
       this.closeStockModal();
       return;
     }
     this.stockModalSaving = true;
     this.productosService.addStock(this.stockModalProducto.producto_id, {
-      almacenes,
-      precio_venta_sugerido: precioCambiado ? this.stockModalPrecio : undefined
+      almacenes
     }).pipe(
       finalize(() => {
         this.stockModalSaving = false;
